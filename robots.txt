@@ -1,0 +1,4 @@
+# Arama motorlarina ve yapay zeka tarayicilarina kapali.
+# Kurallara uymayan botlar icin asil koruma Cloudflare tarafinda.
+User-agent: *
+Disallow: /
