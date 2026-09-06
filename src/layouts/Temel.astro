@@ -12,15 +12,12 @@ interface Props {
   aciklama?: string;
   /** Gezinmede hangi bağlantı işaretli olacak. */
   aktif?: "ana" | "blog";
-  /** Yazı sayfalarında künye küçülür, başlığı o ezmesin. */
-  kucukKunye?: boolean;
 }
 
 const {
   baslik,
   aciklama = "Blog ve çalışmalar.",
   aktif,
-  kucukKunye = false,
 } = Astro.props;
 
 const yil = new Date().getFullYear();
@@ -74,7 +71,7 @@ const kanonik = new URL(Astro.url.pathname, Astro.site).href;
     <main>
       <div class="cerceve">
         <div class="hucre kunye-satir">
-          <a class={`kunye${kucukKunye ? " kucuk" : ""}`} href="/">
+          <a class="kunye" href="/">
             gokh4n<b>.</b>dev
           </a>
 
