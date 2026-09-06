@@ -1,0 +1,155 @@
+---
+// ============================================================================
+// Tüm sayfaların paylaştığı kabuk: <head>, künye, gezinme, alt bilgi.
+//
+// Sayfalar sadece kendi içeriğini yazar; başlık/menü/footer buradan gelir.
+// Böylece menüye bir bağlantı eklemek tek dosyada değişiklik demek.
+// ============================================================================
+import "../styles/global.css";
+
+interface Props {
+  baslik: string;
+  aciklama?: string;
+  /** Gezinmede hangi bağlantı işaretli olacak. */
+  aktif?: "ana" | "blog";
+  /** Yazı sayfalarında künye küçülür, başlığı o ezmesin. */
+  kucukKunye?: boolean;
+}
+
+const {
+  baslik,
+  aciklama = "Blog ve çalışmalar.",
+  aktif,
+  kucukKunye = false,
+} = Astro.props;
+
+const yil = new Date().getFullYear();
+const kanonik = new URL(Astro.url.pathname, Astro.site).href;
+---
+
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+
+    {/* Tema secimi sayfa boyanmadan ONCE uygulanmali. Aksi halde koyu tema
+        secili olsa bile her acilista bir anlik beyaz parlama olur. Bu yuzden
+        burada, <body>'den once, senkron calisiyor. */}
+    <script is:inline>
+      (function () {
+        var h = document.documentElement;
+        h.classList.add("js");
+        try {
+          var t = localStorage.getItem("tema");
+          if (t === "koyu" || t === "acik") h.setAttribute("data-tema", t);
+        } catch (e) {
+          /* gizli sekmede localStorage erisimi hata verebilir */
+        }
+      })();
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{baslik}</title>
+    <meta name="description" content={aciklama} />
+    <link rel="canonical" href={kanonik} />
+
+    {/* Site şimdilik aramaya kapalı. Açmak istendiğinde bu satır kalkar
+        ve public/robots.txt güncellenir — iki yerde tek değişiklik. */}
+    <meta name="robots" content="noindex, nofollow, noarchive, noimageindex" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={baslik} />
+    <meta property="og:description" content={aciklama} />
+    <meta property="og:url" content={kanonik} />
+
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23e9e6df'/><rect x='3' y='3' width='26' height='26' fill='none' stroke='%230d0d0d' stroke-width='3'/><rect x='10' y='10' width='12' height='12' fill='%23ff3b00'/></svg>"
+    />
+
+    <link rel="alternate" type="application/rss+xml" title="gokh4n.dev" href="/rss.xml" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Space+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body>
+    <main>
+      <div class="cerceve">
+        <div class="hucre kunye-satir">
+          <a class={`kunye${kucukKunye ? " kucuk" : ""}`} href="/">
+            gokh4n<b>.</b>dev
+          </a>
+
+          <div class="tema-secici" role="group" aria-label="Tema">
+            <button type="button" data-tema-sec="acik">Açık</button>
+            <button type="button" data-tema-sec="koyu">Koyu</button>
+          </div>
+        </div>
+
+        <nav class="gezinme">
+          <a href="/" aria-current={aktif === "ana" ? "page" : undefined}>
+            Çalışmalar
+          </a>
+          <a href="/blog/" aria-current={aktif === "blog" ? "page" : undefined}>
+            Blog
+          </a>
+        </nav>
+
+        <slot />
+      </div>
+
+      <footer>
+        <span>© {yil}</span>
+        <a href="https://github.com/gokhanaydinli" target="_blank" rel="noreferrer" lang="en">
+          GitHub ↗
+        </a>
+      </footer>
+    </main>
+
+    <script is:inline>
+      (function () {
+        var dugmeler = document.querySelectorAll("[data-tema-sec]");
+        if (!dugmeler.length) return;
+
+        var koyuSorgu = window.matchMedia("(prefers-color-scheme: dark)");
+
+        // Kullanici bir sey secmediyse sistem temasi gecerli sayilir.
+        function etkinTema() {
+          var secim = document.documentElement.getAttribute("data-tema");
+          if (secim === "koyu" || secim === "acik") return secim;
+          return koyuSorgu.matches ? "koyu" : "acik";
+        }
+
+        function isaretle() {
+          var simdiki = etkinTema();
+          dugmeler.forEach(function (d) {
+            d.setAttribute(
+              "aria-pressed",
+              d.dataset.temaSec === simdiki ? "true" : "false"
+            );
+          });
+        }
+
+        dugmeler.forEach(function (d) {
+          d.addEventListener("click", function () {
+            var secilen = d.dataset.temaSec;
+            document.documentElement.setAttribute("data-tema", secilen);
+            try {
+              localStorage.setItem("tema", secilen);
+            } catch (e) {}
+            isaretle();
+          });
+        });
+
+        // Secim yapilmadiysa sistem temasi degistiginde isaret de kaysin.
+        koyuSorgu.addEventListener("change", isaretle);
+
+        isaretle();
+      })();
+    </script>
+  </body>
+</html>

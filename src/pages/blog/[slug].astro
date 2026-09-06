@@ -1,0 +1,57 @@
+---
+// ============================================================================
+// /blog/<dosya-adi> — tek bir yazı.
+//
+// getStaticPaths her Markdown dosyası için bir sayfa üretiyor. Site tamamen
+// statik derleniyor, sunucuda çalışan hiçbir şey yok.
+// ============================================================================
+import { getCollection, render, type CollectionEntry } from "astro:content";
+import Temel from "../../layouts/Temel.astro";
+
+export async function getStaticPaths() {
+  const yazilar = await getCollection("blog", ({ data }) => !data.taslak);
+  return yazilar.map((yazi) => ({
+    params: { slug: yazi.id },
+    props: { yazi },
+  }));
+}
+
+interface Props {
+  yazi: CollectionEntry<"blog">;
+}
+
+const { yazi } = Astro.props;
+const { Content } = await render(yazi);
+
+const tarih = yazi.data.tarih.toLocaleDateString("tr-TR", {
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+});
+---
+
+<Temel baslik={`${yazi.data.baslik} — gokh4n.dev`} aciklama={yazi.data.ozet} kucukKunye>
+  <div class="hucre serit">
+    <span>Blog</span>
+    <span>{tarih}</span>
+  </div>
+
+  <header class="hucre yazi-basligi">
+    <h1>{yazi.data.baslik}</h1>
+    {
+      yazi.data.etiketler.length > 0 && (
+        <p class="yazi-ustveri">{yazi.data.etiketler.join(" · ")}</p>
+      )
+    }
+    <p class="yazi-ozet">{yazi.data.ozet}</p>
+  </header>
+
+  <article class="hucre icerik">
+    <Content />
+  </article>
+
+  <a class="hucre bag" href="/blog/">
+    <span aria-hidden="true">←</span>
+    <span>Bütün yazılar</span>
+  </a>
+</Temel>

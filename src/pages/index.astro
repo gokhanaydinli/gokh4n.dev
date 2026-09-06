@@ -1,0 +1,50 @@
+---
+// ============================================================================
+// Ana sayfa — çalışmalar dizini.
+//
+// Blog bilinçli olarak burada değil, üstteki menüden gidiliyor. Projeler ve
+// yazılar birbirini bastırmasın diye ayrı duruyorlar.
+// ============================================================================
+import Temel from "../layouts/Temel.astro";
+
+const projeler = [
+  {
+    ad: "Oyun Gecesi",
+    adres: "https://games.gokh4n.dev",
+    yil: "2026",
+    aciklama:
+      "Arkadaşlarla telefondan oynanan çok oyunculu parti oyunları. " +
+      "Vampir Köylü, Casus Kim, Tabu, Yer Bilme. Oda kur, kodu paylaş.",
+    yigin: "Next · Socket.IO · TypeScript",
+  },
+];
+---
+
+<Temel baslik="gokh4n.dev" aciklama="Çalışmalar dizini." aktif="ana">
+  <div class="hucre serit">
+    <span>Çalışmalar</span>
+    <span>{String(projeler.length + 1).padStart(2, "0")}</span>
+  </div>
+
+  {
+    projeler.map((p, i) => (
+      <a class="hucre is" href={p.adres}>
+        <span class="sira">{String(i + 1).padStart(2, "0")}</span>
+        <span class="govde">
+          <span class="ad">{p.ad}</span>
+          <p class="aciklama">{p.aciklama}</p>
+          <p class="yigin" lang="en">{p.yigin}</p>
+        </span>
+        <span class="sag">
+          <span>{p.yil}</span>
+          <span class="ok" aria-hidden="true">↗</span>
+        </span>
+      </a>
+    ))
+  }
+
+  <div class="hucre bos">
+    <span>{String(projeler.length + 1).padStart(2, "0")}</span>
+    <span>Yapılıyor</span>
+  </div>
+</Temel>

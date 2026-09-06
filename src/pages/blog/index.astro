@@ -1,0 +1,65 @@
+---
+// ============================================================================
+// /blog — bütün yazıların listesi, yeniden eskiye.
+//
+// Taslak işaretli olanlar burada görünmez; yazarken yayına sızmasınlar diye.
+// ============================================================================
+import { getCollection } from "astro:content";
+import Temel from "../../layouts/Temel.astro";
+
+// En yeni en ustte. Yandaki numara listedeki sira; yeni yazi gelince
+// numaralar kayiyor, yazinin kimligi degil.
+const yazilar = (await getCollection("blog", ({ data }) => !data.taslak)).sort(
+  (a, b) => b.data.tarih.getTime() - a.data.tarih.getTime()
+);
+
+function tarihYaz(t: Date): string {
+  return t.toLocaleDateString("tr-TR", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+}
+---
+
+<Temel
+  baslik="Blog — gokh4n.dev"
+  aciklama="Öğrendiklerim, denediklerim, başıma gelenler."
+  aktif="blog"
+>
+  <div class="hucre serit">
+    <span>Blog</span>
+    <span>{String(yazilar.length).padStart(2, "0")}</span>
+  </div>
+
+  {
+    yazilar.length === 0 ? (
+      <div class="hucre bos">
+        <span>—</span>
+        <span>Henüz yazı yok</span>
+      </div>
+    ) : (
+      yazilar.map((y, i) => (
+        <a class="hucre is yazi-satir" href={`/blog/${y.id}/`}>
+          <span class="sira">{String(i + 1).padStart(2, "0")}</span>
+          <span class="govde">
+            <span class="baslik">{y.data.baslik}</span>
+            <p class="aciklama">{y.data.ozet}</p>
+            {y.data.etiketler.length > 0 && (
+              <p class="yigin">{y.data.etiketler.join(" · ")}</p>
+            )}
+          </span>
+          <span class="sag">
+            <span>{tarihYaz(y.data.tarih)}</span>
+            <span class="ok" aria-hidden="true">→</span>
+          </span>
+        </a>
+      ))
+    )
+  }
+
+  <a class="hucre bag" href="/rss.xml">
+    <span>RSS</span>
+    <span aria-hidden="true">→</span>
+  </a>
+</Temel>
