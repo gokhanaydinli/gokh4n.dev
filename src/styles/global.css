@@ -83,7 +83,7 @@ a { color: inherit; }
   margin: 0;
   padding: 1.6rem 1.4rem 1.3rem;
   font-weight: 700;
-  font-size: clamp(2rem, 9vw, 4.25rem);
+  font-size: clamp(1.7rem, 7.5vw, 4.25rem);
   line-height: 0.95;
   letter-spacing: -0.045em;
   text-transform: uppercase;
@@ -141,7 +141,7 @@ html:not(.js) .tema-secici { display: none; }
    nowrap: yanındaki tema seçiciyle aynı satırda olduğu için dar ekranda
    sıkışıp "gokh4n.dev" ortadan bölünüyordu (iPhone'da alt satıra kayıyordu). */
 .kunye.kucuk {
-  font-size: clamp(1rem, 3.6vw, 1.5rem);
+  font-size: clamp(0.9rem, 3.2vw, 1.5rem);
   padding: 0.85rem 1.4rem;
   letter-spacing: -0.02em;
   white-space: nowrap;
@@ -150,8 +150,19 @@ html:not(.js) .tema-secici { display: none; }
 
 /* Dar telefonlarda tema seçici yer açsın; künyeyi bölmektense o küçülsün. */
 @media (max-width: 26rem) {
+  /* Telefonda vw hesabina birakmiyoruz; kunye yanindaki tema seciciyle
+     ayni satirda oldugu icin sabit ve kucuk olmasi daha guvenli. */
+  .kunye {
+    font-size: 1.75rem;
+    padding: 1.1rem 1rem 0.9rem;
+  }
+  .kunye.kucuk {
+    font-size: 0.95rem;
+    padding: 0.75rem 1rem;
+  }
+
   .tema-secici {
-    margin: 1rem 1rem 0 0;
+    margin: 0.85rem 0.9rem 0 0;
   }
   .tema-secici button {
     padding: 0.3rem 0.45rem;
