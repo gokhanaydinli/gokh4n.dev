@@ -23,7 +23,7 @@ const projeler = [
 <Temel baslik="gokh4n.dev" aciklama="Çalışmalar dizini." aktif="ana">
   <div class="hucre serit">
     <span>Çalışmalar</span>
-    <span>{String(projeler.length + 1).padStart(2, "0")}</span>
+    <span>{String(projeler.length).padStart(2, "0")}</span>
   </div>
 
   {
@@ -42,9 +42,4 @@ const projeler = [
       </a>
     ))
   }
-
-  <div class="hucre bos">
-    <span>{String(projeler.length + 1).padStart(2, "0")}</span>
-    <span>Yapılıyor</span>
-  </div>
 </Temel>
