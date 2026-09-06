@@ -1,0 +1,35 @@
+# ============================================================================
+# Siteyi sunucuya yayınlar.
+#
+# Bu repo statik HTML — build yok, servis yeniden başlatılmıyor. O yüzden
+# main'e her push'ta OTOMATİK yayınlamak güvenli: kesinti olmuyor.
+# (Oyun reposunda durum farklı, orada deploy elle tetikleniyor.)
+#
+# Gerekli secret'lar — Settings > Secrets and variables > Actions:
+#   SSH_HOST  sunucunun IP'si
+#   SSH_USER  root
+#   SSH_KEY   bu repoya özel özel anahtarın TAMAMI
+# ============================================================================
+name: Yayınla
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Arka arkaya iki push gelirse ikisi aynı anda deploy etmesin.
+concurrency:
+  group: yayinla-site
+  cancel-in-progress: false
+
+jobs:
+  yayinla:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Sunucuda güncelle
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: cd /srv/site && git pull --ff-only
