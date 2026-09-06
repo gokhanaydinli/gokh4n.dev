@@ -3,256 +3,287 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Gökhan Aydınlı</title>
-<meta name="description" content="Gökhan Aydınlı — yazılım geliştirici. Projeler ve iletişim." />
-<meta name="color-scheme" content="dark" />
+<title>gokh4n</title>
+<meta name="description" content="Yazılım geliştirici. Çalışmalar ve iletişim." />
 
-<!-- Sosyal medyada paylaşıldığında görünen bilgiler -->
 <meta property="og:type" content="website" />
-<meta property="og:title" content="Gökhan Aydınlı" />
-<meta property="og:description" content="Yazılım geliştirici. Projelerim ve iletişim." />
+<meta property="og:title" content="gokh4n" />
+<meta property="og:description" content="Yazılım geliştirici. Çalışmalar ve iletişim." />
 <meta property="og:url" content="https://gokh4n.dev" />
 
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👋</text></svg>" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23121212'/><circle cx='16' cy='16' r='4.5' fill='%23c98c5e'/></svg>" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
 
 <style>
   :root {
-    --bg: #0b0e14;
-    --bg-kart: rgba(255, 255, 255, 0.04);
-    --kenar: rgba(255, 255, 255, 0.10);
-    --metin: #e8e8ea;
-    --soluk: rgba(232, 232, 234, 0.55);
-    --cok-soluk: rgba(232, 232, 234, 0.35);
-    --vurgu: #ef4444;
-    --vurgu-yumusak: rgba(239, 68, 68, 0.15);
+    --zemin:       #fbfaf8;
+    --metin:       #16150f;
+    --metin-orta:  rgba(22, 21, 15, 0.62);
+    --metin-soluk: rgba(22, 21, 15, 0.38);
+    --cizgi:       rgba(22, 21, 15, 0.12);
+    --vurgu:       #9a5b2e;
+
+    --serif: "Instrument Serif", Georgia, "Times New Roman", serif;
+    --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+            "Helvetica Neue", Arial, sans-serif;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --zemin:       #100f0d;
+      --metin:       #f0ede6;
+      --metin-orta:  rgba(240, 237, 230, 0.60);
+      --metin-soluk: rgba(240, 237, 230, 0.34);
+      --cizgi:       rgba(240, 237, 230, 0.13);
+      --vurgu:       #c98c5e;
+    }
   }
 
   * { box-sizing: border-box; }
 
-  html { scroll-behavior: smooth; }
-
   body {
     margin: 0;
     min-height: 100dvh;
-    background: var(--bg);
+    background: var(--zemin);
     color: var(--metin);
-    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
-      "Helvetica Neue", Arial, sans-serif;
-    line-height: 1.6;
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.65;
     -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
 
-  /* Arka planda yumuşak bir ışık */
-  body::before {
+  /* Çok hafif doku — düz renk zeminin plastik görünmesini engelliyor */
+  body::after {
     content: "";
     position: fixed;
     inset: 0;
+    z-index: -1;
     pointer-events: none;
-    background:
-      radial-gradient(60rem 40rem at 15% -10%, rgba(239, 68, 68, 0.10), transparent 60%),
-      radial-gradient(50rem 35rem at 100% 0%, rgba(99, 102, 241, 0.10), transparent 60%);
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
   }
 
   main {
-    position: relative;
-    max-width: 46rem;
+    max-width: 33rem;
     margin: 0 auto;
-    padding: 5rem 1.5rem 4rem;
+    padding: 7rem 1.75rem 5rem;
   }
+  @media (max-width: 40rem) { main { padding-top: 4rem; } }
 
-  /* --- başlık --- */
-  header { margin-bottom: 3.5rem; }
+  /* ---------- üst ---------- */
 
-  .selam {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.35rem 0.85rem;
-    border: 1px solid var(--kenar);
-    border-radius: 999px;
-    background: var(--bg-kart);
-    font-size: 0.85rem;
-    color: var(--soluk);
-  }
-  .el { display: inline-block; animation: salla 2.5s ease-in-out infinite; transform-origin: 70% 70%; }
-  @keyframes salla {
-    0%, 60%, 100% { transform: rotate(0deg); }
-    10%, 30% { transform: rotate(14deg); }
-    20%, 40% { transform: rotate(-8deg); }
+  .kunye {
+    margin: 0;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--metin-soluk);
   }
 
   h1 {
-    margin: 1.25rem 0 0.75rem;
-    font-size: clamp(2.25rem, 7vw, 3.25rem);
-    line-height: 1.1;
-    letter-spacing: -0.02em;
-    font-weight: 800;
+    margin: 2.5rem 0 0;
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(2.4rem, 8vw, 3.4rem);
+    line-height: 1.08;
+    letter-spacing: -0.015em;
+  }
+  h1 em { font-style: italic; color: var(--vurgu); }
+
+  .giris {
+    margin: 1.5rem 0 0;
+    max-width: 27rem;
+    color: var(--metin-orta);
   }
 
-  .tanim {
-    margin: 0;
-    font-size: 1.1rem;
-    color: var(--soluk);
-    max-width: 34rem;
-  }
+  /* ---------- bölüm ---------- */
 
-  /* --- bölümler --- */
-  section { margin-top: 3.5rem; }
+  section { margin-top: 5rem; }
 
   h2 {
-    margin: 0 0 1.25rem;
-    font-size: 0.8rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
+    margin: 0;
+    padding-bottom: 0.9rem;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
     text-transform: uppercase;
-    color: var(--cok-soluk);
+    color: var(--metin-soluk);
   }
 
-  /* --- proje kartı --- */
-  .proje {
+  /* ---------- çalışma satırı ---------- */
+
+  .is {
     display: block;
-    padding: 1.5rem;
-    border: 1px solid var(--kenar);
-    border-radius: 1rem;
-    background: var(--bg-kart);
+    position: relative;
+    padding: 1.6rem 0;
+    border-top: 1px solid var(--cizgi);
     color: inherit;
     text-decoration: none;
-    transition: border-color 0.2s, transform 0.2s, background 0.2s;
-  }
-  .proje:hover {
-    border-color: rgba(239, 68, 68, 0.45);
-    background: rgba(255, 255, 255, 0.06);
-    transform: translateY(-2px);
   }
 
-  .proje-ust {
+  .is-ust {
     display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 0.5rem;
-  }
-  .proje-ikon { font-size: 1.75rem; line-height: 1; }
-  .proje-ad { font-size: 1.15rem; font-weight: 700; }
-  .ok { margin-left: auto; color: var(--cok-soluk); transition: transform 0.2s, color 0.2s; }
-  .proje:hover .ok { transform: translateX(3px); color: var(--vurgu); }
-
-  .proje p { margin: 0 0 1rem; color: var(--soluk); font-size: 0.95rem; }
-
-  .etiketler { display: flex; flex-wrap: wrap; gap: 0.4rem; }
-  .etiket {
-    padding: 0.2rem 0.6rem;
-    border-radius: 999px;
-    background: var(--vurgu-yumusak);
-    color: #fca5a5;
-    font-size: 0.75rem;
-    font-weight: 600;
-  }
-  .etiket.sade { background: rgba(255,255,255,0.06); color: var(--soluk); }
-
-  /* --- yakında kartı --- */
-  .yakinda {
-    padding: 1.5rem;
-    border: 1px dashed var(--kenar);
-    border-radius: 1rem;
-    color: var(--cok-soluk);
-    font-size: 0.9rem;
-    text-align: center;
+    align-items: baseline;
+    gap: 0.85rem;
   }
 
-  .izgara { display: grid; gap: 1rem; }
-  @media (min-width: 40rem) { .izgara { grid-template-columns: 1fr 1fr; } }
+  .sira {
+    font-size: 0.7rem;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.05em;
+    color: var(--metin-soluk);
+  }
 
-  /* --- bağlantılar --- */
-  .baglantilar { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+  .is-ad {
+    font-family: var(--serif);
+    font-size: 1.5rem;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    transition: color 0.25s ease;
+  }
+
+  .yil {
+    margin-left: auto;
+    font-size: 0.72rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--metin-soluk);
+  }
+
+  .is-aciklama {
+    margin: 0.6rem 0 0 2.15rem;
+    max-width: 25rem;
+    color: var(--metin-orta);
+  }
+
+  .yigin {
+    margin: 0.85rem 0 0 2.15rem;
+    font-size: 0.76rem;
+    letter-spacing: 0.02em;
+    color: var(--metin-soluk);
+  }
+
+  /* alt çizgi soldan sağa açılır */
+  .is::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -1px;
+    height: 1px;
+    width: 0;
+    background: var(--vurgu);
+    transition: width 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .is:hover::after,
+  .is:focus-visible::after { width: 100%; }
+  .is:hover .is-ad,
+  .is:focus-visible .is-ad { color: var(--vurgu); }
+
+  .is-bos {
+    padding: 1.6rem 0;
+    border-top: 1px solid var(--cizgi);
+    border-bottom: 1px solid var(--cizgi);
+    font-size: 0.8rem;
+    color: var(--metin-soluk);
+  }
+
+  /* ---------- iletişim ---------- */
+
+  .baglantilar {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    border-top: 1px solid var(--cizgi);
+    padding-top: 1.4rem;
+  }
+
   .baglanti {
     display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.6rem 1rem;
-    border: 1px solid var(--kenar);
-    border-radius: 0.7rem;
-    background: var(--bg-kart);
+    align-items: baseline;
+    gap: 0.7rem;
+    width: fit-content;
+    padding: 0.35rem 0;
     color: var(--metin);
     text-decoration: none;
-    font-size: 0.9rem;
-    font-weight: 500;
-    transition: border-color 0.2s, background 0.2s;
   }
-  .baglanti:hover { border-color: rgba(255,255,255,0.25); background: rgba(255,255,255,0.07); }
+  .baglanti span:first-child {
+    min-width: 4.5rem;
+    font-size: 0.68rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--metin-soluk);
+  }
+  .baglanti span:last-child {
+    border-bottom: 1px solid var(--cizgi);
+    transition: border-color 0.2s ease, color 0.2s ease;
+  }
+  .baglanti:hover span:last-child,
+  .baglanti:focus-visible span:last-child {
+    color: var(--vurgu);
+    border-color: var(--vurgu);
+  }
 
   footer {
-    margin-top: 4rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--kenar);
-    font-size: 0.8rem;
-    color: var(--cok-soluk);
+    margin-top: 6rem;
+    font-size: 0.72rem;
+    color: var(--metin-soluk);
   }
 
+  :focus-visible { outline: 1px solid var(--vurgu); outline-offset: 4px; }
+
   @media (prefers-reduced-motion: reduce) {
-    *, *::before { animation: none !important; transition: none !important; }
+    * { transition: none !important; animation: none !important; }
   }
 </style>
 </head>
 <body>
 <main>
 
-  <header>
-    <span class="selam"><span class="el">👋</span> Merhaba</span>
-    <h1>Gökhan Aydınlı</h1>
-    <!-- Bu cümleyi kendine göre değiştir -->
-    <p class="tanim">
-      Yazılım geliştiriciyim. Boş vakitlerimde arkadaşlarımla oynamak için
-      şeyler yapıyorum; bazıları buraya kadar geliyor.
-    </p>
-  </header>
+  <p class="kunye">gokh4n.dev</p>
+
+  <h1>Yazılım<br />geliştiriciyim<em>.</em></h1>
+
+  <p class="giris">
+    Gündüz işim arayüz. Akşamları arkadaşlarımla oynamak için bir şeyler
+    yazıyorum; bazıları buraya kadar geliyor.
+  </p>
 
   <section>
-    <h2>Projeler</h2>
-    <div class="izgara">
+    <h2>Çalışmalar</h2>
 
-      <a class="proje" href="https://games.gokh4n.dev">
-        <div class="proje-ust">
-          <span class="proje-ikon">🎮</span>
-          <span class="proje-ad">Oyun Gecesi</span>
-          <span class="ok">→</span>
-        </div>
-        <p>
-          Arkadaşlarla telefondan oynanan çok oyunculu parti oyunları.
-          Oda kur, kodu paylaş, başla.
-        </p>
-        <div class="etiketler">
-          <span class="etiket">🧛 Vampir Köylü</span>
-          <span class="etiket">🕵️ Casus Kim?</span>
-          <span class="etiket">🎴 Tabu</span>
-          <span class="etiket">🌍 Yer Bilme</span>
-        </div>
-      </a>
+    <a class="is" href="https://games.gokh4n.dev">
+      <span class="is-ust">
+        <span class="sira">01</span>
+        <span class="is-ad">Oyun Gecesi</span>
+        <span class="yil">2026</span>
+      </span>
+      <p class="is-aciklama">
+        Arkadaşlarla telefondan oynanan çok oyunculu parti oyunları.
+        Vampir Köylü, Casus Kim, Tabu ve Yer Bilme. Oda kur, kodu paylaş.
+      </p>
+      <p class="yigin">Next.js · Socket.IO · TypeScript</p>
+    </a>
 
-      <div class="yakinda">
-        ✨<br />Yeni projeler yolda
-      </div>
-
-    </div>
+    <div class="is-bos">02 — yazılıyor</div>
   </section>
 
   <section>
     <h2>İletişim</h2>
     <div class="baglantilar">
       <a class="baglanti" href="https://github.com/gokhanaydinli" target="_blank" rel="noreferrer">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
-          <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.4 7.4 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/>
-        </svg>
-        GitHub
+        <span>GitHub</span><span>gokhanaydinli</span>
       </a>
       <a class="baglanti" href="mailto:gokhanaydinli1998@gmail.com">
-        ✉️ E-posta
+        <span>E-posta</span><span>gokhanaydinli1998@gmail.com</span>
       </a>
     </div>
   </section>
 
-  <footer>
-    © <span id="yil">2026</span> Gökhan Aydınlı
-  </footer>
+  <footer>© <span id="yil">2026</span></footer>
 
 </main>
 
