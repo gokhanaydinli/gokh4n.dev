@@ -76,34 +76,23 @@
 
   /* ---------- üst ---------- */
 
-  .kunye {
-    margin: 0;
-    font-size: 0.72rem;
-    font-weight: 600;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--metin-soluk);
-  }
-
   h1 {
-    margin: 2.5rem 0 0;
+    margin: 0;
     font-family: var(--serif);
     font-weight: 400;
-    font-size: clamp(2.4rem, 8vw, 3.4rem);
-    line-height: 1.08;
+    font-size: clamp(2.2rem, 7vw, 3rem);
+    line-height: 1.1;
     letter-spacing: -0.015em;
   }
-  h1 em { font-style: italic; color: var(--vurgu); }
-
-  .giris {
-    margin: 1.5rem 0 0;
-    max-width: 27rem;
-    color: var(--metin-orta);
+  h1 em {
+    font-style: italic;
+    color: var(--metin-soluk);
   }
 
   /* ---------- bölüm ---------- */
 
   section { margin-top: 5rem; }
+  section.ilk { margin-top: 4.5rem; }
 
   h2 {
     margin: 0;
@@ -243,16 +232,9 @@
 <body>
 <main>
 
-  <p class="kunye">gokh4n.dev</p>
+  <h1>gokh4n<em>.dev</em></h1>
 
-  <h1>Yazılım<br />geliştiriciyim<em>.</em></h1>
-
-  <p class="giris">
-    Gündüz işim arayüz. Akşamları arkadaşlarımla oynamak için bir şeyler
-    yazıyorum; bazıları buraya kadar geliyor.
-  </p>
-
-  <section>
+  <section class="ilk">
     <h2>Çalışmalar</h2>
 
     <a class="is" href="https://games.gokh4n.dev">
