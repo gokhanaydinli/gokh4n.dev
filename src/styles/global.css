@@ -137,11 +137,33 @@ a { color: inherit; }
 /* JS kapalıysa çalışmayacak bir anahtar göstermenin anlamı yok. */
 html:not(.js) .tema-secici { display: none; }
 
-/* Yazı sayfalarında küçük künye — başlık asıl içeriğin olsun */
+/* Yazı sayfalarında küçük künye — başlık asıl içeriğin olsun.
+   nowrap: yanındaki tema seçiciyle aynı satırda olduğu için dar ekranda
+   sıkışıp "gokh4n.dev" ortadan bölünüyordu (iPhone'da alt satıra kayıyordu). */
 .kunye.kucuk {
-  font-size: clamp(1.1rem, 4vw, 1.5rem);
-  padding: 0.9rem 1.4rem;
+  font-size: clamp(1rem, 3.6vw, 1.5rem);
+  padding: 0.85rem 1.4rem;
   letter-spacing: -0.02em;
+  white-space: nowrap;
+  overflow-wrap: normal;
+}
+
+/* Dar telefonlarda tema seçici yer açsın; künyeyi bölmektense o küçülsün. */
+@media (max-width: 26rem) {
+  .tema-secici {
+    margin: 1rem 1rem 0 0;
+  }
+  .tema-secici button {
+    padding: 0.3rem 0.45rem;
+    font-size: 0.56rem;
+    letter-spacing: 0.1em;
+  }
+  .kunye.kucuk {
+    padding-left: 1rem;
+    padding-right: 0.5rem;
+  }
+  .kunye-satir .kunye.kucuk + .tema-secici,
+  .kunye.kucuk ~ .tema-secici { margin-top: 0.5rem; }
 }
 
 /* ---------- gezinme ---------- */
