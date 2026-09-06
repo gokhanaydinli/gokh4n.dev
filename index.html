@@ -4,41 +4,35 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>gokh4n</title>
-<meta name="description" content="Yazılım geliştirici. Çalışmalar ve iletişim." />
+<meta name="description" content="Çalışmalar dizini." />
 
 <meta property="og:type" content="website" />
-<meta property="og:title" content="gokh4n" />
-<meta property="og:description" content="Yazılım geliştirici. Çalışmalar ve iletişim." />
+<meta property="og:title" content="gokh4n.dev" />
+<meta property="og:description" content="Çalışmalar dizini." />
 <meta property="og:url" content="https://gokh4n.dev" />
 
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23121212'/><circle cx='16' cy='16' r='4.5' fill='%23c98c5e'/></svg>" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23e9e6df'/><rect x='3' y='3' width='26' height='26' fill='none' stroke='%230d0d0d' stroke-width='3'/><rect x='10' y='10' width='12' height='12' fill='%23ff3b00'/></svg>" />
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
 
 <style>
   :root {
-    --zemin:       #fbfaf8;
-    --metin:       #16150f;
-    --metin-orta:  rgba(22, 21, 15, 0.62);
-    --metin-soluk: rgba(22, 21, 15, 0.38);
-    --cizgi:       rgba(22, 21, 15, 0.12);
-    --vurgu:       #9a5b2e;
+    --kagit:  #e9e6df;
+    --murekkep: #0d0d0d;
+    --vurgu:  #ff3b00;
+    --kalinlik: 2px;
 
-    --serif: "Instrument Serif", Georgia, "Times New Roman", serif;
-    --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
-            "Helvetica Neue", Arial, sans-serif;
+    --baslik: "Space Grotesk", ui-sans-serif, system-ui, "Segoe UI", Arial, sans-serif;
+    --mono: "Space Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   }
 
   @media (prefers-color-scheme: dark) {
     :root {
-      --zemin:       #100f0d;
-      --metin:       #f0ede6;
-      --metin-orta:  rgba(240, 237, 230, 0.60);
-      --metin-soluk: rgba(240, 237, 230, 0.34);
-      --cizgi:       rgba(240, 237, 230, 0.13);
-      --vurgu:       #c98c5e;
+      --kagit:  #0d0d0d;
+      --murekkep: #e9e6df;
+      --vurgu:  #ff5a1f;
     }
   }
 
@@ -47,225 +41,236 @@
   body {
     margin: 0;
     min-height: 100dvh;
-    background: var(--zemin);
-    color: var(--metin);
-    font-family: var(--sans);
-    font-size: 15px;
-    line-height: 1.65;
+    background: var(--kagit);
+    color: var(--murekkep);
+    font-family: var(--baslik);
+    font-weight: 500;
+    line-height: 1.4;
     -webkit-font-smoothing: antialiased;
-    text-rendering: optimizeLegibility;
-  }
-
-  /* Çok hafif doku — düz renk zeminin plastik görünmesini engelliyor */
-  body::after {
-    content: "";
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
-    opacity: 0.035;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
   }
 
   main {
-    max-width: 33rem;
+    max-width: 48rem;
     margin: 0 auto;
-    padding: 7rem 1.75rem 5rem;
+    padding: 3rem 1.5rem 2rem;
   }
-  @media (max-width: 40rem) { main { padding-top: 4rem; } }
+  @media (max-width: 40rem) { main { padding: 1.5rem 1rem; } }
 
-  /* ---------- üst ---------- */
+  /* ---------- ızgara ---------- */
 
-  h1 {
-    margin: 0;
-    font-family: var(--serif);
-    font-weight: 400;
-    font-size: clamp(2.2rem, 7vw, 3rem);
-    line-height: 1.1;
-    letter-spacing: -0.015em;
-  }
-  h1 em {
-    font-style: italic;
-    color: var(--metin-soluk);
-  }
+  .cerceve { border: var(--kalinlik) solid var(--murekkep); }
+  .hucre + .hucre { border-top: var(--kalinlik) solid var(--murekkep); }
 
-  /* ---------- bölüm ---------- */
+  /* ---------- künye ---------- */
 
-  section { margin-top: 5rem; }
-  section.ilk { margin-top: 4.5rem; }
-
-  h2 {
-    margin: 0;
-    padding-bottom: 0.9rem;
-    font-size: 0.68rem;
-    font-weight: 600;
-    letter-spacing: 0.2em;
+  .kunye {
+    padding: 1.6rem 1.4rem 1.3rem;
+    font-weight: 700;
+    font-size: clamp(2rem, 9vw, 4.25rem);
+    line-height: 0.95;
+    letter-spacing: -0.045em;
     text-transform: uppercase;
-    color: var(--metin-soluk);
+    overflow-wrap: anywhere;
   }
+  .kunye b { color: var(--vurgu); font-weight: inherit; }
+
+  /* ---------- şerit başlık ---------- */
+
+  .serit {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.6rem 1.4rem;
+    background: var(--murekkep);
+    color: var(--kagit);
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+  }
+  .serit span:last-child { letter-spacing: 0.1em; }
 
   /* ---------- çalışma satırı ---------- */
 
   .is {
-    display: block;
-    position: relative;
-    padding: 1.6rem 0;
-    border-top: 1px solid var(--cizgi);
+    display: grid;
+    grid-template-columns: 3.5rem 1fr 7rem;
     color: inherit;
     text-decoration: none;
+    transition: background 0.12s linear, color 0.12s linear;
+  }
+  .is:hover, .is:focus-visible {
+    background: var(--murekkep);
+    color: var(--kagit);
   }
 
-  .is-ust {
-    display: flex;
-    align-items: baseline;
-    gap: 0.85rem;
+  .is .sira,
+  .is .govde,
+  .is .sag { padding: 1.5rem 0.9rem; }
+
+  .is .sira {
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--vurgu);
+    padding-left: 1.4rem;
   }
 
-  .sira {
-    font-size: 0.7rem;
-    font-variant-numeric: tabular-nums;
-    letter-spacing: 0.05em;
-    color: var(--metin-soluk);
+  .is .govde { border-left: var(--kalinlik) solid currentColor; }
+
+  .ad {
+    font-weight: 700;
+    font-size: clamp(1.4rem, 4.5vw, 2rem);
+    line-height: 1;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
   }
 
-  .is-ad {
-    font-family: var(--serif);
-    font-size: 1.5rem;
-    line-height: 1.2;
-    letter-spacing: -0.01em;
-    transition: color 0.25s ease;
-  }
-
-  .yil {
-    margin-left: auto;
-    font-size: 0.72rem;
-    font-variant-numeric: tabular-nums;
-    color: var(--metin-soluk);
-  }
-
-  .is-aciklama {
-    margin: 0.6rem 0 0 2.15rem;
-    max-width: 25rem;
-    color: var(--metin-orta);
+  .aciklama {
+    margin: 0.75rem 0 0;
+    max-width: 28rem;
+    font-size: 0.9rem;
+    line-height: 1.5;
   }
 
   .yigin {
-    margin: 0.85rem 0 0 2.15rem;
-    font-size: 0.76rem;
-    letter-spacing: 0.02em;
-    color: var(--metin-soluk);
+    margin: 0.9rem 0 0;
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    opacity: 0.65;
   }
 
-  /* alt çizgi soldan sağa açılır */
-  .is::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    bottom: -1px;
-    height: 1px;
-    width: 0;
-    background: var(--vurgu);
-    transition: width 0.45s cubic-bezier(0.22, 1, 0.36, 1);
-  }
-  .is:hover::after,
-  .is:focus-visible::after { width: 100%; }
-  .is:hover .is-ad,
-  .is:focus-visible .is-ad { color: var(--vurgu); }
-
-  .is-bos {
-    padding: 1.6rem 0;
-    border-top: 1px solid var(--cizgi);
-    border-bottom: 1px solid var(--cizgi);
-    font-size: 0.8rem;
-    color: var(--metin-soluk);
-  }
-
-  /* ---------- iletişim ---------- */
-
-  .baglantilar {
+  .is .sag {
     display: flex;
     flex-direction: column;
-    gap: 0.15rem;
-    border-top: 1px solid var(--cizgi);
-    padding-top: 1.4rem;
+    justify-content: space-between;
+    align-items: flex-end;
+    border-left: var(--kalinlik) solid currentColor;
+    padding-right: 1.4rem;
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+  .ok {
+    font-size: 1.6rem;
+    line-height: 1;
+    transition: transform 0.16s ease;
+  }
+  .is:hover .ok, .is:focus-visible .ok { transform: translate(3px, -3px); }
+
+  /* ---------- boş satır ---------- */
+
+  .bos {
+    display: grid;
+    grid-template-columns: 3.5rem 1fr;
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .bos span:first-child { padding: 1.1rem 0.9rem 1.1rem 1.4rem; font-weight: 700; }
+  .bos span:last-child {
+    padding: 1.1rem 1.4rem;
+    border-left: var(--kalinlik) solid var(--murekkep);
+    opacity: 0.5;
   }
 
-  .baglanti {
-    display: inline-flex;
-    align-items: baseline;
-    gap: 0.7rem;
-    width: fit-content;
-    padding: 0.35rem 0;
-    color: var(--metin);
+  /* ---------- bağlantı ---------- */
+
+  .bag {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.15rem 1.4rem;
+    color: inherit;
     text-decoration: none;
-  }
-  .baglanti span:first-child {
-    min-width: 4.5rem;
-    font-size: 0.68rem;
-    letter-spacing: 0.16em;
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: 0.85rem;
+    letter-spacing: 0.2em;
     text-transform: uppercase;
-    color: var(--metin-soluk);
+    transition: background 0.12s linear, color 0.12s linear;
   }
-  .baglanti span:last-child {
-    border-bottom: 1px solid var(--cizgi);
-    transition: border-color 0.2s ease, color 0.2s ease;
-  }
-  .baglanti:hover span:last-child,
-  .baglanti:focus-visible span:last-child {
-    color: var(--vurgu);
-    border-color: var(--vurgu);
+  .bag:hover, .bag:focus-visible {
+    background: var(--vurgu);
+    color: #fff;
   }
 
   footer {
-    margin-top: 6rem;
-    font-size: 0.72rem;
-    color: var(--metin-soluk);
+    margin-top: 1rem;
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    opacity: 0.5;
   }
 
-  :focus-visible { outline: 1px solid var(--vurgu); outline-offset: 4px; }
+  :focus-visible { outline: var(--kalinlik) solid var(--vurgu); outline-offset: 3px; }
+
+  /* dar ekranda sütunlar üst üste */
+  @media (max-width: 34rem) {
+    .is { grid-template-columns: 1fr; }
+    .is .govde { border-left: 0; border-top: var(--kalinlik) solid currentColor; }
+    .is .sira { padding-bottom: 0; }
+    .is .sag {
+      flex-direction: row;
+      align-items: center;
+      border-left: 0;
+      border-top: var(--kalinlik) solid currentColor;
+      padding-left: 1.4rem;
+    }
+  }
 
   @media (prefers-reduced-motion: reduce) {
-    * { transition: none !important; animation: none !important; }
+    * { transition: none !important; }
   }
 </style>
 </head>
 <body>
 <main>
 
-  <h1>gokh4n<em>.dev</em></h1>
+  <div class="cerceve">
 
-  <section class="ilk">
-    <h2>Çalışmalar</h2>
+    <h1 class="hucre kunye">gokh4n<b>.</b>dev</h1>
 
-    <a class="is" href="https://games.gokh4n.dev">
-      <span class="is-ust">
-        <span class="sira">01</span>
-        <span class="is-ad">Oyun Gecesi</span>
-        <span class="yil">2026</span>
+    <div class="hucre serit">
+      <span>Çalışmalar</span>
+      <span>02</span>
+    </div>
+
+    <a class="hucre is" href="https://games.gokh4n.dev">
+      <span class="sira">01</span>
+      <span class="govde">
+        <span class="ad">Oyun Gecesi</span>
+        <p class="aciklama">
+          Arkadaşlarla telefondan oynanan çok oyunculu parti oyunları.
+          Vampir Köylü, Casus Kim, Tabu, Yer Bilme. Oda kur, kodu paylaş.
+        </p>
+        <p class="yigin">Next · Socket.IO · TypeScript</p>
       </span>
-      <p class="is-aciklama">
-        Arkadaşlarla telefondan oynanan çok oyunculu parti oyunları.
-        Vampir Köylü, Casus Kim, Tabu ve Yer Bilme. Oda kur, kodu paylaş.
-      </p>
-      <p class="yigin">Next.js · Socket.IO · TypeScript</p>
+      <span class="sag">
+        <span>2026</span>
+        <span class="ok" aria-hidden="true">↗</span>
+      </span>
     </a>
 
-    <div class="is-bos">02 — yazılıyor</div>
-  </section>
-
-  <section>
-    <h2>İletişim</h2>
-    <div class="baglantilar">
-      <a class="baglanti" href="https://github.com/gokhanaydinli" target="_blank" rel="noreferrer">
-        <span>GitHub</span><span>gokhanaydinli</span>
-      </a>
-      <a class="baglanti" href="mailto:gokhanaydinli1998@gmail.com">
-        <span>E-posta</span><span>gokhanaydinli1998@gmail.com</span>
-      </a>
+    <div class="hucre bos">
+      <span>02</span>
+      <span>Yazılıyor</span>
     </div>
-  </section>
 
-  <footer>© <span id="yil">2026</span></footer>
+    <a class="hucre bag" href="https://github.com/gokhanaydinli" target="_blank" rel="noreferrer">
+      <span>GitHub</span>
+      <span aria-hidden="true">→</span>
+    </a>
+
+  </div>
+
+  <footer><span id="yil">2026</span></footer>
 
 </main>
 
