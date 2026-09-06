@@ -18,6 +18,11 @@ on:
   workflow_dispatch:
 
 # Arka arkaya iki push gelirse ikisi aynı anda deploy etmesin.
+# GITHUB_TOKEN'a yalnizca okuma yetkisi. Bu is depoya yazmiyor;
+# varsayilan genis yetkiyi birakmanin anlami yok.
+permissions:
+  contents: read
+
 concurrency:
   group: yayinla-site
   cancel-in-progress: false
@@ -27,7 +32,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Sunucuda güncelle
-        uses: appleboy/ssh-action@v1.2.0
+        uses: appleboy/ssh-action@7eaf76671a0d7eec5d98ee897acda4f968735a17  # v1.2.0
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
