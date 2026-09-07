@@ -5,6 +5,7 @@
 // Sayfalar sadece kendi içeriğini yazar; başlık/menü/footer buradan gelir.
 // Böylece menüye bir bağlantı eklemek tek dosyada değişiklik demek.
 // ============================================================================
+import { SURUM } from "../surum";
 import "../styles/global.css";
 
 interface Props {
@@ -123,6 +124,40 @@ const kanonik = new URL(Astro.url.pathname, Astro.site).href;
 
         <slot />
 
+        {/* ÖLÇÜM ŞERİDİ
+            Üst satır: bu sayfanın gerçek ağırlığı. Uydurma değil, tarayıcının
+            Performance API'sinden okunuyor — ziyaretçi ne indirdiyse o.
+            Alt satır: yayındaki commit, derleme anında git'ten alındı.
+
+            Sayfa ilk boyandığında değerler henüz belli olmadığı için şerit
+            gizli duruyor; ölçüm bitince açılıyor. Böylece boş satır görünmüyor. */}
+        <div class="hucre olcum" data-olcum hidden>
+          <div class="olcum-satir">
+            <span class="olcum-etiket">Bu sayfa</span>
+            <span class="olcum-deger" data-olcum-agirlik>—</span>
+          </div>
+          {SURUM.commit && (
+            <div class="olcum-satir">
+              <span class="olcum-etiket">Sürüm</span>
+              <span class="olcum-deger">
+                {SURUM.adres ? (
+                  <a href={SURUM.adres} target="_blank" rel="noreferrer">
+                    {SURUM.commit}
+                  </a>
+                ) : (
+                  SURUM.commit
+                )}
+                {SURUM.zaman && (
+                  <>
+                    {" · "}
+                    <span data-olcum-yas={SURUM.zaman}>—</span>
+                  </>
+                )}
+              </span>
+            </div>
+          )}
+        </div>
+
         <script is:inline>
           (function () {
             var gun = document.querySelector('[data-saat="gun"]');
@@ -204,6 +239,71 @@ const kanonik = new URL(Astro.url.pathname, Astro.site).href;
 
         isaretle();
       })();
+    </script>
+
+    <script is:inline>
+      // Sayfanın kendi ağırlığını Performance API'sinden okuyor. Hiçbir şey
+      // uydurulmuyor: transferSize tarayıcının gerçekten indirdiği bayt.
+      //
+      // Önbellekten gelen kaynaklarda transferSize 0 döner; o durumda
+      // encodedBodySize'a düşüyoruz, yoksa "0 KB" gibi yanlış bir rakam çıkar.
+      (function () {
+        var kutu = document.querySelector("[data-olcum]");
+        if (!kutu || !window.performance || !performance.getEntriesByType) return;
+
+        function bayt(e) {
+          return e.transferSize || e.encodedBodySize || 0;
+        }
+        function kb(n) {
+          return n < 1024 ? n + " B" : (n / 1024).toFixed(1).replace(".0", "") + " KB";
+        }
+
+        function olc() {
+          var gezinme = performance.getEntriesByType("navigation")[0];
+          var kaynaklar = performance.getEntriesByType("resource");
+          if (!gezinme) return;
+
+          var toplam = bayt(gezinme);
+          var js = 0;
+          for (var i = 0; i < kaynaklar.length; i++) {
+            var b = bayt(kaynaklar[i]);
+            toplam += b;
+            if (/\.m?js(\?|$)/.test(kaynaklar[i].name)) js += b;
+          }
+
+          var ms = Math.round(gezinme.responseEnd - gezinme.startTime);
+          var parcalar = [
+            kb(toplam),
+            1 + kaynaklar.length + " istek",
+            kb(js) + " JS",
+            ms + " ms",
+          ];
+
+          var hedef = kutu.querySelector("[data-olcum-agirlik]");
+          if (hedef) hedef.textContent = parcalar.join(" · ");
+          kutu.hidden = false;
+        }
+
+        // "2 sa önce" gibi göreli zaman.
+        function yasYaz() {
+          var el = kutu.querySelector("[data-olcum-yas]");
+          if (!el) return;
+          var t = new Date(el.getAttribute("data-olcum-yas")).getTime();
+          if (!t) return;
+          var dk = Math.max(0, Math.round((Date.now() - t) / 60000));
+          el.textContent =
+            dk < 1 ? "az önce"
+            : dk < 60 ? dk + " dk önce"
+            : dk < 1440 ? Math.round(dk / 60) + " sa önce"
+            : Math.round(dk / 1440) + " gün önce";
+        }
+
+        yasYaz();
+        // Yazı tipleri ve son kaynaklar da sayıya girsin diye load'dan sonra.
+        if (document.readyState === "complete") setTimeout(olc, 300);
+        else window.addEventListener("load", function () { setTimeout(olc, 300); });
+      })();
+
     </script>
   </body>
 </html>

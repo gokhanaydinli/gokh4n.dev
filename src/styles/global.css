@@ -275,6 +275,46 @@ html:not(.js) .tema-secici { display: none; }
 /* JS kapalıysa boş satırlar görünmesin. */
 html:not(.js) .saat { display: none; }
 
+/* ---------- ölçüm şeridi (çerçevenin en altı) ---------- */
+
+.olcum {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.7rem 1.4rem;
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+}
+.olcum-satir {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.olcum-etiket { opacity: 0.4; }
+.olcum-deger {
+  opacity: 0.7;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+.olcum-deger a {
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--murekkep) 35%, transparent);
+}
+.olcum-deger a:hover { color: var(--vurgu); border-color: var(--vurgu); }
+
+@media (max-width: 26rem) {
+  .olcum {
+    padding: 0.6rem 1rem;
+    font-size: 0.55rem;
+    letter-spacing: 0.08em;
+  }
+}
+
 /* ---------- şerit başlık ---------- */
 
 .serit {
