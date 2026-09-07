@@ -179,8 +179,37 @@ a p, a h1, a h2, a h3, a li, a span { cursor: inherit; }
   color: var(--kagit);
 }
 
-/* JS kapalıysa çalışmayacak bir anahtar göstermenin anlamı yok. */
-html:not(.js) .tema-secici { display: none; }
+/* Tema ve ses düğmeleri yan yana. */
+.kontroller {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* Ses düğmesi — tema anahtarıyla aynı dil, tek hücre. */
+.ses {
+  border: var(--kalinlik) solid var(--murekkep);
+  background: transparent;
+  color: inherit;
+  padding: 0.35rem 0.6rem;
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.12s linear, color 0.12s linear;
+}
+.ses:hover { background: color-mix(in srgb, var(--murekkep) 15%, transparent); }
+.ses[aria-pressed="true"] {
+  background: var(--vurgu);
+  border-color: var(--vurgu);
+  color: #fff;
+}
+
+/* JS kapalıysa çalışmayacak düğmeler görünmesin. */
+html:not(.js) .tema-secici,
+html:not(.js) .ses { display: none; }
 
 /* Dar telefonlarda tema seçici yer açsın; künyeyi bölmektense o küçülsün. */
 @media (max-width: 26rem) {
@@ -212,11 +241,13 @@ html:not(.js) .tema-secici { display: none; }
     letter-spacing: 0.1em;
   }
   .saat > span:last-child { font-size: 0.66rem; }
-  .tema-secici button {
+  .tema-secici button,
+  .ses {
     padding: 0.3rem 0.45rem;
     font-size: 0.56rem;
     letter-spacing: 0.1em;
   }
+  .kontroller { gap: 0.3rem; }
 }
 
 /* ---------- gezinme ---------- */

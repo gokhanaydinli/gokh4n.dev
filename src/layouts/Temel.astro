@@ -105,9 +105,24 @@ const kanonik = new URL(Astro.url.pathname, Astro.site).href;
               <span data-saat="vakit">&nbsp;</span>
             </div>
 
-            <div class="tema-secici" role="group" aria-label="Tema">
-              <button type="button" data-tema-sec="acik">Açık</button>
-              <button type="button" data-tema-sec="koyu">Koyu</button>
+            <div class="kontroller">
+              <div class="tema-secici" role="group" aria-label="Tema">
+                <button type="button" data-tema-sec="acik">Açık</button>
+                <button type="button" data-tema-sec="koyu">Koyu</button>
+              </div>
+
+              {/* Ses KENDILIGINDEN BASLAMAZ. Tarayicilar zaten engelliyor,
+                  ustelik habersiz baslayan ses rahatsiz edici. Kullanici
+                  basarsa baslar, secim hatirlanir ama otomatik acilmaz. */}
+              <button
+                type="button"
+                class="ses"
+                data-ses
+                aria-pressed="false"
+                aria-label="Arka plan sesi"
+              >
+                Ses
+              </button>
             </div>
           </div>
         </div>
@@ -268,6 +283,126 @@ const kanonik = new URL(Astro.url.pathname, Astro.site).href;
         else window.addEventListener("load", function () { setTimeout(olc, 300); });
       })();
 
+    </script>
+
+    <script is:inline>
+      // ---- ARKA PLAN SESI ---------------------------------------------------
+      // Ses bir kayittan gelmiyor; tarayicida uretiliyor. Uc katman var:
+      //   1) Derin ugultu — iki osilator birbirinden 0.4 Hz sapmali, bu fark
+      //      yavas bir dalgalanma (beating) yaratiyor, ses "canli" duruyor.
+      //   2) Nefes — ust katmanin sesi cok yavas bir LFO ile inip cikiyor.
+      //   3) Cizirtilar — rastgele araliklarla kisa, yuksek, cok kisik notalar.
+      //
+      // KENDILIGINDEN BASLAMAZ. Tarayicilar kullanici etkilesimi olmadan sesli
+      // oynatmayi zaten engelliyor; ustelik habersiz baslayan ses rahatsiz
+      // edici. Secim hatirlaniyor ama sayfa acilinca otomatik acilmiyor.
+      (function () {
+        var dugme = document.querySelector("[data-ses]");
+        if (!dugme || !(window.AudioContext || window.webkitAudioContext)) return;
+
+        var ctx = null, ana = null, dugumler = [], zamanlayici = null, acik = false;
+
+        function kur() {
+          var AC = window.AudioContext || window.webkitAudioContext;
+          ctx = new AC();
+
+          ana = ctx.createGain();
+          ana.gain.value = 0;
+          ana.connect(ctx.destination);
+
+          // Ugultuyu bogan alcak geciren suzgec — tiz bilesenler kalmasin.
+          var suzgec = ctx.createBiquadFilter();
+          suzgec.type = "lowpass";
+          suzgec.frequency.value = 240;
+          suzgec.Q.value = 0.7;
+          suzgec.connect(ana);
+
+          [55, 55.4, 82.5].forEach(function (hz) {
+            var o = ctx.createOscillator();
+            o.type = "triangle";
+            o.frequency.value = hz;
+            var g = ctx.createGain();
+            g.gain.value = 0.5;
+            o.connect(g).connect(suzgec);
+            o.start();
+            dugumler.push(o);
+          });
+
+          // Nefes: ust katmanin sesini 0.05 Hz ile inip cikartiyor.
+          var ust = ctx.createOscillator();
+          ust.type = "sine";
+          ust.frequency.value = 110;
+          var ustG = ctx.createGain();
+          ustG.gain.value = 0.12;
+          var lfo = ctx.createOscillator();
+          lfo.frequency.value = 0.05;
+          var lfoG = ctx.createGain();
+          lfoG.gain.value = 0.1;
+          lfo.connect(lfoG).connect(ustG.gain);
+          ust.connect(ustG).connect(ana);
+          ust.start();
+          lfo.start();
+          dugumler.push(ust, lfo);
+        }
+
+        // Seyrek, kisa, kisik cizirtilar.
+        function cizirti() {
+          if (!ctx || !acik) return;
+          var notalar = [880, 1046.5, 1174.7, 1318.5, 1568];
+          var o = ctx.createOscillator();
+          o.type = "sine";
+          o.frequency.value = notalar[Math.floor(Math.random() * notalar.length)];
+          var g = ctx.createGain();
+          var pan = ctx.createStereoPanner ? ctx.createStereoPanner() : null;
+          if (pan) pan.pan.value = Math.random() * 1.6 - 0.8;
+          var t = ctx.currentTime;
+          g.gain.setValueAtTime(0, t);
+          g.gain.linearRampToValueAtTime(0.05, t + 0.01);
+          g.gain.exponentialRampToValueAtTime(0.0001, t + 0.35);
+          o.connect(g);
+          (pan ? g.connect(pan).connect(ana) : g.connect(ana));
+          o.start(t);
+          o.stop(t + 0.4);
+          zamanlayici = setTimeout(cizirti, 1800 + Math.random() * 3500);
+        }
+
+        function ac() {
+          if (!ctx) kur();
+          if (ctx.state === "suspended") ctx.resume();
+          acik = true;
+          ana.gain.cancelScheduledValues(ctx.currentTime);
+          ana.gain.setValueAtTime(ana.gain.value, ctx.currentTime);
+          ana.gain.linearRampToValueAtTime(0.05, ctx.currentTime + 2.5);
+          clearTimeout(zamanlayici);
+          zamanlayici = setTimeout(cizirti, 1200);
+          dugme.setAttribute("aria-pressed", "true");
+          try { localStorage.setItem("ses", "acik"); } catch (e) {}
+        }
+
+        function kapat() {
+          acik = false;
+          clearTimeout(zamanlayici);
+          if (ctx && ana) {
+            ana.gain.cancelScheduledValues(ctx.currentTime);
+            ana.gain.setValueAtTime(ana.gain.value, ctx.currentTime);
+            ana.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.6);
+          }
+          dugme.setAttribute("aria-pressed", "false");
+          try { localStorage.setItem("ses", "kapali"); } catch (e) {}
+        }
+
+        dugme.addEventListener("click", function () {
+          acik ? kapat() : ac();
+        });
+
+        // Sekme arkaya gecince sesi kes, donunce geri getir; baska sekmede
+        // calan ses en can sikici seylerden biri.
+        document.addEventListener("visibilitychange", function () {
+          if (!ctx) return;
+          if (document.hidden) ctx.suspend();
+          else if (acik) ctx.resume();
+        });
+      })();
     </script>
   </body>
 </html>
