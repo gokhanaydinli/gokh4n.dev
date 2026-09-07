@@ -232,6 +232,90 @@ html:not(.js) .ses { display: none; }
 .gezinme a:focus-visible { background: var(--murekkep); color: var(--kagit); }
 .gezinme a[aria-current="page"] { background: var(--vurgu); color: #fff; }
 
+/* ==========================================================================
+   404 — BOZULMA
+   Dev bir "404". Çoğu zaman hareketsiz duruyor, arada bir 200 ms boyunca
+   dilimlenip kayıyor. Sürekli titreyen bir şey rahatsız edici oluyor; asıl
+   etki nadir olmasından geliyor.
+
+   Nasıl çalışıyor: iki kopya katman (::before / ::after) metni data-metin'den
+   alıyor. clip-path ile yatay birer şerite kısılıp yana kaydırılıyorlar —
+   sanki görüntü kesilip kaymış gibi. steps(1) kullanılıyor ki geçişler
+   yumuşamasın, dijital bir sıçrama olsun.
+
+   Salt CSS: JavaScript yok, dosya yok.
+   ========================================================================== */
+
+.dortyuzdort {
+  display: flex;
+  justify-content: center;
+  padding: 2.6rem 1.4rem 2.2rem;
+}
+
+.bozulma {
+  position: relative;
+  display: inline-block;
+  font-size: clamp(4.5rem, 24vw, 11rem);
+  font-weight: 700;
+  line-height: 0.85;
+  letter-spacing: -0.06em;
+  font-variant-numeric: tabular-nums;
+  user-select: none;
+}
+
+/* Katmanlar üstteki metnin birebir kopyası; zemin rengiyle dolduruluyor ki
+   alttaki asıl metni kapatsınlar, yoksa çift görünüyor. */
+.bozulma::before,
+.bozulma::after {
+  content: attr(data-metin);
+  position: absolute;
+  inset: 0;
+  background: var(--kagit);
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.bozulma::before {
+  color: var(--vurgu);
+  animation: bozulma-ust 7s steps(1) infinite;
+}
+
+.bozulma::after {
+  color: var(--murekkep);
+  animation: bozulma-alt 7s steps(1) infinite;
+}
+
+/* Yüzdelerin çoğu "gizli" durumda; bozulma 7 saniyenin yalnızca kısa bir
+   bölümünde oluyor. Aralıklar bilerek eşit değil, ritim yakalanmasın. */
+@keyframes bozulma-ust {
+  0%, 100% { clip-path: inset(50% 0 50% 0); transform: none; }
+  41% { clip-path: inset(50% 0 50% 0); transform: none; }
+  42% { clip-path: inset(12% 0 63% 0); transform: translateX(-0.06em); }
+  44% { clip-path: inset(38% 0 34% 0); transform: translateX(0.05em); }
+  46% { clip-path: inset(72% 0 12% 0); transform: translateX(-0.03em); }
+  48% { clip-path: inset(50% 0 50% 0); transform: none; }
+  79% { clip-path: inset(50% 0 50% 0); transform: none; }
+  80% { clip-path: inset(24% 0 55% 0); transform: translateX(0.04em); }
+  82% { clip-path: inset(50% 0 50% 0); transform: none; }
+}
+
+@keyframes bozulma-alt {
+  0%, 100% { clip-path: inset(50% 0 50% 0); transform: none; }
+  41% { clip-path: inset(50% 0 50% 0); transform: none; }
+  43% { clip-path: inset(26% 0 48% 0); transform: translateX(0.05em); }
+  45% { clip-path: inset(58% 0 22% 0); transform: translateX(-0.04em); }
+  47% { clip-path: inset(50% 0 50% 0); transform: none; }
+  80% { clip-path: inset(50% 0 50% 0); transform: none; }
+  81% { clip-path: inset(64% 0 18% 0); transform: translateX(-0.05em); }
+  83% { clip-path: inset(50% 0 50% 0); transform: none; }
+}
+
+/* Hareket azaltma isteyen kullanıcıda sadece duran 404 kalıyor. */
+@media (prefers-reduced-motion: reduce) {
+  .bozulma::before,
+  .bozulma::after { animation: none; clip-path: inset(50% 0 50% 0); }
+}
+
 /* ---------- sağ üst blok: saat + tema seçici ---------- */
 
 .ust-sag {

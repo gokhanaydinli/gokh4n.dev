@@ -1,0 +1,39 @@
+---
+// ============================================================================
+// 404 — olmayan adres.
+//
+// Bu sayfa olmadan Caddy'nin çıplak "404 page not found" metni görünüyordu:
+// tasarım yok, siteye dönüş yolu yok. Astro bu dosyayı görünce dist/404.html
+// üretiyor, Caddy de bulunamayan istekleri ona yönlendiriyor.
+// ============================================================================
+import Temel from "../layouts/Temel.astro";
+---
+
+<Temel baslik="Bulunamadı — gokh4n.dev" aciklama="Böyle bir sayfa yok.">
+  <div class="hucre serit">
+    <span>Hata</span>
+    <span>404</span>
+  </div>
+
+  {/* data-metin: bozulma katmanları içeriği buradan kopyalıyor (CSS attr). */}
+  <div class="hucre dortyuzdort">
+    <span class="bozulma" data-metin="404" aria-hidden="true">404</span>
+  </div>
+
+  <div class="hucre yazi-basligi">
+    <h1>Böyle bir sayfa yok</h1>
+    <p class="yazi-ozet">
+      Adres yanlış yazılmış olabilir ya da sayfa taşınmış olabilir.
+    </p>
+  </div>
+
+  <a class="hucre bag" href="/">
+    <span>Çalışmalar</span>
+    <span aria-hidden="true">→</span>
+  </a>
+
+  <a class="hucre bag" href="/blog/">
+    <span>Blog</span>
+    <span aria-hidden="true">→</span>
+  </a>
+</Temel>
