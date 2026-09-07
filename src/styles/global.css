@@ -62,7 +62,7 @@ body {
 }
 
 main {
-  max-width: 48rem;
+  max-width: 52rem;
   margin: 0 auto;
   padding: 3rem 1.5rem 2rem;
 }
@@ -107,7 +107,6 @@ a { color: inherit; }
 .tema-secici {
   display: flex;
   flex: 0 0 auto;
-  margin: 1.3rem 1.4rem 0 0;
   border: var(--kalinlik) solid var(--murekkep);
 }
 .tema-secici button {
@@ -142,9 +141,15 @@ html:not(.js) .tema-secici { display: none; }
     padding: 1.1rem 1rem 0.9rem;
   }
 
-  .tema-secici {
-    margin: 0.85rem 0.9rem 0 0;
+  .ust-sag {
+    margin: 0.9rem 0.9rem 0 0;
+    gap: 0.45rem;
   }
+  .saat {
+    font-size: 0.52rem;
+    letter-spacing: 0.1em;
+  }
+  .saat span:last-child { font-size: 0.64rem; }
   .tema-secici button {
     padding: 0.3rem 0.45rem;
     font-size: 0.56rem;
@@ -175,36 +180,41 @@ html:not(.js) .tema-secici { display: none; }
 .gezinme a:focus-visible { background: var(--murekkep); color: var(--kagit); }
 .gezinme a[aria-current="page"] { background: var(--vurgu); color: #fff; }
 
-/* ---------- canlı saat şeridi (çerçevenin en altı) ---------- */
+/* ---------- sağ üst blok: saat + tema seçici ---------- */
 
+.ust-sag {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.6rem;
+  margin: 1.3rem 1.4rem 0 0;
+}
+
+/* Canlı saat — üç satır: gün, tarih, saat. */
 .saat {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.55rem 1.4rem;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.1rem;
   font-family: var(--mono);
-  font-size: 0.66rem;
+  font-size: 0.6rem;
   font-weight: 700;
-  letter-spacing: 0.18em;
+  line-height: 1.35;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  opacity: 0.55;
-  /* Rakamlar eşit genişlikte olsun; saniye değişince satır oynamasın. */
+  opacity: 0.5;
+  /* Rakamlar eşit genişlikte; saniye değişince blok oynamıyor. */
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
-.saat span:nth-child(2) { letter-spacing: 0.1em; }
-.saat span:last-child { letter-spacing: 0.12em; }
-
-@media (max-width: 26rem) {
-  .saat {
-    padding: 0.5rem 1rem;
-    font-size: 0.58rem;
-    letter-spacing: 0.1em;
-    gap: 0.4rem;
-  }
+.saat span:last-child {
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  opacity: 0.85;
 }
 
-/* JS kapalıysa boş bir şerit görünmesin. */
+/* JS kapalıysa boş satırlar görünmesin. */
 html:not(.js) .saat { display: none; }
 
 /* ---------- şerit başlık ---------- */

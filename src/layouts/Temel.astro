@@ -75,9 +75,20 @@ const kanonik = new URL(Astro.url.pathname, Astro.site).href;
             gokh4n<b>.</b>dev
           </a>
 
-          <div class="tema-secici" role="group" aria-label="Tema">
-            <button type="button" data-tema-sec="acik">Açık</button>
-            <button type="button" data-tema-sec="koyu">Koyu</button>
+          <div class="ust-sag">
+            {/* Canlı saat. Site statik derlendiği için derleme anındaki
+                tarihi basmak yanlış olur; değerleri tarayıcı yazıyor
+                (betik sayfanın sonunda). */}
+            <div class="saat" aria-hidden="true">
+              <span data-saat="gun">&nbsp;</span>
+              <span data-saat="tarih">&nbsp;</span>
+              <span data-saat="vakit">&nbsp;</span>
+            </div>
+
+            <div class="tema-secici" role="group" aria-label="Tema">
+              <button type="button" data-tema-sec="acik">Açık</button>
+              <button type="button" data-tema-sec="koyu">Koyu</button>
+            </div>
           </div>
         </div>
 
@@ -91,18 +102,6 @@ const kanonik = new URL(Astro.url.pathname, Astro.site).href;
         </nav>
 
         <slot />
-
-        {/* Canli saat. Site statik derlendigi icin derleme anindaki tarihi
-            basmak yanlis olur; degerleri tarayici yaziyor.
-
-            Betik elementin HEMEN ardinda ve is:inline: sayfa ayristirilirken
-            calisip degerleri dolduruyor, boylece bir an "--" gorunup sonra
-            degismiyor. */}
-        <div class="hucre saat" aria-hidden="true">
-          <span data-saat="gun">&nbsp;</span>
-          <span data-saat="tarih">&nbsp;</span>
-          <span data-saat="vakit">&nbsp;</span>
-        </div>
 
         <script is:inline>
           (function () {
