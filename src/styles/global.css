@@ -121,7 +121,6 @@ a p, a h1, a h2, a h3, a li, a span { cursor: inherit; }
 }
 /* --- IMLEC BITIS --- */
 
-
 /* ---------- ızgara iskeleti ---------- */
 
 .cerceve { border: var(--kalinlik) solid var(--murekkep); }
@@ -210,46 +209,6 @@ a p, a h1, a h2, a h3, a li, a span { cursor: inherit; }
 /* JS kapalıysa çalışmayacak düğmeler görünmesin. */
 html:not(.js) .tema-secici,
 html:not(.js) .ses { display: none; }
-
-/* Dar telefonlarda tema seçici yer açsın; künyeyi bölmektense o küçülsün. */
-@media (max-width: 26rem) {
-  /* Telefonda vw hesabina birakmiyoruz; kunye yanindaki tema seciciyle
-     ayni satirda oldugu icin sabit ve kucuk olmasi daha guvenli. */
-  .kunye {
-    font-size: 1.75rem;
-    padding: 1.1rem 1rem 0.9rem;
-  }
-
-  /* Telefonda künyenin yanına sıkıştırmak yerine alt satıra alıyoruz:
-     künye kendi satırında, altında saat solda / tema sağda. Yan yana
-     dizilince ikisi de daralıp okunmaz hâle geliyordu. */
-  .kunye-satir {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0;
-  }
-  .ust-sag {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    margin: 0 1rem 0.9rem 1rem;
-    gap: 0.75rem;
-  }
-  .saat {
-    align-items: flex-start;
-    font-size: 0.55rem;
-    letter-spacing: 0.1em;
-  }
-  .saat > span:last-child { font-size: 0.66rem; }
-  .tema-secici button,
-  .ses {
-    padding: 0.3rem 0.45rem;
-    font-size: 0.56rem;
-    letter-spacing: 0.1em;
-  }
-  .kontroller { gap: 0.3rem; }
-}
-
 /* ---------- gezinme ---------- */
 
 .gezinme {
@@ -349,15 +308,6 @@ html:not(.js) .saat { display: none; }
   border-bottom: 1px solid color-mix(in srgb, var(--murekkep) 35%, transparent);
 }
 .olcum-deger a:hover { color: var(--vurgu); border-color: var(--vurgu); }
-
-@media (max-width: 26rem) {
-  .olcum {
-    padding: 0.6rem 1rem;
-    font-size: 0.55rem;
-    letter-spacing: 0.08em;
-  }
-}
-
 /* ---------- şerit başlık ---------- */
 
 .serit {
@@ -647,18 +597,89 @@ footer a:hover { color: var(--vurgu); }
   outline-offset: 3px;
 }
 
-/* dar ekranda sütunlar üst üste */
-@media (max-width: 34rem) {
-  .is { grid-template-columns: 1fr; }
-  .is .govde { border-left: 0; border-top: var(--kalinlik) solid currentColor; }
-  .is .sira { padding-bottom: 0; }
+/* ==========================================================================
+   TELEFON DÜZENİ
+
+   Bu blok dosyanın SONUNDA duruyor ve bilerek. Daha önce temel kuralların
+   üstünde yazılmıştı; aynı özgüllükte olduğu için sonra gelen kural medya
+   sorgusunu eziyordu ve telefonda masaüstü düzeni görünüyordu.
+   ========================================================================== */
+
+@media (max-width: 30rem) {
+  /* Künye tam genişlikte, kendi satırında. */
+  .kunye-satir {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+  }
+  .kunye {
+    font-size: 1.9rem;
+    padding: 1.1rem 1rem 0.7rem;
+  }
+
+  /* Saat ve düğmeler künyeyle aynı hizada, sola yaslı — sağa yapışık
+     yetim satırlar yerine tek kolon. */
+  .ust-sag {
+    flex-direction: column;
+    align-items: flex-start;
+    margin: 0 1rem 1rem;
+    gap: 0.55rem;
+  }
+
+  /* Saat tek satır: gün · tarih · saat */
+  .saat {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 0.4rem;
+    font-size: 0.58rem;
+    letter-spacing: 0.1em;
+  }
+  .saat > span:last-child { font-size: 0.58rem; opacity: 1; }
+  .saat > span:last-child::before {
+    content: "· ";
+    opacity: 0.45;
+  }
+
+  .kontroller { gap: 0.35rem; }
+  .tema-secici button,
+  .ses {
+    padding: 0.32rem 0.5rem;
+    font-size: 0.58rem;
+    letter-spacing: 0.1em;
+  }
+
+  /* Liste satırı: numara ve yıl aynı üst satırda, içerik altta.
+     Öncekinde her biri kendi satırını kaplayıp boş kutular oluşuyordu. */
+  .is {
+    grid-template-columns: auto 1fr;
+    grid-template-areas:
+      "sira sag"
+      "govde govde";
+  }
+  .is .sira {
+    grid-area: sira;
+    padding: 1rem 0.9rem 0 1.4rem;
+  }
   .is .sag {
+    grid-area: sag;
     flex-direction: row;
     align-items: center;
+    justify-content: flex-end;
+    gap: 0.7rem;
     border-left: 0;
-    border-top: var(--kalinlik) solid currentColor;
-    padding-left: 1.4rem;
+    padding: 1rem 1.4rem 0 0;
   }
+  .is .sag .ok { font-size: 1.3rem; }
+  .is .govde {
+    grid-area: govde;
+    border-left: 0;
+    padding: 0.7rem 1.4rem 1.4rem;
+  }
+
+  .bos { grid-template-columns: auto 1fr; }
+  .olcum { padding: 0.6rem 1rem; font-size: 0.55rem; letter-spacing: 0.08em; }
+  .serit { padding: 0.55rem 1rem; letter-spacing: 0.16em; }
+  .bag { padding: 1rem; letter-spacing: 0.16em; }
 }
 
 @media (prefers-reduced-motion: reduce) {
