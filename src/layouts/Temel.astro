@@ -5,7 +5,6 @@
 // Sayfalar sadece kendi içeriğini yazar; başlık/menü/footer buradan gelir.
 // Böylece menüye bir bağlantı eklemek tek dosyada değişiklik demek.
 // ============================================================================
-import { SURUM } from "../surum";
 import "../styles/global.css";
 
 interface Props {
@@ -125,9 +124,8 @@ const kanonik = new URL(Astro.url.pathname, Astro.site).href;
         <slot />
 
         {/* ÖLÇÜM ŞERİDİ
-            Üst satır: bu sayfanın gerçek ağırlığı. Uydurma değil, tarayıcının
+            Bu sayfanın gerçek ağırlığı. Uydurma değil, tarayıcının
             Performance API'sinden okunuyor — ziyaretçi ne indirdiyse o.
-            Alt satır: yayındaki commit, derleme anında git'ten alındı.
 
             Sayfa ilk boyandığında değerler henüz belli olmadığı için şerit
             gizli duruyor; ölçüm bitince açılıyor. Böylece boş satır görünmüyor. */}
@@ -136,25 +134,7 @@ const kanonik = new URL(Astro.url.pathname, Astro.site).href;
             <span class="olcum-etiket">Bu sayfa</span>
             <span class="olcum-deger" data-olcum-agirlik>—</span>
           </div>
-          {SURUM.commit && (
-            <div class="olcum-satir">
-              <span class="olcum-etiket">Sürüm</span>
-              <span class="olcum-deger">
-                {SURUM.adres ? (
-                  <a href={SURUM.adres} target="_blank" rel="noreferrer">
-                    {SURUM.commit}
-                  </a>
-                ) : (
-                  SURUM.commit
-                )}
-                {SURUM.zaman && (
-                  <>
-                    {" · "}
-                    <span data-olcum-yas={SURUM.zaman}>—</span>
-                  </>
-                )}
-              </span>
-            </div>
+        </div>
           )}
         </div>
 
@@ -284,21 +264,7 @@ const kanonik = new URL(Astro.url.pathname, Astro.site).href;
           kutu.hidden = false;
         }
 
-        // "2 sa önce" gibi göreli zaman.
-        function yasYaz() {
-          var el = kutu.querySelector("[data-olcum-yas]");
-          if (!el) return;
-          var t = new Date(el.getAttribute("data-olcum-yas")).getTime();
-          if (!t) return;
-          var dk = Math.max(0, Math.round((Date.now() - t) / 60000));
-          el.textContent =
-            dk < 1 ? "az önce"
-            : dk < 60 ? dk + " dk önce"
-            : dk < 1440 ? Math.round(dk / 60) + " sa önce"
-            : Math.round(dk / 1440) + " gün önce";
-        }
 
-        yasYaz();
         // Yazı tipleri ve son kaynaklar da sayıya girsin diye load'dan sonra.
         if (document.readyState === "complete") setTimeout(olc, 300);
         else window.addEventListener("load", function () { setTimeout(olc, 300); });
