@@ -4,7 +4,8 @@
 //
 // Ana sayfadaki kart eskiden doğrudan games.gokh4n.dev'e atıyordu; ziyaretçi
 // projeyi hiç anlamadan uygulamanın içine düşüyordu. Bu sayfa araya girip
-// ne olduğunu, nasıl çalıştığını ve neden öyle yapıldığını anlatıyor.
+// oyunları tanıtıyor — teknik anlatım bilerek yok, ziyaretçi oyunu merak
+// ediyor.
 //
 // Yeni CSS yazılmadı: serit / is / icerik / bag sınıfları hazırdı.
 // ============================================================================
@@ -90,54 +91,6 @@ const oyunlar = [
       </div>
     ))
   }
-
-  <div class="hucre serit">
-    <span>Nasıl çalışıyor</span>
-  </div>
-
-  <div class="hucre icerik">
-    <p>
-      Oyun mantığı tamamen sunucuda. Gizli bilgi hiç tarayıcıya gitmiyor:
-      casusun bilmediği kelime, kimin hangi rolde olduğu, kimin kime oy
-      verdiği sunucuda kalıyor. Her oyuncuya yalnızca kendi görmesi gereken
-      kısım gönderiliyor.
-    </p>
-    <p>
-      Yani kimse geliştirici konsolunu açıp rolleri okuyamıyor. Gizli rol
-      oyununda bu, kural kadar önemli.
-    </p>
-  </div>
-
-  <div class="hucre serit">
-    <span>Kararlar</span>
-  </div>
-
-  <div class="hucre icerik">
-    <h2>Odalar bir akşam sürüyor</h2>
-    <p>
-      Veritabanı yok, odalar bellekte. Bir oyun gecesi bir akşam sürüyor;
-      kalıcılık için bütün bir katman eklemek karşılığını vermezdi. Bedeli
-      açık: oyun ortasında sunucu yeniden başlarsa o oda kayboluyor.
-    </p>
-
-    <h2>Tek istisna: istatistik</h2>
-    <p>
-      Biten her oyun kaydediliyor — kim oynadı, kim kazandı, hangi rolde.
-      Vampir Köylü'de bir rolün fazla güçlü olup olmadığını ölçmenin başka
-      yolu yok. "Bana vampirler hep kazanıyor gibi geldi" demek yerine
-      sayıya bakmak gerekiyor.
-    </p>
-
-    <h2>Sokak görüntüsü ücretsiz olmalıydı</h2>
-    <p>
-      Yer Bilme için Google Street View'un arayüzü faturalandırma hesabı
-      istiyor. Beş kişiyle akşam oynanan bir oyun için kart bağlamak
-      istemedim; Mapillary'nin açık arşivi ücretsiz. Karşılığında
-      "rastgele bir yer ver" diye bir çağrısı yok — rastgeleliği kendim
-      üretmem gerekti, çünkü dünyaya gerçekten rastgele bakınca sonuçların
-      çoğu okyanus çıkıyor.
-    </p>
-  </div>
 
   <a class="hucre bag" href="https://games.gokh4n.dev">
     <span>Oyna</span>
