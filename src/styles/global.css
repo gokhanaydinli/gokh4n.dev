@@ -175,6 +175,38 @@ html:not(.js) .tema-secici { display: none; }
 .gezinme a:focus-visible { background: var(--murekkep); color: var(--kagit); }
 .gezinme a[aria-current="page"] { background: var(--vurgu); color: #fff; }
 
+/* ---------- canlı saat şeridi (çerçevenin en altı) ---------- */
+
+.saat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.55rem 1.4rem;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  opacity: 0.55;
+  /* Rakamlar eşit genişlikte olsun; saniye değişince satır oynamasın. */
+  font-variant-numeric: tabular-nums;
+}
+.saat span:nth-child(2) { letter-spacing: 0.1em; }
+.saat span:last-child { letter-spacing: 0.12em; }
+
+@media (max-width: 26rem) {
+  .saat {
+    padding: 0.5rem 1rem;
+    font-size: 0.58rem;
+    letter-spacing: 0.1em;
+    gap: 0.4rem;
+  }
+}
+
+/* JS kapalıysa boş bir şerit görünmesin. */
+html:not(.js) .saat { display: none; }
+
 /* ---------- şerit başlık ---------- */
 
 .serit {

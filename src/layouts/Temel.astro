@@ -91,6 +91,50 @@ const kanonik = new URL(Astro.url.pathname, Astro.site).href;
         </nav>
 
         <slot />
+
+        {/* Canli saat. Site statik derlendigi icin derleme anindaki tarihi
+            basmak yanlis olur; degerleri tarayici yaziyor.
+
+            Betik elementin HEMEN ardinda ve is:inline: sayfa ayristirilirken
+            calisip degerleri dolduruyor, boylece bir an "--" gorunup sonra
+            degismiyor. */}
+        <div class="hucre saat" aria-hidden="true">
+          <span data-saat="gun">&nbsp;</span>
+          <span data-saat="tarih">&nbsp;</span>
+          <span data-saat="vakit">&nbsp;</span>
+        </div>
+
+        <script is:inline>
+          (function () {
+            var gun = document.querySelector('[data-saat="gun"]');
+            var tarih = document.querySelector('[data-saat="tarih"]');
+            var vakit = document.querySelector('[data-saat="vakit"]');
+            if (!gun || !tarih || !vakit) return;
+
+            var gunBicimi = new Intl.DateTimeFormat("tr-TR", { weekday: "long" });
+            var tarihBicimi = new Intl.DateTimeFormat("tr-TR", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+            });
+            var vakitBicimi = new Intl.DateTimeFormat("tr-TR", {
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+              hour12: false,
+            });
+
+            function yaz() {
+              var t = new Date();
+              gun.textContent = gunBicimi.format(t);
+              tarih.textContent = tarihBicimi.format(t);
+              vakit.textContent = vakitBicimi.format(t);
+            }
+
+            yaz();
+            setInterval(yaz, 1000);
+          })();
+        </script>
       </div>
 
       <footer>
