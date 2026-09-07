@@ -2,28 +2,28 @@
 # Etiket atılınca GitHub'da sürüm oluşturur.
 #
 # KULLANIM:
-#   git tag 2026.09.08
-#   git push origin 2026.09.08
+#   git tag -a v1.1.0 -m "Yeni oyun: Kelime Avı"
+#   git push origin v1.1.0
 #
-# Gerisi otomatik: son etiketten bu yana ne commit edildiyse toplanıp sürüm
-# notu olarak yazılır.
+# Gerisi otomatik: son sürümden bu yana ne commit edildiyse toplanıp sürüm
+# notu olarak yazılır. Başlık "v1.1.0 · 08.09.2026" biçiminde olur —
+# etiket teknik ve sıralanabilir kalır, tarih okunurluk için başlıkta.
 #
-# NEDEN TARİH, NEDEN v1.2.3 DEĞİL:
-#   SemVer (v1.2.3) kullanıcının yükseltme kararı için var — "kırıcı değişiklik
-#   mi, yeni özellik mi". Burada yükseltme diye bir şey yok; uygulama sürekli
-#   dağıtılıyor ve kimse eski sürümde kalamıyor. O yüzden numara uydurmak
-#   yerine tarih kullanıyoruz. Aynı gün ikinci sürüm gerekirse: 2026.09.08.2
+# NUMARA NASIL ARTAR:
+#   v1.0.1  düzeltme      (hata giderildi, davranış aynı)
+#   v1.1.0  yeni özellik  (yeni oyun, yeni sayfa, yeni yetenek)
+#   v2.0.0  büyük dönüm   (baştan yazılan bir katman, kırıcı değişiklik)
 #
 # NE ZAMAN ETİKET ATILIR:
-#   Her push'a değil — kilometre taşlarına. Yeni oyun, sunucu taşıma, arayüz
-#   yenilemesi gibi. Deploy sürekli, sürüm ara ara.
+#   Her push'a değil — kilometre taşlarına. Deploy sürekli, sürüm ara ara.
+#   Günde 15 deploy sürüm olsa liste okunmaz hale gelir.
 # ============================================================================
 name: Sürüm
 
 on:
   push:
     tags:
-      - "20*" # 2026.09.08 gibi tarih etiketleri
+      - "v*" # v1.0.0, v1.2.3 …
 
 # Sürüm oluşturmak depoya yazmak demek; diğer workflow'larda okuma yetkisi
 # yeterliydi, burada yazma gerekiyor.
@@ -45,7 +45,8 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          TARIH=$(git log -1 --format=%cd --date=format:'%d.%m.%Y' "$GITHUB_REF_NAME")
           gh release create "$GITHUB_REF_NAME" \
-            --title "$GITHUB_REF_NAME" \
+            --title "$GITHUB_REF_NAME · $TARIH" \
             --generate-notes \
             --verify-tag
