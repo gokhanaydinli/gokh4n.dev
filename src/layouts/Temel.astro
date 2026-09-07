@@ -65,6 +65,23 @@ const kanonik = new URL(Astro.url.pathname, Astro.site).href;
 
     <link rel="alternate" type="application/rss+xml" title="gokh4n.dev" href="/rss.xml" />
 
+    {/* Speculation Rules — sayfa gecislerini anlik yapar.
+        Tarayiciya "kullanici bu baglantiya gitmek uzere gorunuyorsa sayfayi
+        simdiden hazirla" diyor. eagerness: moderate = imlec baglantinin
+        uzerine gelince (masaustu) ya da parmak dokununca (mobil).
+
+        ClientRouter'dan farki: hic JavaScript calismiyor, bu sadece
+        bildirimsel bir ipucu. Destekleyen tarayici (Chrome, Edge, Android
+        Chrome) faydalaniyor; desteklemeyen (Safari) gormezden geliyor,
+        hicbir maliyeti olmuyor. */}
+    <script type="speculationrules" is:inline>
+      {
+        "prerender": [
+          { "where": { "href_matches": "/*" }, "eagerness": "moderate" }
+        ]
+      }
+    </script>
+
   </head>
 
   <body>
