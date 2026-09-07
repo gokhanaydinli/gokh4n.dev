@@ -1,0 +1,146 @@
+---
+// ============================================================================
+// /oyun-gecesi — proje sayfası.
+//
+// Ana sayfadaki kart eskiden doğrudan games.gokh4n.dev'e atıyordu; ziyaretçi
+// projeyi hiç anlamadan uygulamanın içine düşüyordu. Bu sayfa araya girip
+// ne olduğunu, nasıl çalıştığını ve neden öyle yapıldığını anlatıyor.
+//
+// Yeni CSS yazılmadı: serit / is / icerik / bag sınıfları hazırdı.
+// ============================================================================
+import Temel from "../layouts/Temel.astro";
+
+const oyunlar = [
+  {
+    ad: "Vampir Köylü",
+    kisi: "4–24",
+    aciklama:
+      "Gizli roller, gece cinayetleri, gündüz oylaması. Kurucu masayı 11 " +
+      "seçilebilir rol arasından kendi kuruyor; saçma kombinasyonlar " +
+      "kilitli — Deli varsa Gözcü zorunlu, Baş Vampir en az iki vampir " +
+      "istiyor. Kurucu isterse oynamayıp moderatör olur, her şeyi görür.",
+  },
+  {
+    ad: "Casus Kim?",
+    kisi: "3–24",
+    aciklama:
+      "Herkes bir kelime görür, casuslar görmez. 8 kategoride 345 kelime: " +
+      "mekan, ünlü kişi, film, yiyecek, nesne, spor, meslek, kurum. " +
+      "Casuslara kelimeye yakın ama aynı olmayan çağrışım ipuçları veriliyor " +
+      "ve her casusa farklı bir ipucu düşüyor.",
+  },
+  {
+    ad: "Tabu",
+    kisi: "4–24",
+    aciklama:
+      "İki takım, 427 kart, yasaklı kelimeler. Eşik puanı geçen takım " +
+      "çizim turuna geçiyor: 170 kelimeden biri kağıda çiziliyor, rakip " +
+      "takımın gözetmeni kartı görüyor.",
+  },
+  {
+    ad: "Yer Bilme",
+    kisi: "1–24",
+    aciklama:
+      "Rastgele bir sokak görüntüsü, haritada tahmin, mesafeye göre puan. " +
+      "3, 5, 10 veya 20 tur. Görüntü kaynağı Mapillary'nin açık arşivi ya " +
+      "da uydu; konumlar oyun sırasında beklememek için arka planda " +
+      "doldurulan bir havuzdan geliyor.",
+  },
+];
+---
+
+<Temel
+  baslik="Oyun Gecesi — gokh4n.dev"
+  aciklama="Arkadaşlarla telefondan oynanan çok oyunculu parti oyunları."
+  aktif="ana"
+>
+  <div class="hucre serit">
+    <span>Proje</span>
+    <span>2026</span>
+  </div>
+
+  <header class="hucre yazi-basligi">
+    <h1>Oyun Gecesi</h1>
+    <p class="yazi-ozet">
+      Arkadaşlarla telefondan oynanan çok oyunculu parti oyunları. Biri oda
+      kurar, kodu paylaşır, herkes kendi telefonundan katılır. Kurulum yok,
+      uygulama indirmek yok — tarayıcı yeter.
+    </p>
+    <p class="yazi-ustveri" lang="en">
+      Next · Socket.IO · TypeScript · Astro
+    </p>
+  </header>
+
+  <div class="hucre serit">
+    <span>Oyunlar</span>
+    <span>{String(oyunlar.length).padStart(2, "0")}</span>
+  </div>
+
+  {
+    oyunlar.map((o, i) => (
+      <div class="hucre is durgun">
+        <span class="sira">{String(i + 1).padStart(2, "0")}</span>
+        <span class="govde">
+          <span class="ad">{o.ad}</span>
+          <p class="aciklama">{o.aciklama}</p>
+        </span>
+        <span class="sag">
+          <span>{o.kisi}</span>
+        </span>
+      </div>
+    ))
+  }
+
+  <div class="hucre serit">
+    <span>Nasıl çalışıyor</span>
+  </div>
+
+  <div class="hucre icerik">
+    <p>
+      Oyun mantığı tamamen sunucuda. Gizli bilgi hiç tarayıcıya gitmiyor:
+      casusun bilmediği kelime, kimin hangi rolde olduğu, kimin kime oy
+      verdiği sunucuda kalıyor. Her oyuncuya yalnızca kendi görmesi gereken
+      kısım gönderiliyor.
+    </p>
+    <p>
+      Yani kimse geliştirici konsolunu açıp rolleri okuyamıyor. Gizli rol
+      oyununda bu, kural kadar önemli.
+    </p>
+  </div>
+
+  <div class="hucre serit">
+    <span>Kararlar</span>
+  </div>
+
+  <div class="hucre icerik">
+    <h2>Odalar bir akşam sürüyor</h2>
+    <p>
+      Veritabanı yok, odalar bellekte. Bir oyun gecesi bir akşam sürüyor;
+      kalıcılık için bütün bir katman eklemek karşılığını vermezdi. Bedeli
+      açık: oyun ortasında sunucu yeniden başlarsa o oda kayboluyor.
+    </p>
+
+    <h2>Tek istisna: istatistik</h2>
+    <p>
+      Biten her oyun kaydediliyor — kim oynadı, kim kazandı, hangi rolde.
+      Vampir Köylü'de bir rolün fazla güçlü olup olmadığını ölçmenin başka
+      yolu yok. "Bana vampirler hep kazanıyor gibi geldi" demek yerine
+      sayıya bakmak gerekiyor.
+    </p>
+
+    <h2>Sokak görüntüsü ücretsiz olmalıydı</h2>
+    <p>
+      Yer Bilme için Google Street View'un arayüzü faturalandırma hesabı
+      istiyor. Beş kişiyle akşam oynanan bir oyun için kart bağlamak
+      istemedim; Mapillary'nin açık arşivi ücretsiz. Karşılığında
+      "rastgele bir yer ver" diye bir çağrısı yok — rastgeleliği kendim
+      üretmem gerekti, çünkü dünyaya gerçekten rastgele bakınca sonuçların
+      çoğu okyanus çıkıyor.
+    </p>
+  </div>
+
+  <a class="hucre bag" href="https://games.gokh4n.dev">
+    <span>Oyna</span>
+    <span aria-hidden="true">↗</span>
+  </a>
+</Temel>

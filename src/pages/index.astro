@@ -10,7 +10,9 @@ import Temel from "../layouts/Temel.astro";
 const projeler = [
   {
     ad: "Oyun Gecesi",
-    adres: "https://games.gokh4n.dev",
+    // Artik dogrudan uygulamaya degil, once proje sayfasina gidiyor:
+    // ziyaretci ne oldugunu anlamadan uygulamanin icine dusmesin.
+    adres: "/oyun-gecesi/",
     yil: "2026",
     aciklama:
       "Arkadaşlarla telefondan oynanan çok oyunculu parti oyunları. " +
@@ -37,7 +39,7 @@ const projeler = [
         </span>
         <span class="sag">
           <span>{p.yil}</span>
-          <span class="ok" aria-hidden="true">↗</span>
+          <span class="ok" aria-hidden="true">→</span>
         </span>
       </a>
     ))

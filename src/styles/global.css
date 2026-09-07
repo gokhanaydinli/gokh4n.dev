@@ -421,6 +421,12 @@ html:not(.js) .saat { display: none; }
 .is:hover,
 .is:focus-visible { background: var(--murekkep); color: var(--kagit); }
 
+/* Bağlantı olmayan liste satırı: proje sayfasındaki oyun listesi tıklanmıyor,
+   o yüzden vurgu davranışı da olmamalı — yoksa tıklanır sanılıyor. */
+.is.durgun { cursor: default; }
+.is.durgun:hover,
+.is.durgun:focus-visible { background: transparent; color: inherit; }
+
 .is .sira,
 .is .govde,
 .is .sag { padding: 1.5rem 0.9rem; }
