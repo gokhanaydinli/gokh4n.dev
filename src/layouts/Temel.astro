@@ -97,8 +97,11 @@ const kanonik = new URL(Astro.url.pathname, Astro.site).href;
                 tarihi basmak yanlış olur; değerleri tarayıcı yazıyor
                 (betik sayfanın sonunda). */}
             <div class="saat" aria-hidden="true">
-              <span data-saat="gun">&nbsp;</span>
-              <span data-saat="tarih">&nbsp;</span>
+              <span class="saat-ust">
+                <span data-saat="gun">&nbsp;</span>
+                <span class="ayirac">·</span>
+                <span data-saat="tarih">&nbsp;</span>
+              </span>
               <span data-saat="vakit">&nbsp;</span>
             </div>
 
