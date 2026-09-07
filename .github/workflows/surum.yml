@@ -1,0 +1,51 @@
+# ============================================================================
+# Etiket atılınca GitHub'da sürüm oluşturur.
+#
+# KULLANIM:
+#   git tag 2026.09.08
+#   git push origin 2026.09.08
+#
+# Gerisi otomatik: son etiketten bu yana ne commit edildiyse toplanıp sürüm
+# notu olarak yazılır.
+#
+# NEDEN TARİH, NEDEN v1.2.3 DEĞİL:
+#   SemVer (v1.2.3) kullanıcının yükseltme kararı için var — "kırıcı değişiklik
+#   mi, yeni özellik mi". Burada yükseltme diye bir şey yok; uygulama sürekli
+#   dağıtılıyor ve kimse eski sürümde kalamıyor. O yüzden numara uydurmak
+#   yerine tarih kullanıyoruz. Aynı gün ikinci sürüm gerekirse: 2026.09.08.2
+#
+# NE ZAMAN ETİKET ATILIR:
+#   Her push'a değil — kilometre taşlarına. Yeni oyun, sunucu taşıma, arayüz
+#   yenilemesi gibi. Deploy sürekli, sürüm ara ara.
+# ============================================================================
+name: Sürüm
+
+on:
+  push:
+    tags:
+      - "20*" # 2026.09.08 gibi tarih etiketleri
+
+# Sürüm oluşturmak depoya yazmak demek; diğer workflow'larda okuma yetkisi
+# yeterliydi, burada yazma gerekiyor.
+permissions:
+  contents: write
+
+jobs:
+  surum:
+    name: Sürüm oluştur
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Notlar önceki etiketle karşılaştırılarak üretiliyor; sığ klonda
+          # geçmiş olmadığı için tam geçmiş gerekiyor.
+          fetch-depth: 0
+
+      - name: Sürümü yayınla
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            --title "$GITHUB_REF_NAME" \
+            --generate-notes \
+            --verify-tag
