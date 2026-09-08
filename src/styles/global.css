@@ -236,8 +236,11 @@ a p, a h1, a h2, a h3, a li, a span { cursor: inherit; }
    altındaki boşluğa ateş etmek sayılıyor. */
 .hud {
   position: fixed;
-  right: 1rem;
-  bottom: 1rem;
+  /* Çerçeveyle hizalı: üstü main'in üst boşluğuyla aynı, solu çerçevenin sağ
+     kenarının bir rem sağında. main 52rem ve border-box olduğu için çerçeve
+     52 - 2×1.5 = 49rem geniş, yani sağ kenarı ortadan 24.5rem uzakta. */
+  top: 3rem;
+  left: calc(50% + 25.5rem);
   z-index: 2;
   display: flex;
   flex-direction: column;
@@ -302,7 +305,7 @@ a p, a h1, a h2, a h3, a li, a span { cursor: inherit; }
 }
 .hedef {
   position: absolute;
-  width: 22px;
+  width: 28px;
   height: 40px;
   pointer-events: auto;
   color: var(--murekkep);
@@ -327,16 +330,59 @@ a p, a h1, a h2, a h3, a li, a span { cursor: inherit; }
   fill: currentColor;
 }
 
-/* İki kareli yürüyüş: kollar ve bacaklar iki duruş arasında geçiyor.
-   Ara kare yok, steps() ile sert geçiş — eski bir sprite gibi. */
-.hedef .adim-a,
-.hedef .adim-b {
-  animation: hedef-adim 0.68s steps(1, end) infinite;
+/* YÜRÜYÜŞ
+   Önce iki duruş çizilip aralarında opaklıkla geçiliyordu; ara kare olmadığı
+   için yürüyüş değil titreme gibi görünüyordu. Şimdi her uzuv omuzdan ya da
+   kalçadan kendi açısı boyunca salınıyor, geçiş yumuşak.
+
+   Karşıt faz önemli: sol kol sağ bacakla birlikte gidiyor. İkisi aynı yöne
+   gitse yürümek değil zıplamak gibi duruyor.
+
+   transform-box: fill-box + transform-origin 50% 0 = dikdörtgenin üst orta
+   noktası, yani omuz ve kalça. Bu olmadan öğeler SVG'nin sıfır noktası
+   etrafında dönüyor ve figür dağılıyor. */
+.hedef svg rect {
+  transform-box: fill-box;
+  transform-origin: 50% 0;
 }
-.hedef .adim-b { animation-delay: -0.34s; }
-@keyframes hedef-adim {
-  0%, 49.99% { opacity: 1; }
-  50%, 100% { opacity: 0; }
+.hedef .kol-sol,
+.hedef .bacak-sag,
+.hedef .kol-sag,
+.hedef .bacak-sol {
+  animation-duration: var(--adim, 2s);
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+.hedef .bacak-sol { animation-name: bacak-sol; }
+.hedef .bacak-sag { animation-name: bacak-sag; }
+.hedef .kol-sol { animation-name: kol-sol; }
+.hedef .kol-sag { animation-name: kol-sag; }
+
+@keyframes bacak-sol {
+  from { transform: rotate(14deg); }
+  to { transform: rotate(-2deg); }
+}
+@keyframes bacak-sag {
+  from { transform: rotate(2deg); }
+  to { transform: rotate(-14deg); }
+}
+@keyframes kol-sol {
+  from { transform: rotate(-2deg); }
+  to { transform: rotate(12deg); }
+}
+@keyframes kol-sag {
+  from { transform: rotate(-12deg); }
+  to { transform: rotate(2deg); }
+}
+
+/* Adımla birlikte gövde bir piksel iniyor: yürüyüşü satan ayrıntı bu. */
+.hedef > svg {
+  animation: hedef-bob calc(var(--adim, 2s) / 2) ease-in-out infinite alternate;
+}
+@keyframes hedef-bob {
+  from { transform: translateY(0); }
+  to { transform: translateY(-1px); }
 }
 
 @keyframes hedef-yuru {
@@ -351,8 +397,7 @@ a p, a h1, a h2, a h3, a li, a span { cursor: inherit; }
   color: var(--vurgu);
   animation-play-state: paused;
 }
-.hedef.vuruldu .adim-a,
-.hedef.vuruldu .adim-b { animation-play-state: paused; }
+.hedef.vuruldu svg rect { animation-play-state: paused; }
 .hedef.vuruldu > svg {
   transform-origin: 50% 100%;
   animation: hedef-devril 0.5s cubic-bezier(0.3, 0, 0.7, 1) forwards;
@@ -364,9 +409,9 @@ a p, a h1, a h2, a h3, a li, a span { cursor: inherit; }
 
 /* Hareket azaltma isteyen kullanıcıda figürler duruyor ama vurulabiliyor. */
 @media (prefers-reduced-motion: reduce) {
-  .hedef { animation: none; }
-  .hedef .adim-a { animation: none; opacity: 1; }
-  .hedef .adim-b { display: none; }
+  .hedef,
+  .hedef > svg,
+  .hedef svg rect { animation: none; }
 }
 
 /* Nişangâh masaüstüne ait. Eşik 72rem, çünkü içerik kolonu 52rem: iki yanda
