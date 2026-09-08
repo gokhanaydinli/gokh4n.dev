@@ -252,7 +252,7 @@ a p, a h1, a h2, a h3, a li, a span { cursor: inherit; }
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: 1.4rem;
+  gap: 0.9rem;
   font-family: var(--mono);
   font-size: 0.58rem;
   font-weight: 700;
@@ -369,10 +369,15 @@ a p, a h1, a h2, a h3, a li, a span { cursor: inherit; }
   .hedef .adim-b { display: none; }
 }
 
-/* Nişangâh masaüstüne ait: dokunmatik cihazda ya da dar pencerede ne imleç
-   ne hedef var. Bu sorgu Temel.astro'daki betikteki koşulun aynısı — panel
-   göründüğü her durumda çalışan bir nişangâh da var. */
-@media (hover: none), (max-width: 48rem) {
+/* Nişangâh masaüstüne ait. Eşik 72rem, çünkü içerik kolonu 52rem: iki yanda
+   10'ar rem boşluk kalıyor, panel de kenar boşluğuna sığıp çerçeveye
+   binmiyor, kenar hedeflerine de yer kalıyor. Daha darında panel çerçevenin
+   köşesini kapatıyordu.
+
+   Bu sorgu Temel.astro'daki betikteki koşulun aynısı ve bilerek öyle: panel
+   göründüğü her durumda çalışan bir nişangâh, çalıştığı her durumda da
+   görünen bir panel olsun. */
+@media (hover: none), (max-width: 72rem) {
   .hud { display: none; }
 }
 

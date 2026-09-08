@@ -308,10 +308,12 @@ const kanonik = new URL(Astro.url.pathname, Astro.site).href;
       //   baslamiyor, dolayisiyla o menu de cikmiyor.
       (function () {
         // Nisangah masaustune ait: dokunmatik cihazda imlec kavrami yok, dar
-        // pencerede de metnin yaninda hedef kolonu kalmiyor. Bu sorgu
+        // pencerede de metnin yaninda hedef kolonu kalmiyor. Esik 72rem:
+        // 52rem'lik icerik kolonunun iki yaninda 10'ar rem bosluk demek. Bu
+        // sorgu
         // global.css'teki panel sorgusunun aynisi — panel goruyorsa calisan
         // bir nisangah var, gormuyorsa hicbir sey yok.
-        if (window.matchMedia("(hover: none), (max-width: 48rem)").matches) return;
+        if (window.matchMedia("(hover: none), (max-width: 72rem)").matches) return;
 
         // Bu iki liste global.css'teki imlec kurallarinin aynisi: nisangah
         // gorunen yerde ates edilir, metin imleci gorunen yerde edilmez.
