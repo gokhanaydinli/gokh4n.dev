@@ -404,5 +404,108 @@ const kanonik = new URL(Astro.url.pathname, Astro.site).href;
         });
       })();
     </script>
+
+    <script is:inline>
+      // ---- ATIS -------------------------------------------------------------
+      // Bos alana sol tikta nisangah "ates ediyor": tiklanan noktada kisa bir
+      // patlama ve kuru bir ses. Ses kayit degil, uretiliyor: bir gurultu
+      // patlamasi (catlama) ve ustune dusen alcak bir vurus (govde).
+      //
+      // Tetiklenmedigi durumlar:
+      //   - dokunmatik cihaz (orada nisangah da yok, imlec kavrami yok)
+      //   - baglanti, dugme, form ogesi (tiklamanin kendi isi var)
+      //   - metin secilirken (secimi temizleyen tikta ates etmek rahatsiz)
+      (function () {
+        if (window.matchMedia("(hover: none)").matches) return;
+
+        var etkilesimli = "a, button, [role='button'], label, input, textarea, select, summary";
+        var ctx = null;
+
+        // Gurultu tamponu uret: uzunluk saniye, sonme egrisi ile.
+        function gurultu(saniye, egri) {
+          var n = Math.floor(ctx.sampleRate * saniye);
+          var b = ctx.createBuffer(1, n, ctx.sampleRate);
+          var d = b.getChannelData(0);
+          for (var i = 0; i < n; i++) {
+            d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / n, egri);
+          }
+          return b;
+        }
+
+        function katman(tampon, tur, frekans, kazanc, gecikme) {
+          var t = ctx.currentTime + (gecikme || 0);
+          var k = ctx.createBufferSource();
+          k.buffer = tampon;
+          var f = ctx.createBiquadFilter();
+          f.type = tur;
+          f.frequency.value = frekans;
+          var g = ctx.createGain();
+          g.gain.value = kazanc;
+          k.connect(f).connect(g).connect(ctx.destination);
+          k.start(t);
+        }
+
+        // Silah sesi tek bir patlama degil, ust uste binen dort katman:
+        //   1) CATLAMA  cok kisa, tiz — namlunun kirbaci
+        //   2) GOVDE    orta bantli gurultu — patlamanin eti
+        //   3) SUB      alcak sinus supurmesi — gogsunde duydugun vurus
+        //   4) KUYRUK   uzun, kisik, bogulmus gurultu — cevrenin yansimasi
+        // Her atista frekanslar ve kazanclar hafifce oynatiliyor; yoksa
+        // ust uste tiklayinca zil sesi gibi ayni ses tekrarliyor.
+        function ses() {
+          try {
+            var AC = window.AudioContext || window.webkitAudioContext;
+            if (!AC) return;
+            if (!ctx) ctx = new AC();
+            if (ctx.state === "suspended") ctx.resume();
+
+            var s = 0.9 + Math.random() * 0.2; // atis basi sapma
+
+            // 1) catlama — 18 ms, tizler acik
+            katman(gurultu(0.018, 1.2), "highpass", 1400 * s, 0.16, 0);
+
+            // 2) govde — 90 ms, orta bant
+            katman(gurultu(0.09, 3), "bandpass", 700 * s, 0.22, 0.002);
+
+            // 3) sub — alcak supurme
+            var t = ctx.currentTime;
+            var osc = ctx.createOscillator();
+            osc.type = "sine";
+            osc.frequency.setValueAtTime(150 * s, t);
+            osc.frequency.exponentialRampToValueAtTime(40, t + 0.09);
+            var og = ctx.createGain();
+            og.gain.setValueAtTime(0.001, t);
+            og.gain.exponentialRampToValueAtTime(0.16, t + 0.004);
+            og.gain.exponentialRampToValueAtTime(0.0001, t + 0.12);
+            osc.connect(og).connect(ctx.destination);
+            osc.start(t);
+            osc.stop(t + 0.14);
+
+            // 4) kuyruk — 380 ms, kisik ve bogulmus
+            katman(gurultu(0.38, 5), "lowpass", 1100, 0.05, 0.012);
+          } catch (e) {
+            /* ses calismazsa efekt yine gorunsun */
+          }
+        }
+
+        function patlama(x, y) {
+          var el = document.createElement("div");
+          el.className = "atis";
+          el.style.left = x + "px";
+          el.style.top = y + "px";
+          document.body.appendChild(el);
+          setTimeout(function () { el.remove(); }, 400);
+        }
+
+        document.addEventListener("mousedown", function (olay) {
+          if (olay.button !== 0) return;
+          if (olay.target.closest && olay.target.closest(etkilesimli)) return;
+          var secim = window.getSelection();
+          if (secim && String(secim).length) return;
+          patlama(olay.clientX, olay.clientY);
+          ses();
+        });
+      })();
+    </script>
   </body>
 </html>
