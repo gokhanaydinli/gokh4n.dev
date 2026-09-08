@@ -119,6 +119,53 @@ a p, a h1, a h2, a h3, a li, a span { cursor: inherit; }
   body, a, button, [role="button"], summary, label,
   p, h1, h2, h3, li, code, pre, .icerik { cursor: auto; }
 }
+/* --- ATIS EFEKTI ---
+   Bos alana sol tikta nisangahin "ates etmesi": tiklanan noktada genisleyen
+   bir kare cerceve ve ortada kisa bir parlama. Kare, izgara diline uygun
+   olsun diye daire yerine tercih edildi.
+
+   pointer-events: none sart — yoksa efekt kendi ustune tiklanmayi engeller
+   ve altindaki metin secilemez hale gelir. */
+.atis {
+  position: fixed;
+  z-index: 9999;
+  width: 34px;
+  height: 34px;
+  margin: -17px 0 0 -17px;
+  pointer-events: none;
+}
+.atis::before,
+.atis::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+/* Genisleyen cerceve */
+.atis::before {
+  border: var(--kalinlik) solid var(--vurgu);
+  animation: atis-cerceve 0.34s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+}
+/* Merkez parlama */
+.atis::after {
+  inset: 12px;
+  background: var(--vurgu);
+  animation: atis-parlama 0.18s ease-out forwards;
+}
+
+@keyframes atis-cerceve {
+  from { transform: scale(0.25); opacity: 1; }
+  to   { transform: scale(1.7);  opacity: 0; }
+}
+@keyframes atis-parlama {
+  from { transform: scale(1);   opacity: 1; }
+  to   { transform: scale(0.2); opacity: 0; }
+}
+
+/* Hareket azaltma isteyen kullaniciya efekt gosterme. */
+@media (prefers-reduced-motion: reduce) {
+  .atis { display: none; }
+}
+
 /* --- IMLEC BITIS --- */
 
 /* ---------- ızgara iskeleti ---------- */
