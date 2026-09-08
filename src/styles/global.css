@@ -253,9 +253,128 @@ a p, a h1, a h2, a h3, a li, a span { cursor: inherit; }
   color: #fff;
 }
 
+/* Mermi ve vuruş göstergeleri — nişangâhın sayaçları. Aynı görünümü
+   paylaşıyorlar, tek fark rakamların anlamı. */
+.mermi,
+.vurus {
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.55;
+  white-space: nowrap;
+}
+.mermi-sayi,
+.vurus-sayi { font-size: 0.72rem; opacity: 1; }
+
+/* Şarjör bittiğinde vurgu rengine dönüp R ipucunu gösteriyor. */
+.mermi[data-bos="evet"] { opacity: 1; color: var(--vurgu); }
+.mermi-ipucu { display: none; }
+.mermi[data-bos="evet"] .mermi-ipucu { display: inline; }
+
+/* Şarjör değişince kısa bir sıçrama — dolduğu fark edilsin. */
+.mermi.doldu .mermi-sayi { animation: mermi-doldu 0.3s steps(2) 2; }
+@keyframes mermi-doldu {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.25; }
+}
+
+/* Hedef vurulunca sayı bir an vurgu renginde zıplıyor. */
+.vurus.arti .vurus-sayi { animation: vurus-arti 0.3s ease-out; }
+@keyframes vurus-arti {
+  from { color: var(--vurgu); transform: translateY(-3px); }
+  to { color: inherit; transform: none; }
+}
+
+/* ---------- kenar hedefleri ---------- */
+
+/* Metnin iki yanındaki boş kolonlarda yavaş yavaş gezen figürler; üstlerine
+   tıklayınca deviriliyorlar. Yalnızca masaüstünde ve kolonlar yeterince
+   genişse oluşuyorlar — o karar Temel.astro'daki betikte, burada sadece
+   nasıl göründükleri var.
+
+   pointer-events: saha geçirgen, figürler tıklanabilir. Tersi olsaydı boş
+   kolona tıklamak imkânsız hale gelir, sayfanın yanları ölü alan olurdu. */
+.saha {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+}
+.hedef {
+  position: absolute;
+  width: 22px;
+  height: 40px;
+  pointer-events: auto;
+  color: var(--murekkep);
+  opacity: 0.16;
+  transition: opacity 0.15s;
+  animation: hedef-yuru var(--sure, 9s) ease-in-out var(--gecikme, 0s) infinite
+    alternate;
+}
+/* Nişangâh üzerine gelince belirginleşiyor — "hedefte" bilgisi. */
+.hedef:hover { opacity: 0.5; }
+
+/* İç öğe ayrı duruyor çünkü iki hareket üst üste biniyor: dış öğe geziyor,
+   iç öğe vurulunca deviriliyor. Tek öğede olsalardı devrilme animasyonu
+   gezinme animasyonunu ezip figürü başlangıç noktasına zıplatırdı. */
+.hedef > i {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+.hedef > i::before,
+.hedef > i::after {
+  content: "";
+  position: absolute;
+  background: currentColor;
+}
+.hedef > i::before { top: 0; left: 6px; width: 10px; height: 10px; }
+.hedef > i::after { top: 14px; left: 0; width: 22px; height: 26px; }
+
+@keyframes hedef-yuru {
+  from { transform: translate(0, 0); }
+  to { transform: translate(var(--kay, 0px), var(--mesafe, 120px)); }
+}
+
+/* Vuruldu: gezinme olduğu yerde donuyor, figür yana devrilip kayboluyor. */
+.hedef.vuruldu {
+  pointer-events: none;
+  opacity: 1;
+  color: var(--vurgu);
+  animation-play-state: paused;
+}
+.hedef.vuruldu > i {
+  transform-origin: 50% 100%;
+  animation: hedef-devril 0.5s cubic-bezier(0.3, 0, 0.7, 1) forwards;
+}
+@keyframes hedef-devril {
+  from { transform: rotate(0); opacity: 1; }
+  to { transform: rotate(74deg); opacity: 0; }
+}
+
+/* Hareket azaltma isteyen kullanıcıda figürler duruyor ama vurulabiliyor. */
+@media (prefers-reduced-motion: reduce) {
+  .hedef { animation: none; }
+}
+
+/* Dokunmatik cihazda nişangâh yok; sayaçların da karşılığı yok. */
+@media (hover: none) {
+  .mermi,
+  .vurus { display: none; }
+}
+
 /* JS kapalıysa çalışmayacak düğmeler görünmesin. */
 html:not(.js) .tema-secici,
-html:not(.js) .ses { display: none; }
+html:not(.js) .ses,
+html:not(.js) .mermi,
+html:not(.js) .vurus { display: none; }
 /* ---------- gezinme ---------- */
 
 .gezinme {
