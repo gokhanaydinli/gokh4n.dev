@@ -225,52 +225,45 @@ a p, a h1, a h2, a h3, a li, a span { cursor: inherit; }
   color: var(--kagit);
 }
 
-/* Tema ve ses düğmeleri yan yana. */
-.kontroller {
+/* ---------- nişangâh paneli ---------- */
+
+/* Mermi ve vuruş sayaçları künyenin sağında duruyordu; saat ve tema
+   anahtarıyla birlikte o köşe okunmaz hale gelmişti. Artık sayfanın sağ alt
+   köşesinde kendi kutusunda — sayfanın künyesiyle nişangâhın sayaçları
+   birbirine karışmıyor.
+
+   pointer-events: none — panel ateşin önünü kesmiyor, üstüne tıklamak da
+   altındaki boşluğa ateş etmek sayılıyor. */
+.hud {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 2;
   display: flex;
-  align-items: center;
-  gap: 0.4rem;
-}
-
-/* Ses düğmesi — tema anahtarıyla aynı dil, tek hücre. */
-.ses {
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.5rem 0.65rem;
   border: var(--kalinlik) solid var(--murekkep);
-  background: transparent;
-  color: inherit;
-  padding: 0.35rem 0.6rem;
-  font-family: var(--mono);
-  font-size: 0.62rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: background 0.12s linear, color 0.12s linear;
+  background: var(--kagit);
+  pointer-events: none;
 }
-.ses:hover { background: color-mix(in srgb, var(--murekkep) 15%, transparent); }
-.ses[aria-pressed="true"] {
-  background: var(--vurgu);
-  border-color: var(--vurgu);
-  color: #fff;
-}
-
-/* Mermi ve vuruş göstergeleri — nişangâhın sayaçları. Aynı görünümü
-   paylaşıyorlar, tek fark rakamların anlamı. */
 .mermi,
 .vurus {
   display: flex;
   align-items: baseline;
-  gap: 0.45rem;
+  justify-content: space-between;
+  gap: 1.4rem;
   font-family: var(--mono);
-  font-size: 0.6rem;
+  font-size: 0.58rem;
   font-weight: 700;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   font-variant-numeric: tabular-nums;
   opacity: 0.55;
   white-space: nowrap;
 }
 .mermi-sayi,
-.vurus-sayi { font-size: 0.72rem; opacity: 1; }
+.vurus-sayi { font-size: 0.7rem; opacity: 1; }
 
 /* Şarjör bittiğinde vurgu rengine dönüp R ipucunu gösteriyor. */
 .mermi[data-bos="evet"] { opacity: 1; color: var(--vurgu); }
@@ -293,10 +286,10 @@ a p, a h1, a h2, a h3, a li, a span { cursor: inherit; }
 
 /* ---------- kenar hedefleri ---------- */
 
-/* Metnin iki yanındaki boş kolonlarda yavaş yavaş gezen figürler; üstlerine
-   tıklayınca deviriliyorlar. Yalnızca masaüstünde ve kolonlar yeterince
-   genişse oluşuyorlar — o karar Temel.astro'daki betikte, burada sadece
-   nasıl göründükleri var.
+/* Metnin iki yanındaki boş kolonlarda yürüyen figürler; üstlerine tıklayınca
+   deviriliyorlar. Yalnızca masaüstünde ve kolonlar yeterince genişse
+   oluşuyorlar — o karar Temel.astro'daki betikte, burada sadece nasıl
+   göründükleri var.
 
    pointer-events: saha geçirgen, figürler tıklanabilir. Tersi olsaydı boş
    kolona tıklamak imkânsız hale gelir, sayfanın yanları ölü alan olurdu. */
@@ -321,36 +314,46 @@ a p, a h1, a h2, a h3, a li, a span { cursor: inherit; }
 /* Nişangâh üzerine gelince belirginleşiyor — "hedefte" bilgisi. */
 .hedef:hover { opacity: 0.5; }
 
-/* İç öğe ayrı duruyor çünkü iki hareket üst üste biniyor: dış öğe geziyor,
-   iç öğe vurulunca deviriliyor. Tek öğede olsalardı devrilme animasyonu
-   gezinme animasyonunu ezip figürü başlangıç noktasına zıplatırdı. */
-.hedef > i {
-  position: absolute;
-  inset: 0;
+/* Figür SVG: kafa, gövde, iki kol, iki bacak. Kutulardan kurulu, çünkü
+   ızgaranın dili bu — yuvarlatma yok.
+
+   SVG dış öğeden ayrı duruyor çünkü iki hareket üst üste biniyor: dış öğe
+   kolonda yürüyor, SVG vurulunca deviriliyor. Tek öğede olsalardı devrilme
+   animasyonu yürüyüşü ezip figürü başlangıç noktasına zıplatırdı. */
+.hedef > svg {
   display: block;
+  width: 100%;
+  height: 100%;
+  fill: currentColor;
 }
-.hedef > i::before,
-.hedef > i::after {
-  content: "";
-  position: absolute;
-  background: currentColor;
+
+/* İki kareli yürüyüş: kollar ve bacaklar iki duruş arasında geçiyor.
+   Ara kare yok, steps() ile sert geçiş — eski bir sprite gibi. */
+.hedef .adim-a,
+.hedef .adim-b {
+  animation: hedef-adim 0.68s steps(1, end) infinite;
 }
-.hedef > i::before { top: 0; left: 6px; width: 10px; height: 10px; }
-.hedef > i::after { top: 14px; left: 0; width: 22px; height: 26px; }
+.hedef .adim-b { animation-delay: -0.34s; }
+@keyframes hedef-adim {
+  0%, 49.99% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
 
 @keyframes hedef-yuru {
   from { transform: translate(0, 0); }
   to { transform: translate(var(--kay, 0px), var(--mesafe, 120px)); }
 }
 
-/* Vuruldu: gezinme olduğu yerde donuyor, figür yana devrilip kayboluyor. */
+/* Vuruldu: yürüyüş olduğu yerde donuyor, figür yana devrilip kayboluyor. */
 .hedef.vuruldu {
   pointer-events: none;
   opacity: 1;
   color: var(--vurgu);
   animation-play-state: paused;
 }
-.hedef.vuruldu > i {
+.hedef.vuruldu .adim-a,
+.hedef.vuruldu .adim-b { animation-play-state: paused; }
+.hedef.vuruldu > svg {
   transform-origin: 50% 100%;
   animation: hedef-devril 0.5s cubic-bezier(0.3, 0, 0.7, 1) forwards;
 }
@@ -362,19 +365,20 @@ a p, a h1, a h2, a h3, a li, a span { cursor: inherit; }
 /* Hareket azaltma isteyen kullanıcıda figürler duruyor ama vurulabiliyor. */
 @media (prefers-reduced-motion: reduce) {
   .hedef { animation: none; }
+  .hedef .adim-a { animation: none; opacity: 1; }
+  .hedef .adim-b { display: none; }
 }
 
-/* Dokunmatik cihazda nişangâh yok; sayaçların da karşılığı yok. */
-@media (hover: none) {
-  .mermi,
-  .vurus { display: none; }
+/* Nişangâh masaüstüne ait: dokunmatik cihazda ya da dar pencerede ne imleç
+   ne hedef var. Bu sorgu Temel.astro'daki betikteki koşulun aynısı — panel
+   göründüğü her durumda çalışan bir nişangâh da var. */
+@media (hover: none), (max-width: 48rem) {
+  .hud { display: none; }
 }
 
 /* JS kapalıysa çalışmayacak düğmeler görünmesin. */
 html:not(.js) .tema-secici,
-html:not(.js) .ses,
-html:not(.js) .mermi,
-html:not(.js) .vurus { display: none; }
+html:not(.js) .hud { display: none; }
 /* ---------- gezinme ---------- */
 
 .gezinme {
@@ -896,9 +900,7 @@ footer a:hover { color: var(--vurgu); }
     opacity: 0.45;
   }
 
-  .kontroller { gap: 0.35rem; }
-  .tema-secici button,
-  .ses {
+  .tema-secici button {
     padding: 0.32rem 0.5rem;
     font-size: 0.58rem;
     letter-spacing: 0.1em;
