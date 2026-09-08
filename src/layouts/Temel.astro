@@ -105,6 +105,21 @@ const kanonik = new URL(Astro.url.pathname, Astro.site).href;
               <span data-saat="vakit">&nbsp;</span>
             </div>
 
+            {/* Mermi gostergesi. Nisangah ates ettikce dusuyor, R ile
+                doluyor. JS kapaliysa gorunmuyor. */}
+            <div class="mermi" data-mermi data-bos="hayir" aria-hidden="true">
+              <span>Mermi</span>
+              <span class="mermi-sayi"><span data-mermi-kalan>30</span>/30</span>
+              <span class="mermi-ipucu">· R</span>
+            </div>
+
+            {/* Vuruş sayacı — kenar kolonlarındaki figürlerden kaç tanesi
+                devrildi. Tarayıcıda saklanıyor, sayfa değişince sıfırlanmıyor. */}
+            <div class="vurus" data-vurus aria-hidden="true">
+              <span>Vuruş</span>
+              <span class="vurus-sayi" data-vurus-sayi>00</span>
+            </div>
+
             <div class="kontroller">
               <div class="tema-secici" role="group" aria-label="Tema">
                 <button type="button" data-tema-sec="acik">Açık</button>
@@ -407,21 +422,81 @@ const kanonik = new URL(Astro.url.pathname, Astro.site).href;
 
     <script is:inline>
       // ---- ATIS -------------------------------------------------------------
-      // Bos alana sol tikta nisangah "ates ediyor": tiklanan noktada kisa bir
-      // patlama ve kuru bir ses. Ses kayit degil, uretiliyor: bir gurultu
-      // patlamasi (catlama) ve ustune dusen alcak bir vurus (govde).
+      // Nisangah gercekten ates ediyor: tiklanan noktada patlama, uretilen bir
+      // tufek sesi, sag ustte dusen mermi sayaci. R sarjoru degistiriyor.
+      // Metnin iki yanindaki bos kolonlarda gezen figurler vurulabiliyor;
+      // vurus sayisi tarayicida saklaniyor.
       //
-      // Tetiklenmedigi durumlar:
-      //   - dokunmatik cihaz (orada nisangah da yok, imlec kavrami yok)
-      //   - baglanti, dugme, form ogesi (tiklamanin kendi isi var)
-      //   - metin secilirken (secimi temizleyen tikta ates etmek rahatsiz)
+      // NEREYE ATES EDILIR:
+      //   Once her yere ediliyordu. Ust uste hizli tiklayinca tarayici bunu
+      //   cift/uclu tiklama sayiyor, layout icindeki metni seciyor, Edge de o
+      //   secim icin kendi kucuk menusunu aciyordu. Simdi metnin uzerinde ates
+      //   edilmiyor ve edilen her yerde preventDefault cagriliyor — secim hic
+      //   baslamiyor, dolayisiyla o menu de cikmiyor.
       (function () {
         if (window.matchMedia("(hover: none)").matches) return;
 
-        var etkilesimli = "a, button, [role='button'], label, input, textarea, select, summary";
+        // Bu iki liste global.css'teki imlec kurallarinin aynisi: nisangah
+        // gorunen yerde ates edilir, metin imleci gorunen yerde edilmez.
+        // Kullanici nereye ates edebilecegini imlecin kendisinden anliyor.
+        var ETKILESIMLI = "a, button, [role='button'], label, input, textarea, select, summary";
+        var METIN = "p, h1, h2, h3, li, code, pre, .icerik";
+
+        var SARJOR = 30;
+        var kalan = SARJOR;
+        var vurus = 0;
         var ctx = null;
 
-        // Gurultu tamponu uret: uzunluk saniye, sonme egrisi ile.
+        var mermiEl = document.querySelector("[data-mermi]");
+        var kalanEl = document.querySelector("[data-mermi-kalan]");
+        var vurusEl = document.querySelector("[data-vurus-sayi]");
+        var vurusKutu = document.querySelector("[data-vurus]");
+
+        try {
+          vurus = parseInt(localStorage.getItem("vurus"), 10) || 0;
+        } catch (e) {
+          /* gizli sekmede localStorage erisimi hata verebilir */
+        }
+
+        function iki(n) {
+          return n < 10 ? "0" + n : String(n);
+        }
+
+        function mermiYaz() {
+          if (kalanEl) kalanEl.textContent = String(kalan);
+          if (mermiEl) mermiEl.setAttribute("data-bos", kalan === 0 ? "evet" : "hayir");
+        }
+
+        function vurusYaz(yeni) {
+          if (vurusEl) vurusEl.textContent = iki(vurus);
+          if (yeni && vurusKutu) {
+            vurusKutu.classList.remove("arti");
+            void vurusKutu.offsetWidth; // animasyonu bastan tetikle
+            vurusKutu.classList.add("arti");
+          }
+          try {
+            localStorage.setItem("vurus", String(vurus));
+          } catch (e) {}
+        }
+
+        // ---- ses ------------------------------------------------------------
+
+        function baglam() {
+          var AC = window.AudioContext || window.webkitAudioContext;
+          if (!AC) return null;
+          if (!ctx) ctx = new AC();
+          if (ctx.state === "suspended") ctx.resume();
+          return ctx;
+        }
+
+        /** Ses uretimini sarmaliyor: ses calismazsa efekt yine gorunsun. */
+        function cal(fn) {
+          try {
+            if (baglam()) fn();
+          } catch (e) {}
+        }
+
+        /** Sonme egrili gurultu tamponu. */
         function gurultu(saniye, egri) {
           var n = Math.floor(ctx.sampleRate * saniye);
           var b = ctx.createBuffer(1, n, ctx.sampleRate);
@@ -432,61 +507,104 @@ const kanonik = new URL(Astro.url.pathname, Astro.site).href;
           return b;
         }
 
-        function katman(tampon, tur, frekans, kazanc, gecikme) {
-          var t = ctx.currentTime + (gecikme || 0);
-          var k = ctx.createBufferSource();
-          k.buffer = tampon;
-          var f = ctx.createBiquadFilter();
-          f.type = tur;
-          f.frequency.value = frekans;
-          var g = ctx.createGain();
-          g.gain.value = kazanc;
-          k.connect(f).connect(g).connect(ctx.destination);
-          k.start(t);
-        }
-
-        // Silah sesi tek bir patlama degil, ust uste binen dort katman:
-        //   1) CATLAMA  cok kisa, tiz — namlunun kirbaci
-        //   2) GOVDE    orta bantli gurultu — patlamanin eti
-        //   3) SUB      alcak sinus supurmesi — gogsunde duydugun vurus
-        //   4) KUYRUK   uzun, kisik, bogulmus gurultu — cevrenin yansimasi
-        // Her atista frekanslar ve kazanclar hafifce oynatiliyor; yoksa
-        // ust uste tiklayinca zil sesi gibi ayni ses tekrarliyor.
-        function ses() {
-          try {
-            var AC = window.AudioContext || window.webkitAudioContext;
-            if (!AC) return;
-            if (!ctx) ctx = new AC();
-            if (ctx.state === "suspended") ctx.resume();
-
-            var s = 0.9 + Math.random() * 0.2; // atis basi sapma
-
-            // 1) catlama — 18 ms, tizler acik
-            katman(gurultu(0.018, 1.2), "highpass", 1400 * s, 0.16, 0);
-
-            // 2) govde — 90 ms, orta bant
-            katman(gurultu(0.09, 3), "bandpass", 700 * s, 0.22, 0.002);
-
-            // 3) sub — alcak supurme
-            var t = ctx.currentTime;
-            var osc = ctx.createOscillator();
-            osc.type = "sine";
-            osc.frequency.setValueAtTime(150 * s, t);
-            osc.frequency.exponentialRampToValueAtTime(40, t + 0.09);
-            var og = ctx.createGain();
-            og.gain.setValueAtTime(0.001, t);
-            og.gain.exponentialRampToValueAtTime(0.16, t + 0.004);
-            og.gain.exponentialRampToValueAtTime(0.0001, t + 0.12);
-            osc.connect(og).connect(ctx.destination);
-            osc.start(t);
-            osc.stop(t + 0.14);
-
-            // 4) kuyruk — 380 ms, kisik ve bogulmus
-            katman(gurultu(0.38, 5), "lowpass", 1100, 0.05, 0.012);
-          } catch (e) {
-            /* ses calismazsa efekt yine gorunsun */
+        // Yumusak kirpma. Temiz gurultu cansiz duruyor; kirpma sese kagit
+        // yirtilmasina benzeyen o sert dokuyu katiyor.
+        var kirpmaEgrisi = null;
+        function kirpici() {
+          if (!kirpmaEgrisi) {
+            var n = 1024;
+            kirpmaEgrisi = new Float32Array(n);
+            for (var i = 0; i < n; i++) {
+              kirpmaEgrisi[i] = Math.tanh(((i / (n - 1)) * 2 - 1) * 2.4);
+            }
           }
+          var w = ctx.createWaveShaper();
+          w.curve = kirpmaEgrisi;
+          w.oversample = "2x";
+          return w;
         }
+
+        /** Suzgecten gecirilmis tek gurultu katmani. */
+        function katman(o) {
+          var k = ctx.createBufferSource();
+          k.buffer = gurultu(o.sure, o.egri);
+          var f = ctx.createBiquadFilter();
+          f.type = o.tur;
+          f.frequency.value = o.frekans;
+          if (o.q) f.Q.value = o.q;
+          var g = ctx.createGain();
+          g.gain.value = o.kazanc;
+          var zincir = k.connect(f);
+          if (o.grit) zincir = zincir.connect(kirpici());
+          zincir.connect(g).connect(ctx.destination);
+          k.start(ctx.currentTime + (o.gecikme || 0));
+        }
+
+        // AK-47: tek bir patlama degil, ust uste binen bes katman. Karakter
+        // katmanlarin zamanlamasindan geliyor — ozellikle 70 ms sonra gelen
+        // surgu klik'inden. O olmadan ses "patlama" gibi kaliyor, "silah"
+        // gibi olmuyor. Her atista frekanslar hafifce oynatiliyor, yoksa ust
+        // uste tiklayinca zil sesi gibi ayni ses tekrarliyor.
+        function atisSesi() {
+          var s = 0.92 + Math.random() * 0.16;
+
+          // 1) CATLAMA — 14 ms, cok tiz. Namlunun kirbaci.
+          katman({ sure: 0.014, egri: 1.1, tur: "highpass", frekans: 2600 * s, kazanc: 0.2 });
+
+          // 2) GOVDE — 80 ms, orta bant, gritli. Patlamanin eti.
+          katman({ sure: 0.08, egri: 2.6, tur: "bandpass", frekans: 620 * s, q: 0.8, kazanc: 0.26, grit: true, gecikme: 0.002 });
+
+          // 3) SUB — alcak supurme. Gogsunde duydugun vurus.
+          var t = ctx.currentTime;
+          var osc = ctx.createOscillator();
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(190 * s, t);
+          osc.frequency.exponentialRampToValueAtTime(42, t + 0.085);
+          var og = ctx.createGain();
+          og.gain.setValueAtTime(0.001, t);
+          og.gain.exponentialRampToValueAtTime(0.2, t + 0.004);
+          og.gain.exponentialRampToValueAtTime(0.0001, t + 0.12);
+          osc.connect(og).connect(ctx.destination);
+          osc.start(t);
+          osc.stop(t + 0.14);
+
+          // 4) KUYRUK — 450 ms, bogulmus. Cevrenin yansimasi.
+          katman({ sure: 0.45, egri: 4.5, tur: "lowpass", frekans: 950, kazanc: 0.06, gecikme: 0.012 });
+
+          // 5) SURGU — metalik kisa klik: mekanizmanin kurulmasi.
+          katman({ sure: 0.03, egri: 2, tur: "bandpass", frekans: 3400, q: 3, kazanc: 0.07, gecikme: 0.07 });
+        }
+
+        /** Sarjor bos: sadece tetigin kuru klik'i. */
+        function kuruAtis() {
+          katman({ sure: 0.022, egri: 2, tur: "bandpass", frekans: 2300, q: 4, kazanc: 0.06 });
+        }
+
+        /** Sarjor degisimi: cikan sarjor, giren sarjor, surgu. */
+        function sarjorSesi() {
+          katman({ sure: 0.035, egri: 2, tur: "bandpass", frekans: 1500, q: 2.5, kazanc: 0.09 });
+          katman({ sure: 0.045, egri: 2, tur: "bandpass", frekans: 1100, q: 2.5, kazanc: 0.11, gecikme: 0.14 });
+          katman({ sure: 0.05, egri: 1.8, tur: "bandpass", frekans: 2800, q: 3, kazanc: 0.1, gecikme: 0.3 });
+        }
+
+        /** Hedef vuruldu: iki tizden metalik bir ting. */
+        function vurusSesi() {
+          var t = ctx.currentTime + 0.04;
+          [1720, 2580].forEach(function (hz, i) {
+            var o = ctx.createOscillator();
+            o.type = "square";
+            o.frequency.value = hz;
+            var g = ctx.createGain();
+            g.gain.setValueAtTime(0.0001, t);
+            g.gain.exponentialRampToValueAtTime(i ? 0.028 : 0.045, t + 0.003);
+            g.gain.exponentialRampToValueAtTime(0.0001, t + 0.16);
+            o.connect(g).connect(ctx.destination);
+            o.start(t);
+            o.stop(t + 0.18);
+          });
+        }
+
+        // ---- gorsel ---------------------------------------------------------
 
         function patlama(x, y) {
           var el = document.createElement("div");
@@ -494,17 +612,166 @@ const kanonik = new URL(Astro.url.pathname, Astro.site).href;
           el.style.left = x + "px";
           el.style.top = y + "px";
           document.body.appendChild(el);
-          setTimeout(function () { el.remove(); }, 400);
+          setTimeout(function () {
+            el.remove();
+          }, 400);
         }
+
+        // ---- kenar hedefleri ------------------------------------------------
+        // Figurler yalnizca icerik kolonunun DISINDA duruyor; metnin ustune
+        // hicbir sey binmiyor. Yeterli bosluk yoksa (dar ekran, buyutulmus
+        // yazi) hic olusturulmuyorlar.
+
+        var GEN = 22, BOY = 40, PAY = 14, EN_AZ_KOLON = 74, ADET = 3;
+        var saha = null;
+
+        function kolonlar() {
+          var m = document.querySelector("main");
+          if (!m) return [];
+          var r = m.getBoundingClientRect();
+          var liste = [];
+          if (r.left - PAY * 2 >= EN_AZ_KOLON) liste.push([PAY, r.left - PAY]);
+          if (window.innerWidth - r.right - PAY * 2 >= EN_AZ_KOLON) {
+            liste.push([r.right + PAY, window.innerWidth - PAY]);
+          }
+          return liste;
+        }
+
+        function yerlestir(el, kolon) {
+          var h = window.innerHeight;
+
+          // Yatay salinim ONCE seciliyor, cunku baslangic noktasi ona gore
+          // daraltiliyor. Tersi sirada figur salinirken metin kolonunun
+          // kenarina girip yaziyi kapatiyordu.
+          var kay = Math.round(Math.random() * 40 - 20);
+          var enSol = kolon[0] + Math.max(0, -kay);
+          var enSag = kolon[1] - GEN - Math.max(0, kay);
+          var x = enSol + Math.random() * Math.max(1, enSag - enSol);
+
+          // Dusey gezinme de ayni mantikla sinirli: hangi yonde daha cok yer
+          // varsa o yone, sadece sigdigi kadar.
+          var y = 60 + Math.random() * Math.max(40, h - 260);
+          var istek = 60 + Math.random() * 150;
+          var asagi = h - 30 - (y + BOY);
+          var yukari = y - 20;
+          var mesafe = asagi >= yukari
+            ? Math.max(0, Math.min(asagi, istek))
+            : -Math.max(0, Math.min(yukari, istek));
+
+          el.style.left = Math.round(x) + "px";
+          el.style.top = Math.round(y) + "px";
+          el.style.setProperty("--mesafe", Math.round(mesafe) + "px");
+          el.style.setProperty("--kay", kay + "px");
+          el.style.setProperty("--sure", (7 + Math.random() * 8).toFixed(1) + "s");
+          // Negatif gecikme animasyonu ortasindan baslatiyor; boylece figurler
+          // ayni anda ayni yonde hareket etmiyor.
+          el.style.setProperty("--gecikme", "-" + (Math.random() * 12).toFixed(1) + "s");
+        }
+
+        function figurEkle(kolon) {
+          var el = document.createElement("div");
+          el.className = "hedef";
+          el.setAttribute("aria-hidden", "true");
+          el.appendChild(document.createElement("i"));
+          yerlestir(el, kolon);
+          saha.appendChild(el);
+        }
+
+        function sahaKur() {
+          var liste = kolonlar();
+          if (!saha) {
+            if (!liste.length) return;
+            saha = document.createElement("div");
+            saha.className = "saha";
+            saha.setAttribute("aria-hidden", "true");
+            document.body.appendChild(saha);
+          }
+          saha.textContent = "";
+          for (var i = 0; i < liste.length; i++) {
+            for (var j = 0; j < ADET; j++) figurEkle(liste[i]);
+          }
+        }
+
+        function devir(el) {
+          el.classList.add("vuruldu");
+          vurus++;
+          vurusYaz(true);
+          cal(vurusSesi);
+          // Devrilen figurun yerine bir sure sonra yenisi geliyor; saha
+          // bosalmasin ama aninda da dolmasin.
+          setTimeout(function () {
+            el.remove();
+            var liste = kolonlar();
+            if (saha && liste.length) {
+              figurEkle(liste[Math.floor(Math.random() * liste.length)]);
+            }
+          }, 900 + Math.random() * 1600);
+        }
+
+        sahaKur();
+
+        // Pencere boyutu degisince kolonlarin yeri de degisiyor: figurler
+        // metnin ustunde kalmasin diye sahayi bastan kuruyoruz.
+        var boyutZamani = null;
+        window.addEventListener("resize", function () {
+          clearTimeout(boyutZamani);
+          boyutZamani = setTimeout(sahaKur, 250);
+        });
+
+        // ---- tetik ----------------------------------------------------------
 
         document.addEventListener("mousedown", function (olay) {
           if (olay.button !== 0) return;
-          if (olay.target.closest && olay.target.closest(etkilesimli)) return;
+          var hedef = olay.target;
+          if (!hedef || hedef.nodeType !== 1) return;
+
+          var figur = hedef.closest(".hedef");
+          if (!figur) {
+            if (hedef.closest(ETKILESIMLI)) return; // tiklamanin kendi isi var
+            if (hedef.closest(METIN)) return; // metin secilebilir kalsin
+          }
+
+          // Ekranda secim varsa ilk tik onu temizlesin; secimi kaldiran tikla
+          // ayni anda ates etmek rahatsiz ediciydi.
           var secim = window.getSelection();
-          if (secim && String(secim).length) return;
+          if (secim && !secim.isCollapsed) {
+            secim.removeAllRanges();
+            return;
+          }
+
+          // Cift/uclu tiklamanin metin secmesini bastan engelliyor.
+          olay.preventDefault();
+
+          if (kalan <= 0) {
+            cal(kuruAtis);
+            return;
+          }
+          kalan--;
+          mermiYaz();
           patlama(olay.clientX, olay.clientY);
-          ses();
+          cal(atisSesi);
+          if (figur && !figur.classList.contains("vuruldu")) devir(figur);
         });
+
+        document.addEventListener("keydown", function (olay) {
+          if (olay.key !== "r" && olay.key !== "R") return;
+          if (olay.ctrlKey || olay.metaKey || olay.altKey) return; // Ctrl+R yenileme
+          var odak = document.activeElement;
+          if (odak && /^(INPUT|TEXTAREA|SELECT)$/.test(odak.tagName)) return;
+          if (kalan === SARJOR) return;
+
+          kalan = SARJOR;
+          mermiYaz();
+          cal(sarjorSesi);
+          if (mermiEl) {
+            mermiEl.classList.remove("doldu");
+            void mermiEl.offsetWidth;
+            mermiEl.classList.add("doldu");
+          }
+        });
+
+        mermiYaz();
+        vurusYaz(false);
       })();
     </script>
   </body>
