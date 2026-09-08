@@ -501,42 +501,40 @@ const kanonik = new URL(Astro.url.pathname, Astro.site).href;
         // hicbir sey binmiyor. Yeterli bosluk yoksa (dar ekran, buyutulmus
         // yazi) hic olusturulmuyorlar.
 
-        var GEN = 22, BOY = 40, PAY = 14, EN_AZ_KOLON = 74, ADET = 3;
+        var GEN = 28, BOY = 40, PAY = 14, EN_AZ_KOLON = 80, ADET = 3;
         // Figur: kafa, govde, iki kol, iki bacak — hepsi kutu, izgaranin
         // dili yuvarlatmaya izin vermiyor.
+        // Figur: kafa, govde, iki kol, iki bacak — hepsi kutu, izgaranin dili
+        // yuvarlatmaya izin vermiyor. Uzuvlarin animasyonu CSS'te; buradaki
+        // siniflar onlarin tutamagi.
+        //
+        // viewBox soldan -3'te basliyor ve 28 genis: uzuvlar omuzdan/kalcadan
+        // salindiginda govdenin disina tasiyor, o pay olmasa SVG onlari
+        // kirpiyor ve figurun kolu kesik gorunuyordu. Aci sinirlari ile bu pay
+        // birlikte hesaplandi.
         var FIGUR =
-          '<svg viewBox="0 0 22 40" aria-hidden="true">' +
+          '<svg viewBox="-3 0 28 40" aria-hidden="true">' +
           '<rect x="7" width="8" height="8"/>' +
           '<rect x="6" y="9" width="10" height="13"/>' +
-          // Kollar ve bacaklar iki grup halinde; CSS ikisini donusumlu
-          // gosterip iki kareli bir yuruyus cikariyor.
-          '<g class="adim-a">' +
-          '<rect x="2" y="10" width="3" height="12"/>' +
-          '<rect x="17" y="10" width="3" height="12"/>' +
-          '<rect x="7" y="22" width="3" height="18"/>' +
-          '<rect x="12" y="22" width="3" height="18"/>' +
-          '</g>' +
-          // Ikinci kare: uzuvlar omuzdan ve kalcadan doner. Aci ve uzunluklar
-          // hicbir parca viewBox disina tasmayacak sekilde secildi; tasarsa
-          // SVG onu kirpiyor ve figurun kolu kesik gorunuyor.
-          '<g class="adim-b">' +
-          '<rect x="2" y="10" width="3" height="12" transform="rotate(-16 3.5 11)"/>' +
-          '<rect x="17" y="10" width="3" height="12" transform="rotate(16 18.5 11)"/>' +
-          '<rect x="7" y="22" width="3" height="17" transform="rotate(-14 8.5 22)"/>' +
-          '<rect x="12" y="22" width="3" height="17" transform="rotate(14 13.5 22)"/>' +
-          '</g>' +
+          '<rect class="kol-sol" x="2" y="10" width="3" height="12"/>' +
+          '<rect class="kol-sag" x="17" y="10" width="3" height="12"/>' +
+          '<rect class="bacak-sol" x="7" y="22" width="3" height="17"/>' +
+          '<rect class="bacak-sag" x="12" y="22" width="3" height="17"/>' +
           '</svg>';
 
         var saha = null;
 
+        // Her kolon [sol, sag, ustSinir]. Sag kolonun ust siniri panelin
+        // altindan basliyor: panel donuk zeminli, arkasindan gecen figur
+        // gorunmeden vurulabilir hale geliyordu.
         function kolonlar() {
           var m = document.querySelector("main");
           if (!m) return [];
           var r = m.getBoundingClientRect();
           var liste = [];
-          if (r.left - PAY * 2 >= EN_AZ_KOLON) liste.push([PAY, r.left - PAY]);
+          if (r.left - PAY * 2 >= EN_AZ_KOLON) liste.push([PAY, r.left - PAY, 60]);
           if (window.innerWidth - r.right - PAY * 2 >= EN_AZ_KOLON) {
-            liste.push([r.right + PAY, window.innerWidth - PAY]);
+            liste.push([r.right + PAY, window.innerWidth - PAY, 150]);
           }
           return liste;
         }
@@ -554,10 +552,11 @@ const kanonik = new URL(Astro.url.pathname, Astro.site).href;
 
           // Dusey gezinme de ayni mantikla sinirli: hangi yonde daha cok yer
           // varsa o yone, sadece sigdigi kadar.
-          var y = 60 + Math.random() * Math.max(40, h - 260);
+          var ust = kolon[2] || 60;
+          var y = ust + Math.random() * Math.max(40, h - ust - 200);
           var istek = 60 + Math.random() * 150;
           var asagi = h - 30 - (y + BOY);
-          var yukari = y - 20;
+          var yukari = y - ust;
           var mesafe = asagi >= yukari
             ? Math.max(0, Math.min(asagi, istek))
             : -Math.max(0, Math.min(yukari, istek));
@@ -570,6 +569,9 @@ const kanonik = new URL(Astro.url.pathname, Astro.site).href;
           // Negatif gecikme animasyonu ortasindan baslatiyor; boylece figurler
           // ayni anda ayni yonde hareket etmiyor.
           el.style.setProperty("--gecikme", "-" + (Math.random() * 12).toFixed(1) + "s");
+          // Adim hizi figur basina degisiyor; ayni tempoda yuruyen alti figur
+          // asker yuruyusune benziyordu.
+          el.style.setProperty("--adim", (1.6 + Math.random() * 0.8).toFixed(2) + "s");
         }
 
         function figurEkle(kolon) {
