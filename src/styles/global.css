@@ -100,28 +100,18 @@ label {
     pointer;
 }
 
-/* Metin okurken/secerken normal metin imleci daha kullanisli. */
-p,
-h1,
-h2,
-h3,
-li,
-code,
-pre,
-.icerik {
-  cursor: text;
-}
-/* Ama baglanti icindeki metin yine tiklanabilir gorunsun. */
-a p, a h1, a h2, a h3, a li, a span { cursor: inherit; }
+/* Metnin uzerinde bir sure metin imleci (I) gosteriliyordu. Nisangah orada
+   kaybolunca imlec sayfa boyunca yer yer degisiyordu ve dagilmis duruyordu;
+   artik hicbir istisna yok, imlec her yerde nisangah. Metin yine secilebilir
+   — secmek imlecin sekline bagli degil. */
 
 /* Dokunmatik cihazda imlecin anlami yok. */
 @media (hover: none) {
-  body, a, button, [role="button"], summary, label,
-  p, h1, h2, h3, li, code, pre, .icerik { cursor: auto; }
+  body, a, button, [role="button"], summary, label { cursor: auto; }
 }
 /* --- ATIS EFEKTI ---
-   Bos alana sol tikta nisangahin "ates etmesi": tiklanan noktada genisleyen
-   bir kare cerceve ve ortada kisa bir parlama. Kare, izgara diline uygun
+   Icerik duzeninin disinda sol tikta nisangahin "ates etmesi": tiklanan
+   noktada genisleyen bir kare cerceve ve ortada kisa bir parlama. Kare, izgara diline uygun
    olsun diye daire yerine tercih edildi.
 
    pointer-events: none sart — yoksa efekt kendi ustune tiklanmayi engeller
@@ -215,7 +205,8 @@ a p, a h1, a h2, a h3, a li, a span { cursor: inherit; }
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  cursor: pointer;
+  /* cursor yok: yukarıdaki "button" kuralı nişangâhın tıklanabilir halini
+     veriyor. Burada pointer yazınca işletim sisteminin eli geri geliyordu. */
   transition: background 0.12s linear, color 0.12s linear;
 }
 .tema-secici button + button { border-left: var(--kalinlik) solid var(--murekkep); }
@@ -642,8 +633,10 @@ html:not(.js) .saat { display: none; }
 .is:focus-visible { background: var(--murekkep); color: var(--kagit); }
 
 /* Bağlantı olmayan liste satırı: proje sayfasındaki oyun listesi tıklanmıyor,
-   o yüzden vurgu davranışı da olmamalı — yoksa tıklanır sanılıyor. */
-.is.durgun { cursor: default; }
+   o yüzden vurgu davranışı da olmamalı — yoksa tıklanır sanılıyor. İmleç yine
+   nişangâh: "default" burada oku geri getiriyor, sayfanın tek imleci bozulmuş
+   gibi duruyordu. Tıklanmadığı bilgisi vurgunun yokluğundan geliyor. */
+.is.durgun { cursor: inherit; }
 .is.durgun:hover,
 .is.durgun:focus-visible { background: transparent; color: inherit; }
 

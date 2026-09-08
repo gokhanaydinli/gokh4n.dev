@@ -301,11 +301,13 @@ const kanonik = new URL(Astro.url.pathname, Astro.site).href;
       // vurus sayisi tarayicida saklaniyor.
       //
       // NEREYE ATES EDILIR:
-      //   Once her yere ediliyordu. Ust uste hizli tiklayinca tarayici bunu
-      //   cift/uclu tiklama sayiyor, layout icindeki metni seciyor, Edge de o
-      //   secim icin kendi kucuk menusunu aciyordu. Simdi metnin uzerinde ates
-      //   edilmiyor ve edilen her yerde preventDefault cagriliyor — secim hic
-      //   baslamiyor, dolayisiyla o menu de cikmiyor.
+      //   Yalnizca icerik duzeninin DISINDA, yani figurlerin gezindigi kenar
+      //   kolonlarinda. <main> icinde tek bir tik bile ates etmiyor.
+      //   Once "metin disindaki her yer" kuraliydi: hucre boslugu, satir
+      //   arasi, kenar payi ates aliyordu. Ust uste hizli tiklayinca tarayici
+      //   bunu cift/uclu tiklama sayip metni seciyor, Edge de o secim icin
+      //   kendi kucuk menusunu aciyordu. Kurali daraltmak hem o sorunu
+      //   bitiriyor hem de okurken yanlislikla ates etmeyi.
       (function () {
         // Nisangah masaustune ait: dokunmatik cihazda imlec kavrami yok, dar
         // pencerede de metnin yaninda hedef kolonu kalmiyor. Esik 72rem:
@@ -314,12 +316,6 @@ const kanonik = new URL(Astro.url.pathname, Astro.site).href;
         // global.css'teki panel sorgusunun aynisi — panel goruyorsa calisan
         // bir nisangah var, gormuyorsa hicbir sey yok.
         if (window.matchMedia("(hover: none), (max-width: 72rem)").matches) return;
-
-        // Bu iki liste global.css'teki imlec kurallarinin aynisi: nisangah
-        // gorunen yerde ates edilir, metin imleci gorunen yerde edilmez.
-        // Kullanici nereye ates edebilecegini imlecin kendisinden anliyor.
-        var ETKILESIMLI = "a, button, [role='button'], label, input, textarea, select, summary";
-        var METIN = "p, h1, h2, h3, li, code, pre, .icerik";
 
         var SARJOR = 30;
         var kalan = SARJOR;
@@ -631,11 +627,19 @@ const kanonik = new URL(Astro.url.pathname, Astro.site).href;
           var hedef = olay.target;
           if (!hedef || hedef.nodeType !== 1) return;
 
+          // ICERIK DUZENININ ICINDE ATES YOK.
+          // Once "metin disindaki her yer" kuraliydi; hucre boslugu, satir
+          // arasi, kenar payi hep ates aliyordu ve yaziyi secmeye calisirken
+          // sayfa patliyordu. Artik kural tek cumle: <main> icinde hicbir sey
+          // olmuyor, ates yalnizca duzenin disinda — figurlerin gezindigi
+          // kenar kolonlarinda. Metin oradaki gibi normal davraniyor, secim de
+          // serbest.
           var figur = hedef.closest(".hedef");
-          if (!figur) {
-            if (hedef.closest(ETKILESIMLI)) return; // tiklamanin kendi isi var
-            if (hedef.closest(METIN)) return; // metin secilebilir kalsin
-          }
+          if (!figur && hedef.closest("main")) return;
+
+          // Duzenin disinda tiklanabilir bir sey yok ama ileride eklenirse
+          // tiklamasini yemeyelim.
+          if (!figur && hedef.closest("a, button, [role='button'], input, label")) return;
 
           // Ekranda secim varsa ilk tik onu temizlesin; secimi kaldiran tikla
           // ayni anda ates etmek rahatsiz ediciydi.
@@ -645,7 +649,8 @@ const kanonik = new URL(Astro.url.pathname, Astro.site).href;
             return;
           }
 
-          // Cift/uclu tiklamanin metin secmesini bastan engelliyor.
+          // Kenarda secilecek metin yok; cift/uclu tiklamanin bos yerde secim
+          // baslatmasini yine de engelliyoruz.
           olay.preventDefault();
 
           if (kalan <= 0) {
