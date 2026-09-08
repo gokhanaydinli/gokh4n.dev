@@ -294,6 +294,33 @@ const kanonik = new URL(Astro.url.pathname, Astro.site).href;
 
 
     <script is:inline>
+      // ---- COKLU TIK SECIMI -------------------------------------------------
+      // Cift tik kelimeyi, uclu tik paragrafi seciyor. Nisangahla ust uste
+      // tiklarken bu istenmeyen bir yan etki: yazi seciliyor, Edge de o secim
+      // icin kendi kucuk menusunu aciyor. Ikinci ve sonraki tiklarda
+      // varsayilan davranis engelleniyor (olay.detail tik sayisini veriyor).
+      //
+      // Tek tik + surukleme dokunulmadan kaliyor: metni secmek isteyen yine
+      // basili tutup secebiliyor. Yazi alanlari da disarida — orada cift tikla
+      // kelime secmek isin bir parcasi.
+      //
+      // Bu blok nisangahtan AYRI duruyor ve bilerek: nisangah 72rem altinda
+      // hic baslamiyor, ama coklu tik secimi her genislikte kapali olmali.
+      (function () {
+        document.addEventListener("mousedown", function (olay) {
+          if (olay.detail < 2) return;
+          var h = olay.target;
+          if (
+            h &&
+            h.nodeType === 1 &&
+            h.closest("input, textarea, select, [contenteditable]")
+          ) {
+            return;
+          }
+          olay.preventDefault();
+        });
+      })();
+
       // ---- ATIS -------------------------------------------------------------
       // Nisangah gercekten ates ediyor: tiklanan noktada patlama, uretilen bir
       // tufek sesi, sag ustte dusen mermi sayaci. R sarjoru degistiriyor.
