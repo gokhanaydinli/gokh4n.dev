@@ -304,6 +304,10 @@ label {
   transition: opacity 0.15s;
   animation: hedef-yuru var(--sure, 9s) ease-in-out var(--gecikme, 0s) infinite
     alternate;
+  /* Her figür kendi katmanında: gövdenin yürümesi bileşik (composited) hale
+     geliyor, uzuvlar oynarken de yalnızca 28x40'lık kendi alanı yeniden
+     çiziliyor, sayfanın geri kalanı değil. */
+  will-change: transform;
 }
 /* Nişangâh üzerine gelince belirginleşiyor — "hedefte" bilgisi. */
 .hedef:hover { opacity: 0.5; }
@@ -673,6 +677,10 @@ html:not(.js) .saat { display: none; }
 .yigin {
   margin: 0.9rem 0 0;
   font-family: var(--mono);
+  /* 700 hem sitedeki diğer bütün mono etiketlerle aynı, hem de ağırlık
+     yazılmadığında gövdeden 500 miras alınıyordu: tarayıcı bu tek satır için
+     Space Mono'nun 400 dosyasını ayrıca indiriyordu (16.5 KB). */
+  font-weight: 700;
   font-size: 0.68rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -704,6 +712,7 @@ html:not(.js) .saat { display: none; }
   display: grid;
   grid-template-columns: 3.5rem 1fr;
   font-family: var(--mono);
+  font-weight: 700;
   font-size: 0.8rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -754,6 +763,7 @@ html:not(.js) .saat { display: none; }
 .yazi-ustveri {
   margin: 1rem 0 0;
   font-family: var(--mono);
+  font-weight: 700;
   font-size: 0.7rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
