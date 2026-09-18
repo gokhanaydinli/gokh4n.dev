@@ -1,0 +1,49 @@
+# ============================================================================
+# Kod derleniyor mu? Amaç: bozuk bir yazı ya da şablon main'e girmesin.
+#
+# Astro derlemesi içerik şemasını da doğruluyor (src/content.config.ts):
+# başlığı ya da tarihi eksik bir Markdown dosyası burada hata verir.
+#
+# main'e push'ta ÇALIŞMAZ — orada aynı kontrol deploy.yml'nin ilk aşaması
+# olarak zaten yapılıyor, iki kez derlemenin anlamı yok.
+#
+# Dal adı 'development'. Burayı değiştirirken dal adını da değiştirmeyi
+# unutma: eşleşmezse CI sessizce hiç çalışmaz, hata da vermez.
+# ============================================================================
+name: Kontrol
+
+on:
+  push:
+    branches: [development]
+  pull_request:
+    branches: [main, development]
+
+# GITHUB_TOKEN'a yalnizca okuma yetkisi. Bu is depoya yazmiyor;
+# varsayilan genis yetkiyi birakmanin anlami yok.
+permissions:
+  contents: read
+
+# Aynı dalda arka arkaya push gelirse eskisini iptal et, boşuna dakika yakma.
+concurrency:
+  group: kontrol-site-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  kontrol:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Bağımlılıklar
+        run: npm ci
+
+      - name: Tip kontrolü
+        run: npm run check
+
+      - name: Derle
+        run: npm run build

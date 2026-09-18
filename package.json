@@ -1,6 +1,6 @@
 {
   "name": "gokh4n-dev",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "type": "module",
   "private": true,
   "scripts": {
@@ -14,5 +14,9 @@
     "@fontsource-variable/space-grotesk": "^5.3.0",
     "@fontsource/space-mono": "^5.3.0",
     "astro": "^5.13.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "typescript": "^5.9.3"
   }
 }

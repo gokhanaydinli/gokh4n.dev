@@ -39,12 +39,14 @@ npm run build    # dist/ üretir
 
 ## Yayına alma
 
-`main` dalına push → GitHub Actions sunucuda derleyip yayına alır. Yaklaşık
-30 saniye. Elle bir şey yapmak gerekmiyor.
+`main` dalına push → GitHub Actions önce kodu derler, geçerse sunucuda
+`deploy.sh`'i çalıştırır. Bir-iki dakika. Elle bir şey yapmak gerekmiyor.
 
 Günlük iş `development` dalında yürür, hazır olunca `main`'e alınır.
+`development`'a push ve `main`'e açılan PR'da da aynı derleme kontrolü çalışır,
+yani bozuk bir yazı ya da şablon main'e girmeden yakalanır.
 
-Derleme sunucuda ayrı bir klasöre yapılıp başarılıysa yayındakiyle
+Derleme sunucuda da ayrı bir klasöre yapılıp başarılıysa yayındakiyle
 değiştiriliyor — derleme patlarsa site eski hâliyle ayakta kalır.
 
 ## Sunucu düzeni

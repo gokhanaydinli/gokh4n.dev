@@ -1,9 +1,24 @@
 # ============================================================================
 # Siteyi sunucuya yayınlar.
 #
-# Bu repo statik HTML — build yok, servis yeniden başlatılmıyor. O yüzden
-# main'e her push'ta OTOMATİK yayınlamak güvenli: kesinti olmuyor.
-# (Oyun reposunda durum farklı, orada deploy elle tetikleniyor.)
+# İKİ AŞAMALI: önce burada derlenir, ancak geçerse sunucuya dokunulur.
+# Derlenmeyen kod main'e girse bile canlıya inmez.
+#
+# Sunucudaki deploy.sh derlemeyi ayrı bir klasöre yapıp yalnızca başarılıysa
+# yayındakiyle değiştiriyor — yani orada da kesinti yok, çalışan bir servis
+# yeniden başlatılmıyor. (Oyun reposunda deploy pm2'yi yeniden başlatır ve
+# açık oyunlar düşer; burada öyle bir şey olmuyor.)
+#
+# TARİHÇE: Bu iş eskiden `cd /srv/site && git pull` çalıştırıyordu — repo tek
+# bir index.html iken doğruydu. Astro'ya geçince hem yol değişti
+# (/srv/site-kaynak) hem de derleme adımı gerekti, ama bu dosya güncellenmedi:
+# yayınlama sessizce çalışmaz oldu. Sunucuda ne çalıştığını değiştirirken
+# buraya da bakmak gerekiyor.
+#
+# NOT: Sunucudaki anahtar authorized_keys içinde tek bir komuta kilitliyse
+# (command="/srv/site-kaynak/deploy.sh") aşağıdaki satır zaten yok sayılır ve
+# o betik çalışır. İki durumda da sonuç aynı; satır doğru olsun ki kilit
+# kaldırılırsa da çalışsın.
 #
 # Gerekli secret'lar — Settings > Secrets and variables > Actions:
 #   SSH_HOST  sunucunun IP'si
@@ -28,13 +43,32 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  yayinla:
+  kontrol:
+    name: Derleme kontrolü
     runs-on: ubuntu-latest
     steps:
-      - name: Sunucuda güncelle
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Bağımlılıklar
+        run: npm ci
+
+      - name: Derle
+        run: npm run build
+
+  yayinla:
+    name: Sunucuya yayınla
+    needs: kontrol
+    runs-on: ubuntu-latest
+    steps:
+      - name: Sunucuda deploy betiğini çalıştır
         uses: appleboy/ssh-action@7eaf76671a0d7eec5d98ee897acda4f968735a17  # v1.2.0
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          script: cd /srv/site && git pull --ff-only
+          script: /srv/site-kaynak/deploy.sh
