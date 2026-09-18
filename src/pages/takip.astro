@@ -1,0 +1,80 @@
+---
+// ============================================================================
+// /takip — proje sayfası.
+//
+// Araç önce burada, bu sayfanın içinde çalışıyordu. Arayüzü JavaScript ile
+// üretilen listelerden oluşuyor ve Astro'nun kapsamlı stilleri (şablonda
+// yazılı olmayan elemanlara uygulanmıyor) yüzünden sürekli kırılıyordu.
+// Kendi projesine taşındı: analiz.gokh4n.dev
+//
+// Burada kalan şey, oyun-gecesi.astro ile aynı kalıpta bir tanıtım: ziyaretçi
+// aracın ne olduğunu anlamadan içine düşmesin.
+// ============================================================================
+import Temel from "../layouts/Temel.astro";
+
+const ozellikler = [
+  {
+    ad: "Takipten çıkanlar",
+    aciklama:
+      "İki farklı tarihteki listeyi karşılaştırır. Tek bir dışa aktarım " +
+      "yalnızca “kim beni geri takip etmiyor” diyebilir; “kim çıktı” için " +
+      "geçmiş gerekiyor ve araç onu tutuyor.",
+  },
+  {
+    ad: "Şifre istemiyor",
+    aciklama:
+      "Instagram'ın resmî API'si takipçi listesini hiçbir koşulda vermiyor. " +
+      "Araç, Instagram'ın kullanıcıya kendi verdiği veri dışa aktarımını " +
+      "okuyor — hesabı riske atan bir giriş ya da kazıma yok.",
+  },
+  {
+    ad: "Hiçbir şey sunucuya gitmiyor",
+    aciklama:
+      "Dosya tarayıcıda açılıyor, karşılaştırma tarayıcıda yapılıyor, geçmiş " +
+      "tarayıcıda saklanıyor. Sayfa statik; arkasında çalışan bir şey yok.",
+  },
+];
+---
+
+<Temel
+  baslik="Takip Defteri — gokh4n.dev"
+  aciklama="Instagram'da kimlerin takipten çıktığını gösteren araç."
+  aktif="ana"
+>
+  <div class="hucre serit">
+    <span>Proje</span>
+    <span>2026</span>
+  </div>
+
+  <header class="hucre yazi-basligi">
+    <h1>Takip Defteri</h1>
+    <p class="yazi-ozet">
+      Instagram'da kimlerin takipten çıktığını gösterir. Instagram'ın sana
+      verdiği veri dışa aktarımını okur, önceki kayıtla karşılaştırır. Şifre
+      istemez, hiçbir şey sunucuya gitmez.
+    </p>
+    <p class="yazi-ustveri" lang="en">Next · TypeScript · Tailwind</p>
+  </header>
+
+  <div class="hucre serit">
+    <span>Ne yapıyor</span>
+    <span>{String(ozellikler.length).padStart(2, "0")}</span>
+  </div>
+
+  {
+    ozellikler.map((o, i) => (
+      <div class="hucre is durgun">
+        <span class="sira">{String(i + 1).padStart(2, "0")}</span>
+        <span class="govde">
+          <span class="ad">{o.ad}</span>
+          <p class="aciklama">{o.aciklama}</p>
+        </span>
+      </div>
+    ))
+  }
+
+  <a class="hucre bag" href="https://analiz.gokh4n.dev">
+    <span>Aracı aç</span>
+    <span aria-hidden="true">↗</span>
+  </a>
+</Temel>
