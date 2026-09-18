@@ -11,8 +11,16 @@
 // kullanım şartlarına aykırı hem de hesabı riske atıyor. Bu araç bunun yerine
 // Instagram'ın kullanıcıya kendi verdiği dışa aktarımı okuyor.
 //
-// Stil neden burada: global.css her sayfanın içine gömülüyor (astro.config).
-// Yalnızca bu sayfaya ait kuralları oraya koymak bütün sayfaları şişirirdi.
+// STİL NEDEN `is:global`:
+// Astro'nun kapsamlı stilleri, şablonda yazılı elemanlara bir işaret ekleyip
+// (`data-astro-cid-…`) kuralları o işarete bağlıyor. Buradaki listeler ise
+// JavaScript ile üretiliyor; onlara işaret düşmediği için kurallar hiç
+// tutmuyordu ve 200 kullanıcı adı yan yana yapışık tek blok halinde çıkıyordu.
+// Kapsamı kaldırdık; çakışma olmasın diye sınıf adları `td-` önekli.
+//
+// Stil neden global.css'te değil: o dosya HER sayfanın içine gömülüyor
+// (astro.config). Yalnızca bu sayfaya ait kuralları oraya koymak bütün
+// sayfaları şişirirdi.
 // ============================================================================
 import Temel from "../layouts/Temel.astro";
 ---
@@ -72,18 +80,18 @@ import Temel from "../layouts/Temel.astro";
     </p>
   </div>
 
-  <div class="hucre birak" id="birak-alani">
+  <div class="hucre td-birak" id="birak-alani">
     <input type="file" id="dosya" accept=".zip,.json" multiple hidden />
-    <button type="button" id="sec-dugmesi" class="birak-dugme">
+    <button type="button" id="sec-dugmesi" class="td-dugme">
       ZIP dosyasını seç
     </button>
-    <p class="birak-not">
+    <p class="td-birak-not">
       ya da buraya sürükle · istersen <code>followers_1.json</code> ve
       <code>following.json</code> dosyalarını doğrudan bırakabilirsin
     </p>
   </div>
 
-  <div class="hucre durum" id="durum" hidden></div>
+  <div class="hucre td-durum" id="durum" hidden></div>
 
   <!-- Sonuçlar: dosya okunana kadar gizli. -->
   <div id="sonuc" hidden>
@@ -92,16 +100,16 @@ import Temel from "../layouts/Temel.astro";
       <span id="ozet-tarih"></span>
     </div>
 
-    <div class="hucre sayilar">
-      <div><span class="sayi" id="sayi-takipci">—</span><span class="etiket">Takipçi</span></div>
-      <div><span class="sayi" id="sayi-takip">—</span><span class="etiket">Takip edilen</span></div>
-      <div><span class="sayi" id="sayi-geri">—</span><span class="etiket">Geri takip etmeyen</span></div>
-      <div><span class="sayi vurgulu" id="sayi-cikan">—</span><span class="etiket">Takipten çıkan</span></div>
+    <div class="hucre td-sayilar">
+      <div><span class="td-sayi" id="sayi-takipci">—</span><span class="td-etiket">Takipçi</span></div>
+      <div><span class="td-sayi" id="sayi-takip">—</span><span class="td-etiket">Takip edilen</span></div>
+      <div><span class="td-sayi" id="sayi-geri">—</span><span class="td-etiket">Geri takip etmeyen</span></div>
+      <div><span class="td-sayi td-vurgulu" id="sayi-cikan">—</span><span class="td-etiket">Takipten çıkan</span></div>
     </div>
 
-    <div class="hucre bag kaydet-satir">
+    <div class="hucre td-kaydet">
       <span id="kaydet-aciklama">Bu listeyi karşılaştırma için kaydet</span>
-      <button type="button" id="kaydet" class="birak-dugme">Kaydet</button>
+      <button type="button" id="kaydet" class="td-dugme">Kaydet</button>
     </div>
 
     <div id="bolumler"></div>
@@ -119,9 +127,9 @@ import Temel from "../layouts/Temel.astro";
   </a>
 </Temel>
 
-<style>
+<style is:global>
   /* Bırakma alanı */
-  .birak {
+  .td-birak {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -129,10 +137,10 @@ import Temel from "../layouts/Temel.astro";
     padding: 2.2rem 1rem;
     text-align: center;
   }
-  .birak.uzerinde {
+  .td-birak.uzerinde {
     background: color-mix(in srgb, var(--vurgu) 12%, transparent);
   }
-  .birak-dugme {
+  .td-dugme {
     border: var(--kalinlik) solid var(--murekkep);
     background: transparent;
     color: inherit;
@@ -145,55 +153,59 @@ import Temel from "../layouts/Temel.astro";
     cursor: pointer;
     transition: background 0.12s linear, color 0.12s linear;
   }
-  .birak-dugme:hover {
+  .td-dugme:hover:not(:disabled) {
     background: var(--murekkep);
     color: var(--kagit);
   }
-  .birak-not {
+  .td-dugme:disabled {
+    opacity: 0.45;
+    cursor: default;
+  }
+  .td-birak-not {
     margin: 0;
     font-size: 0.78rem;
     opacity: 0.7;
   }
-  .birak-not code {
+  .td-birak-not code {
     font-family: var(--mono);
     font-size: 0.74rem;
   }
 
   /* Durum / hata satırı */
-  .durum {
+  .td-durum {
     padding: 1rem;
     font-family: var(--mono);
     font-size: 0.76rem;
   }
-  .durum.hata {
+  .td-durum.hata {
     background: color-mix(in srgb, var(--vurgu) 16%, transparent);
   }
 
   /* Sayı kutuları */
-  .sayilar {
+  .td-sayilar {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 1px;
+    gap: var(--kalinlik);
     background: var(--murekkep);
     padding: 0;
   }
-  .sayilar > div {
+  .td-sayilar > div {
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
+    gap: 0.3rem;
     padding: 1.1rem 0.9rem;
     background: var(--kagit);
   }
-  .sayi {
+  .td-sayi {
     font-family: var(--mono);
     font-size: 1.6rem;
     font-weight: 700;
     line-height: 1;
   }
-  .sayi.vurgulu {
+  .td-sayi.td-vurgulu {
     color: var(--vurgu);
   }
-  .etiket {
+  .td-etiket {
     font-family: var(--mono);
     font-size: 0.62rem;
     font-weight: 700;
@@ -202,36 +214,77 @@ import Temel from "../layouts/Temel.astro";
     opacity: 0.75;
   }
   @media (min-width: 40rem) {
-    .sayilar {
+    .td-sayilar {
       grid-template-columns: repeat(4, 1fr);
     }
   }
 
-  .kaydet-satir {
+  .td-kaydet {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     gap: 1rem;
     flex-wrap: wrap;
+    padding: 0.9rem;
+    font-family: var(--mono);
+    font-size: 0.76rem;
   }
 
-  /* Kullanıcı listeleri */
-  .liste {
+  /* Kullanıcı listeleri.
+     Uzun listeler sayfayı yutmasın diye kendi içinde kayıyor; 200 isim
+     ekranın on katı yer kaplıyordu. */
+  .td-arama {
+    display: block;
+    width: 100%;
+    border: none;
+    border-bottom: 1px solid color-mix(in srgb, var(--murekkep) 25%, transparent);
+    background: transparent;
+    color: inherit;
+    padding: 0.7rem 0.9rem;
+    font-family: var(--mono);
+    font-size: 0.76rem;
+  }
+  .td-arama::placeholder {
+    color: inherit;
+    opacity: 0.45;
+  }
+  .td-arama:focus {
+    outline: none;
+    background: color-mix(in srgb, var(--murekkep) 6%, transparent);
+  }
+  .td-liste {
     display: flex;
     flex-wrap: wrap;
+    align-content: flex-start;
     gap: 0.4rem;
-    padding: 1.1rem 0.9rem;
+    padding: 0.9rem;
+    max-height: 22rem;
+    overflow-y: auto;
   }
-  .liste a {
+  .td-liste a {
     border: 1px solid color-mix(in srgb, var(--murekkep) 35%, transparent);
-    padding: 0.28rem 0.5rem;
+    padding: 0.3rem 0.55rem;
     font-family: var(--mono);
     font-size: 0.74rem;
+    line-height: 1.2;
     text-decoration: none;
+    white-space: nowrap;
   }
-  .liste a:hover {
+  .td-liste a:hover {
     background: var(--murekkep);
     color: var(--kagit);
   }
+  .td-liste a[hidden] {
+    display: none;
+  }
+  .td-not {
+    padding: 0.7rem 0.9rem;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    opacity: 0.6;
+  }
 
-  .gecmis-satir {
+  .td-gecmis {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -240,7 +293,7 @@ import Temel from "../layouts/Temel.astro";
     font-family: var(--mono);
     font-size: 0.76rem;
   }
-  .gecmis-satir button {
+  .td-gecmis button {
     border: 1px solid color-mix(in srgb, var(--murekkep) 35%, transparent);
     background: transparent;
     color: inherit;
@@ -249,7 +302,7 @@ import Temel from "../layouts/Temel.astro";
     font-size: 0.68rem;
     cursor: pointer;
   }
-  .gecmis-satir button:hover {
+  .td-gecmis button:hover {
     background: var(--vurgu);
     color: var(--kagit);
   }
@@ -257,6 +310,7 @@ import Temel from "../layouts/Temel.astro";
 
 <script>
   import {
+    ayikla,
     dosyaTuru,
     geriTakipEtmeyenler,
     hesaplariCikar,
@@ -275,6 +329,9 @@ import Temel from "../layouts/Temel.astro";
   const sonucKutusu = $("sonuc");
   const bolumler = $("bolumler");
   const kaydetDugmesi = $<HTMLButtonElement>("kaydet");
+
+  /** Arama kutusunun görüneceği eşik: altındaki listeler zaten tek bakışta okunuyor. */
+  const ARAMA_ESIGI = 25;
 
   /** Ekranda duran, henüz kaydedilmemiş liste. */
   let guncel: AnlikGoruntu | null = null;
@@ -301,27 +358,40 @@ import Temel from "../layouts/Temel.astro";
     return n < 10 ? `0${n}` : String(n);
   }
 
-  /** Kullanıcı adlarını rozet listesi olarak basar. */
-  function listeBolumu(baslik: string, kullanicilar: string[], bos: string) {
-    const serit = document.createElement("div");
-    serit.className = "hucre serit";
-    serit.innerHTML = `<span></span><span></span>`;
-    serit.children[0].textContent = baslik;
-    serit.children[1].textContent = iki(kullanicilar.length);
-    bolumler.appendChild(serit);
+  function serit(baslik: string, sag: string): HTMLElement {
+    const el = document.createElement("div");
+    el.className = "hucre serit";
+    const a = document.createElement("span");
+    a.textContent = baslik;
+    const b = document.createElement("span");
+    b.textContent = sag;
+    el.append(a, b);
+    return el;
+  }
+
+  /** Bir bölüm: başlık şeridi + (gerekiyorsa) arama + kullanıcı rozetleri. */
+  function listeBolumu(baslik: string, kullanicilar: string[], bosMetin: string) {
+    // Silinmiş hesaplar sayıya dahil ama listede yer kaplamasınlar: tıklanacak
+    // profil yok ve listenin başını komple dolduruyorlardı.
+    const { hesaplar, silinmis } = ayikla(kullanicilar);
+
+    bolumler.appendChild(serit(baslik, String(kullanicilar.length)));
 
     if (kullanicilar.length === 0) {
       const yok = document.createElement("div");
       yok.className = "hucre bos";
-      yok.innerHTML = `<span>—</span><span></span>`;
-      yok.children[1].textContent = bos;
+      const tire = document.createElement("span");
+      tire.textContent = "—";
+      const metin = document.createElement("span");
+      metin.textContent = bosMetin;
+      yok.append(tire, metin);
       bolumler.appendChild(yok);
       return;
     }
 
     const kutu = document.createElement("div");
-    kutu.className = "hucre liste";
-    for (const k of kullanicilar) {
+    kutu.className = "hucre td-liste";
+    for (const k of hesaplar) {
       const a = document.createElement("a");
       a.href = `https://www.instagram.com/${encodeURIComponent(k)}/`;
       a.target = "_blank";
@@ -329,7 +399,29 @@ import Temel from "../layouts/Temel.astro";
       a.textContent = k;
       kutu.appendChild(a);
     }
+
+    if (hesaplar.length > ARAMA_ESIGI) {
+      const arama = document.createElement("input");
+      arama.type = "search";
+      arama.className = "hucre td-arama";
+      arama.placeholder = `${hesaplar.length} hesapta ara…`;
+      arama.addEventListener("input", () => {
+        const q = arama.value.trim().toLowerCase();
+        for (const a of kutu.children) {
+          (a as HTMLElement).hidden = q !== "" && !a.textContent!.includes(q);
+        }
+      });
+      bolumler.appendChild(arama);
+    }
+
     bolumler.appendChild(kutu);
+
+    if (silinmis > 0) {
+      const not = document.createElement("div");
+      not.className = "hucre td-not";
+      not.textContent = `${silinmis} silinmiş/kapatılmış hesap listede gösterilmedi (sayıya dahil).`;
+      bolumler.appendChild(not);
+    }
   }
 
   // ---- dosya okuma ---------------------------------------------------------
@@ -415,17 +507,19 @@ import Temel from "../layouts/Temel.astro";
     } else {
       const not = document.createElement("div");
       not.className = "hucre icerik";
-      not.innerHTML =
-        "<p><strong>Bu ilk listen.</strong> Karşılaştıracak eski bir kayıt yok, " +
-        "o yüzden “takipten çıkanlar” şimdilik boş. Aşağıdan kaydet; bir " +
+      const p = document.createElement("p");
+      p.innerHTML =
+        "<strong>Bu ilk listen.</strong> Karşılaştıracak eski bir kayıt yok, " +
+        "o yüzden “takipten çıkanlar” şimdilik boş. Yukarıdan kaydet; bir " +
         "süre sonra yeni bir dışa aktarım alıp tekrar yüklediğinde aradaki " +
-        "farkı burada göreceksin.</p>";
+        "farkı burada göreceksin.";
+      not.appendChild(p);
       bolumler.appendChild(not);
     }
 
-    listeBolumu("Geri takip etmeyenler", geri, "Herkes geri takip ediyor");
+    listeBolumu("Sen takip ediyorsun, o etmiyor", geri, "Herkes geri takip ediyor");
     listeBolumu(
-      "Takip etmedikleriniz (seni takip ediyor)",
+      "O seni takip ediyor, sen etmiyorsun",
       takipEtmedigimTakipciler(g),
       "Hepsini takip ediyorsun"
     );
@@ -447,14 +541,18 @@ import Temel from "../layouts/Temel.astro";
     if (liste.length === 0) {
       const bos = document.createElement("div");
       bos.className = "hucre bos";
-      bos.innerHTML = `<span>—</span><span>Henüz kayıt yok</span>`;
+      const tire = document.createElement("span");
+      tire.textContent = "—";
+      const metin = document.createElement("span");
+      metin.textContent = "Henüz kayıt yok";
+      bos.append(tire, metin);
       kutu.appendChild(bos);
       return;
     }
 
     for (const g of [...liste].reverse()) {
       const satir = document.createElement("div");
-      satir.className = "hucre gecmis-satir";
+      satir.className = "hucre td-gecmis";
 
       const bilgi = document.createElement("span");
       bilgi.textContent = `${tarihYaz(g.tarih)} · ${g.takipci.length} takipçi · ${g.takipEdilen.length} takip`;

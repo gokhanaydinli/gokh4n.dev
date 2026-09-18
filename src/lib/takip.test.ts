@@ -10,11 +10,13 @@
 import { strict as assert } from "node:assert";
 import { describe, it } from "node:test";
 import {
+  ayikla,
   dosyaTuru,
   fark,
   geriTakipEtmeyenler,
   hesaplariCikar,
   karsilastir,
+  silinmisMi,
   takipEtmedigimTakipciler,
   type AnlikGoruntu,
 } from "./takip";
@@ -171,6 +173,39 @@ describe("karsilastir", () => {
   it("sıra ters verilirse sonuç da ters olur (çağıran dikkat etmeli)", () => {
     const ters = karsilastir(simdiki, onceki);
     assert.deepEqual(ters.cikanlar, ["burak"]);
+  });
+});
+
+describe("silinmiş hesaplar", () => {
+  // Gerçek export'ta bunlardan onlarca çıkıyor ve listenin başını komple
+  // dolduruyorlardı; tıklanacak bir profil de yok.
+  it("__deleted__ ile başlayanları tanır", () => {
+    assert.equal(silinmisMi("__deleted__bhiebeaeeedecbhbj"), true);
+    assert.equal(silinmisMi("ahmetketenci53"), false);
+  });
+
+  it("listeyi gösterilebilirler ve silinmiş sayısı olarak ayırır", () => {
+    const { hesaplar, silinmis } = ayikla([
+      "__deleted__aaa",
+      "ayse",
+      "__deleted__bbb",
+      "mehmet",
+    ]);
+
+    assert.deepEqual(hesaplar, ["ayse", "mehmet"]);
+    assert.equal(silinmis, 2);
+  });
+
+  it("silinmiş yoksa sayı sıfır", () => {
+    assert.deepEqual(ayikla(["ayse"]), { hesaplar: ["ayse"], silinmis: 0 });
+  });
+
+  it("silinmişler SAYIDAN düşmez — gerçekten takipçiydiler", () => {
+    // Bölüm başlığındaki sayı tam listeden geliyor; ayikla yalnızca neyin
+    // ekrana basılacağını belirliyor.
+    const tam = ["__deleted__aaa", "ayse"];
+    assert.equal(tam.length, 2);
+    assert.equal(ayikla(tam).hesaplar.length, 1);
   });
 });
 

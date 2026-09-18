@@ -140,6 +140,25 @@ export function karsilastir(
   };
 }
 
+/**
+ * Silinmiş/kapatılmış hesaplar export'ta gerçek kullanıcı adıyla değil,
+ * `__deleted__<karma>` gibi bir dizeyle geliyor. Sayıya dahiller (gerçekten
+ * takipçiydiler) ama listede gösterilmeleri anlamsız: tıklanacak profil yok,
+ * 200 satırlık listenin yarısını da bunlar kaplıyor.
+ */
+export function silinmisMi(kullanici: string): boolean {
+  return kullanici.startsWith("__deleted__");
+}
+
+/** Listeyi gösterilebilir hesaplar ve silinmiş sayısı olarak ayırır. */
+export function ayikla(kullanicilar: readonly string[]): {
+  hesaplar: string[];
+  silinmis: number;
+} {
+  const hesaplar = kullanicilar.filter((k) => !silinmisMi(k));
+  return { hesaplar, silinmis: kullanicilar.length - hesaplar.length };
+}
+
 /** a'da olup b'de olmayanlar, alfabetik. */
 export function fark(a: readonly string[], b: readonly string[]): string[] {
   const bKume = new Set(b);
