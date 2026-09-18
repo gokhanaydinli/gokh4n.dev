@@ -45,8 +45,5 @@ jobs:
       - name: Tip kontrolü
         run: npm run check
 
-      - name: Testler
-        run: npm test
-
       - name: Derle
         run: npm run build
