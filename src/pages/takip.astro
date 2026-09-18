@@ -1,0 +1,507 @@
+---
+// ============================================================================
+// /takip — Instagram'da kimlerin takipten çıktığını gösteren araç.
+//
+// Tamamen tarayıcıda çalışıyor: dosya seçiliyor, orada açılıyor, orada
+// karşılaştırılıyor, geçmiş orada saklanıyor. Sunucuya hiçbir şey gitmiyor —
+// bu sitenin arkasında zaten çalışan bir şey yok, Caddy statik dosya veriyor.
+//
+// Neden şifre istemiyoruz: Instagram'ın resmî API'si takipçi LİSTESİNİ
+// hiçbir koşulda vermiyor (yalnızca sayıyı). Geriye kazıma kalıyor ki o hem
+// kullanım şartlarına aykırı hem de hesabı riske atıyor. Bu araç bunun yerine
+// Instagram'ın kullanıcıya kendi verdiği dışa aktarımı okuyor.
+//
+// Stil neden burada: global.css her sayfanın içine gömülüyor (astro.config).
+// Yalnızca bu sayfaya ait kuralları oraya koymak bütün sayfaları şişirirdi.
+// ============================================================================
+import Temel from "../layouts/Temel.astro";
+---
+
+<Temel
+  baslik="Takip Defteri — gokh4n.dev"
+  aciklama="Instagram'da kimlerin takipten çıktığını gösterir. Her şey tarayıcıda kalır."
+  aktif="ana"
+>
+  <div class="hucre serit">
+    <span>Araç</span>
+    <span>Takip Defteri</span>
+  </div>
+
+  <header class="hucre yazi-basligi">
+    <h1>Takip Defteri</h1>
+    <p class="yazi-ozet">
+      Instagram'ın sana verdiği veri dışa aktarımını okur, kimlerin takipten
+      çıktığını söyler. Şifre istemez, hiçbir şey sunucuya gitmez — dosya
+      tarayıcında açılır ve orada kalır.
+    </p>
+  </header>
+
+  <div class="hucre icerik">
+    <h2>Önce veriyi indir</h2>
+    <p>
+      En kısa yol — Instagram'da giriş yapmışken şunu aç:
+      <a
+        href="https://accountscenter.instagram.com/info_and_permissions/dyi/"
+        target="_blank"
+        rel="noreferrer">accountscenter.instagram.com/info_and_permissions/dyi<span aria-hidden="true"> ↗</span></a
+      >
+    </p>
+    <p>
+      Giriş yapmışsan doğrudan indirme ekranı açılır. Bu adres çalışmazsa
+      <a href="https://www.instagram.com/download/request/" target="_blank" rel="noreferrer"
+        >instagram.com/download/request<span aria-hidden="true"> ↗</span></a
+      > de aynı yere gidiyor. Uygulamanın menüsünden aramaya çalışma —
+      Instagram bu bölümü sürüm sürüm başka yere taşıyor.
+    </p>
+    <p>
+      İndirirken <strong>“Bazı bilgilerini seç”</strong> de ve yalnızca
+      <strong>Takipçiler ve takip edilenler</strong>'i işaretle; biçim
+      <strong>JSON</strong> olsun. Tamamını istersen dosya gigabaytları buluyor
+      ve hazırlanması günleri alıyor — bu araca sadece o iki liste gerekiyor,
+      öyle olunca genelde dakikalar içinde geliyor. Hazır olduğunda Instagram
+      sana bir bağlantı gönderiyor; gelen ZIP'i aşağıya bırak.
+    </p>
+
+    <h2>Nasıl çalışıyor</h2>
+    <p>
+      Tek bir dışa aktarım yalnızca <em>“kim beni geri takip etmiyor”</em>
+      sorusunu cevaplayabilir. <em>“Kim beni takipten çıktı”</em> için iki
+      farklı tarihteki listeyi karşılaştırmak gerekiyor. Bu yüzden her
+      yüklemeden sonra listeyi kaydedebiliyorsun; bir sonraki dışa aktarımda
+      aradaki farkı gösteriyor.
+    </p>
+  </div>
+
+  <div class="hucre birak" id="birak-alani">
+    <input type="file" id="dosya" accept=".zip,.json" multiple hidden />
+    <button type="button" id="sec-dugmesi" class="birak-dugme">
+      ZIP dosyasını seç
+    </button>
+    <p class="birak-not">
+      ya da buraya sürükle · istersen <code>followers_1.json</code> ve
+      <code>following.json</code> dosyalarını doğrudan bırakabilirsin
+    </p>
+  </div>
+
+  <div class="hucre durum" id="durum" hidden></div>
+
+  <!-- Sonuçlar: dosya okunana kadar gizli. -->
+  <div id="sonuc" hidden>
+    <div class="hucre serit">
+      <span>Özet</span>
+      <span id="ozet-tarih"></span>
+    </div>
+
+    <div class="hucre sayilar">
+      <div><span class="sayi" id="sayi-takipci">—</span><span class="etiket">Takipçi</span></div>
+      <div><span class="sayi" id="sayi-takip">—</span><span class="etiket">Takip edilen</span></div>
+      <div><span class="sayi" id="sayi-geri">—</span><span class="etiket">Geri takip etmeyen</span></div>
+      <div><span class="sayi vurgulu" id="sayi-cikan">—</span><span class="etiket">Takipten çıkan</span></div>
+    </div>
+
+    <div class="hucre bag kaydet-satir">
+      <span id="kaydet-aciklama">Bu listeyi karşılaştırma için kaydet</span>
+      <button type="button" id="kaydet" class="birak-dugme">Kaydet</button>
+    </div>
+
+    <div id="bolumler"></div>
+  </div>
+
+  <div class="hucre serit">
+    <span>Kayıtlı listeler</span>
+    <span id="gecmis-sayi">00</span>
+  </div>
+  <div id="gecmis"></div>
+
+  <a class="hucre bag" href="/">
+    <span>Çalışmalar</span>
+    <span aria-hidden="true">→</span>
+  </a>
+</Temel>
+
+<style>
+  /* Bırakma alanı */
+  .birak {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 2.2rem 1rem;
+    text-align: center;
+  }
+  .birak.uzerinde {
+    background: color-mix(in srgb, var(--vurgu) 12%, transparent);
+  }
+  .birak-dugme {
+    border: var(--kalinlik) solid var(--murekkep);
+    background: transparent;
+    color: inherit;
+    padding: 0.6rem 1.1rem;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.12s linear, color 0.12s linear;
+  }
+  .birak-dugme:hover {
+    background: var(--murekkep);
+    color: var(--kagit);
+  }
+  .birak-not {
+    margin: 0;
+    font-size: 0.78rem;
+    opacity: 0.7;
+  }
+  .birak-not code {
+    font-family: var(--mono);
+    font-size: 0.74rem;
+  }
+
+  /* Durum / hata satırı */
+  .durum {
+    padding: 1rem;
+    font-family: var(--mono);
+    font-size: 0.76rem;
+  }
+  .durum.hata {
+    background: color-mix(in srgb, var(--vurgu) 16%, transparent);
+  }
+
+  /* Sayı kutuları */
+  .sayilar {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: var(--murekkep);
+    padding: 0;
+  }
+  .sayilar > div {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 1.1rem 0.9rem;
+    background: var(--kagit);
+  }
+  .sayi {
+    font-family: var(--mono);
+    font-size: 1.6rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .sayi.vurgulu {
+    color: var(--vurgu);
+  }
+  .etiket {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    opacity: 0.75;
+  }
+  @media (min-width: 40rem) {
+    .sayilar {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  .kaydet-satir {
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  /* Kullanıcı listeleri */
+  .liste {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    padding: 1.1rem 0.9rem;
+  }
+  .liste a {
+    border: 1px solid color-mix(in srgb, var(--murekkep) 35%, transparent);
+    padding: 0.28rem 0.5rem;
+    font-family: var(--mono);
+    font-size: 0.74rem;
+    text-decoration: none;
+  }
+  .liste a:hover {
+    background: var(--murekkep);
+    color: var(--kagit);
+  }
+
+  .gecmis-satir {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.9rem;
+    font-family: var(--mono);
+    font-size: 0.76rem;
+  }
+  .gecmis-satir button {
+    border: 1px solid color-mix(in srgb, var(--murekkep) 35%, transparent);
+    background: transparent;
+    color: inherit;
+    padding: 0.25rem 0.5rem;
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    cursor: pointer;
+  }
+  .gecmis-satir button:hover {
+    background: var(--vurgu);
+    color: var(--kagit);
+  }
+</style>
+
+<script>
+  import {
+    dosyaTuru,
+    geriTakipEtmeyenler,
+    hesaplariCikar,
+    karsilastir,
+    takipEtmedigimTakipciler,
+    type AnlikGoruntu,
+  } from "../lib/takip";
+  import { zipGirdileri, zipMetin } from "../lib/zip";
+  import { goruntuKaydet, goruntuleriOku, goruntuSil, sonGoruntu } from "../lib/depo";
+
+  const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
+
+  const birakAlani = $("birak-alani");
+  const dosyaGirdisi = $<HTMLInputElement>("dosya");
+  const durumKutusu = $("durum");
+  const sonucKutusu = $("sonuc");
+  const bolumler = $("bolumler");
+  const kaydetDugmesi = $<HTMLButtonElement>("kaydet");
+
+  /** Ekranda duran, henüz kaydedilmemiş liste. */
+  let guncel: AnlikGoruntu | null = null;
+
+  // ---- yardımcılar ---------------------------------------------------------
+
+  function durum(metin: string, hata = false) {
+    durumKutusu.textContent = metin;
+    durumKutusu.classList.toggle("hata", hata);
+    durumKutusu.hidden = !metin;
+  }
+
+  function tarihYaz(ms: number): string {
+    return new Date(ms).toLocaleString("tr-TR", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }
+
+  function iki(n: number): string {
+    return n < 10 ? `0${n}` : String(n);
+  }
+
+  /** Kullanıcı adlarını rozet listesi olarak basar. */
+  function listeBolumu(baslik: string, kullanicilar: string[], bos: string) {
+    const serit = document.createElement("div");
+    serit.className = "hucre serit";
+    serit.innerHTML = `<span></span><span></span>`;
+    serit.children[0].textContent = baslik;
+    serit.children[1].textContent = iki(kullanicilar.length);
+    bolumler.appendChild(serit);
+
+    if (kullanicilar.length === 0) {
+      const yok = document.createElement("div");
+      yok.className = "hucre bos";
+      yok.innerHTML = `<span>—</span><span></span>`;
+      yok.children[1].textContent = bos;
+      bolumler.appendChild(yok);
+      return;
+    }
+
+    const kutu = document.createElement("div");
+    kutu.className = "hucre liste";
+    for (const k of kullanicilar) {
+      const a = document.createElement("a");
+      a.href = `https://www.instagram.com/${encodeURIComponent(k)}/`;
+      a.target = "_blank";
+      a.rel = "noreferrer";
+      a.textContent = k;
+      kutu.appendChild(a);
+    }
+    bolumler.appendChild(kutu);
+  }
+
+  // ---- dosya okuma ---------------------------------------------------------
+
+  async function dosyalariIsle(dosyalar: File[]) {
+    durum("Dosya okunuyor…");
+    sonucKutusu.hidden = true;
+
+    const takipci = new Set<string>();
+    const takipEdilen = new Set<string>();
+    let bulunanDosya = 0;
+
+    try {
+      for (const dosya of dosyalar) {
+        const ad = dosya.name.toLowerCase();
+
+        if (ad.endsWith(".zip")) {
+          const girdiler = await zipGirdileri(dosya);
+          for (const girdi of girdiler) {
+            const tur = dosyaTuru(girdi.ad);
+            if (!tur) continue;
+            bulunanDosya++;
+            const hesaplar = hesaplariCikar(JSON.parse(await zipMetin(dosya, girdi)));
+            const hedef = tur === "takipci" ? takipci : takipEdilen;
+            for (const h of hesaplar) hedef.add(h.kullanici);
+          }
+        } else if (ad.endsWith(".json")) {
+          const tur = dosyaTuru(dosya.name);
+          if (!tur) continue;
+          bulunanDosya++;
+          const hesaplar = hesaplariCikar(JSON.parse(await dosya.text()));
+          const hedef = tur === "takipci" ? takipci : takipEdilen;
+          for (const h of hesaplar) hedef.add(h.kullanici);
+        }
+      }
+    } catch (e) {
+      durum(`Dosya okunamadı: ${(e as Error).message}`, true);
+      return;
+    }
+
+    if (bulunanDosya === 0) {
+      durum(
+        "Bu dosyada takipçi listesi yok. Dışa aktarımı isterken " +
+          "“Takipçiler ve takip edilenler” seçili ve biçim JSON olmalı.",
+        true
+      );
+      return;
+    }
+
+    guncel = {
+      tarih: Date.now(),
+      takipci: [...takipci],
+      takipEdilen: [...takipEdilen],
+    };
+    durum("");
+    goster(guncel);
+  }
+
+  // ---- ekrana basma --------------------------------------------------------
+
+  function goster(g: AnlikGoruntu) {
+    const onceki = sonGoruntu();
+    const geri = geriTakipEtmeyenler(g);
+    const fark = onceki ? karsilastir(onceki, g) : null;
+
+    $("ozet-tarih").textContent = tarihYaz(g.tarih);
+    $("sayi-takipci").textContent = String(g.takipci.length);
+    $("sayi-takip").textContent = String(g.takipEdilen.length);
+    $("sayi-geri").textContent = String(geri.length);
+    $("sayi-cikan").textContent = fark ? String(fark.cikanlar.length) : "—";
+
+    bolumler.textContent = "";
+
+    if (fark && onceki) {
+      listeBolumu(
+        `Takipten çıkanlar · ${tarihYaz(onceki.tarih)} sonrası`,
+        fark.cikanlar,
+        "Kimse çıkmamış"
+      );
+      listeBolumu("Yeni takipçiler", fark.yeniTakipciler, "Yeni takipçi yok");
+      listeBolumu("Senin bıraktıkların", fark.biraktiklarin, "Kimseyi bırakmamışsın");
+      listeBolumu("Yeni takip ettiklerin", fark.yeniTakipEttiklerin, "Yeni takip yok");
+    } else {
+      const not = document.createElement("div");
+      not.className = "hucre icerik";
+      not.innerHTML =
+        "<p><strong>Bu ilk listen.</strong> Karşılaştıracak eski bir kayıt yok, " +
+        "o yüzden “takipten çıkanlar” şimdilik boş. Aşağıdan kaydet; bir " +
+        "süre sonra yeni bir dışa aktarım alıp tekrar yüklediğinde aradaki " +
+        "farkı burada göreceksin.</p>";
+      bolumler.appendChild(not);
+    }
+
+    listeBolumu("Geri takip etmeyenler", geri, "Herkes geri takip ediyor");
+    listeBolumu(
+      "Takip etmedikleriniz (seni takip ediyor)",
+      takipEtmedigimTakipciler(g),
+      "Hepsini takip ediyorsun"
+    );
+
+    kaydetDugmesi.disabled = false;
+    kaydetDugmesi.textContent = "Kaydet";
+    $("kaydet-aciklama").textContent = onceki
+      ? `Son kayıt: ${tarihYaz(onceki.tarih)} — bu listeyi de kaydet`
+      : "Bu listeyi karşılaştırma için kaydet";
+    sonucKutusu.hidden = false;
+  }
+
+  function gecmisiCiz() {
+    const liste = goruntuleriOku();
+    const kutu = $("gecmis");
+    $("gecmis-sayi").textContent = iki(liste.length);
+    kutu.textContent = "";
+
+    if (liste.length === 0) {
+      const bos = document.createElement("div");
+      bos.className = "hucre bos";
+      bos.innerHTML = `<span>—</span><span>Henüz kayıt yok</span>`;
+      kutu.appendChild(bos);
+      return;
+    }
+
+    for (const g of [...liste].reverse()) {
+      const satir = document.createElement("div");
+      satir.className = "hucre gecmis-satir";
+
+      const bilgi = document.createElement("span");
+      bilgi.textContent = `${tarihYaz(g.tarih)} · ${g.takipci.length} takipçi · ${g.takipEdilen.length} takip`;
+
+      const sil = document.createElement("button");
+      sil.type = "button";
+      sil.textContent = "Sil";
+      sil.addEventListener("click", () => {
+        goruntuSil(g.tarih);
+        gecmisiCiz();
+      });
+
+      satir.append(bilgi, sil);
+      kutu.appendChild(satir);
+    }
+  }
+
+  // ---- olaylar -------------------------------------------------------------
+
+  $("sec-dugmesi").addEventListener("click", () => dosyaGirdisi.click());
+
+  dosyaGirdisi.addEventListener("change", () => {
+    if (dosyaGirdisi.files?.length) dosyalariIsle([...dosyaGirdisi.files]);
+  });
+
+  for (const olay of ["dragenter", "dragover"]) {
+    birakAlani.addEventListener(olay, (e) => {
+      e.preventDefault();
+      birakAlani.classList.add("uzerinde");
+    });
+  }
+  for (const olay of ["dragleave", "drop"]) {
+    birakAlani.addEventListener(olay, () => birakAlani.classList.remove("uzerinde"));
+  }
+  birakAlani.addEventListener("drop", (e) => {
+    e.preventDefault();
+    const dosyalar = [...((e as DragEvent).dataTransfer?.files ?? [])];
+    if (dosyalar.length) dosyalariIsle(dosyalar);
+  });
+
+  kaydetDugmesi.addEventListener("click", () => {
+    if (!guncel) return;
+    goruntuKaydet(guncel);
+    kaydetDugmesi.disabled = true;
+    kaydetDugmesi.textContent = "Kaydedildi";
+    gecmisiCiz();
+  });
+
+  gecmisiCiz();
+</script>

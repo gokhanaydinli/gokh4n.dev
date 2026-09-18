@@ -57,6 +57,9 @@ jobs:
       - name: Bağımlılıklar
         run: npm ci
 
+      - name: Testler
+        run: npm test
+
       - name: Derle
         run: npm run build
 
