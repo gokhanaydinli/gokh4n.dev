@@ -72,92 +72,6 @@ main {
 
 a { color: inherit; }
 
-/* --- IMLEC BASLANGIC (tek parca; kaldirmak istersen bu iki isaret arasi) --- */
-/*
-   Ince bir artı nişangâh. Ortada boşluk var, yani imlecin ucu neyin üstünde
-   olduğunu kapatmıyor — nişan alması kolay. Tıklanabilir yerlerde ortaya
-   küçük dolu bir kare geliyor; "burası tıklanır" bilgisi imlecin kendisinden.
-
-   Renk vurgu rengi: data URI içinde CSS değişkeni kullanılamıyor, bu yüzden
-   iki temada da görünen tek bir renk seçildi.
-   Sondaki crosshair/pointer yedek: imleç yüklenemezse onlara düşer.
-*/
-body {
-  cursor:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22'%3E%3Cg stroke='%23ff3b00' stroke-width='1.5'%3E%3Cpath d='M11 1.5v6M11 14.5v6M1.5 11h6M14.5 11h6'/%3E%3C/g%3E%3C/svg%3E")
-      11 11,
-    crosshair;
-}
-
-a,
-button,
-[role="button"],
-summary,
-label {
-  cursor:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22'%3E%3Cg stroke='%23ff3b00' stroke-width='1.5'%3E%3Cpath d='M11 1.5v5M11 15.5v5M1.5 11h5M15.5 11h5'/%3E%3C/g%3E%3Crect x='8.5' y='8.5' width='5' height='5' fill='%23ff3b00'/%3E%3C/svg%3E")
-      11 11,
-    pointer;
-}
-
-/* Metnin uzerinde bir sure metin imleci (I) gosteriliyordu. Nisangah orada
-   kaybolunca imlec sayfa boyunca yer yer degisiyordu ve dagilmis duruyordu;
-   artik hicbir istisna yok, imlec her yerde nisangah. Metin yine secilebilir
-   — secmek imlecin sekline bagli degil. */
-
-/* Dokunmatik cihazda imlecin anlami yok. */
-@media (hover: none) {
-  body, a, button, [role="button"], summary, label { cursor: auto; }
-}
-/* --- ATIS EFEKTI ---
-   Icerik duzeninin disinda sol tikta nisangahin "ates etmesi": tiklanan
-   noktada genisleyen bir kare cerceve ve ortada kisa bir parlama. Kare, izgara diline uygun
-   olsun diye daire yerine tercih edildi.
-
-   pointer-events: none sart — yoksa efekt kendi ustune tiklanmayi engeller
-   ve altindaki metin secilemez hale gelir. */
-.atis {
-  position: fixed;
-  z-index: 9999;
-  width: 34px;
-  height: 34px;
-  margin: -17px 0 0 -17px;
-  pointer-events: none;
-}
-.atis::before,
-.atis::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-}
-/* Genisleyen cerceve */
-.atis::before {
-  border: var(--kalinlik) solid var(--vurgu);
-  animation: atis-cerceve 0.34s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
-}
-/* Merkez parlama */
-.atis::after {
-  inset: 12px;
-  background: var(--vurgu);
-  animation: atis-parlama 0.18s ease-out forwards;
-}
-
-@keyframes atis-cerceve {
-  from { transform: scale(0.25); opacity: 1; }
-  to   { transform: scale(1.7);  opacity: 0; }
-}
-@keyframes atis-parlama {
-  from { transform: scale(1);   opacity: 1; }
-  to   { transform: scale(0.2); opacity: 0; }
-}
-
-/* Hareket azaltma isteyen kullaniciya efekt gosterme. */
-@media (prefers-reduced-motion: reduce) {
-  .atis { display: none; }
-}
-
-/* --- IMLEC BITIS --- */
-
 /* ---------- ızgara iskeleti ---------- */
 
 .cerceve { border: var(--kalinlik) solid var(--murekkep); }
@@ -205,8 +119,7 @@ label {
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  /* cursor yok: yukarıdaki "button" kuralı nişangâhın tıklanabilir halini
-     veriyor. Burada pointer yazınca işletim sisteminin eli geri geliyordu. */
+  cursor: pointer;
   transition: background 0.12s linear, color 0.12s linear;
 }
 .tema-secici button + button { border-left: var(--kalinlik) solid var(--murekkep); }
@@ -216,214 +129,9 @@ label {
   color: var(--kagit);
 }
 
-/* ---------- nişangâh paneli ---------- */
-
-/* Mermi ve vuruş sayaçları künyenin sağında duruyordu; saat ve tema
-   anahtarıyla birlikte o köşe okunmaz hale gelmişti. Artık sayfanın sağ alt
-   köşesinde kendi kutusunda — sayfanın künyesiyle nişangâhın sayaçları
-   birbirine karışmıyor.
-
-   pointer-events: none — panel ateşin önünü kesmiyor, üstüne tıklamak da
-   altındaki boşluğa ateş etmek sayılıyor. */
-.hud {
-  position: fixed;
-  /* Çerçeveyle hizalı: üstü main'in üst boşluğuyla aynı, solu çerçevenin sağ
-     kenarının bir rem sağında. main 52rem ve border-box olduğu için çerçeve
-     52 - 2×1.5 = 49rem geniş, yani sağ kenarı ortadan 24.5rem uzakta. */
-  top: 3rem;
-  left: calc(50% + 25.5rem);
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-  padding: 0.5rem 0.65rem;
-  border: var(--kalinlik) solid var(--murekkep);
-  background: var(--kagit);
-  pointer-events: none;
-}
-.mermi,
-.vurus {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 0.9rem;
-  font-family: var(--mono);
-  font-size: 0.58rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  font-variant-numeric: tabular-nums;
-  opacity: 0.55;
-  white-space: nowrap;
-}
-.mermi-sayi,
-.vurus-sayi { font-size: 0.7rem; opacity: 1; }
-
-/* Şarjör bittiğinde vurgu rengine dönüp R ipucunu gösteriyor. */
-.mermi[data-bos="evet"] { opacity: 1; color: var(--vurgu); }
-.mermi-ipucu { display: none; }
-.mermi[data-bos="evet"] .mermi-ipucu { display: inline; }
-
-/* Şarjör değişince kısa bir sıçrama — dolduğu fark edilsin. */
-.mermi.doldu .mermi-sayi { animation: mermi-doldu 0.3s steps(2) 2; }
-@keyframes mermi-doldu {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.25; }
-}
-
-/* Hedef vurulunca sayı bir an vurgu renginde zıplıyor. */
-.vurus.arti .vurus-sayi { animation: vurus-arti 0.3s ease-out; }
-@keyframes vurus-arti {
-  from { color: var(--vurgu); transform: translateY(-3px); }
-  to { color: inherit; transform: none; }
-}
-
-/* ---------- kenar hedefleri ---------- */
-
-/* Metnin iki yanındaki boş kolonlarda yürüyen figürler; üstlerine tıklayınca
-   deviriliyorlar. Yalnızca masaüstünde ve kolonlar yeterince genişse
-   oluşuyorlar — o karar Temel.astro'daki betikte, burada sadece nasıl
-   göründükleri var.
-
-   pointer-events: saha geçirgen, figürler tıklanabilir. Tersi olsaydı boş
-   kolona tıklamak imkânsız hale gelir, sayfanın yanları ölü alan olurdu. */
-.saha {
-  position: fixed;
-  inset: 0;
-  z-index: 1;
-  overflow: hidden;
-  pointer-events: none;
-}
-.hedef {
-  position: absolute;
-  width: 28px;
-  height: 40px;
-  pointer-events: auto;
-  color: var(--murekkep);
-  opacity: 0.16;
-  transition: opacity 0.15s;
-  animation: hedef-yuru var(--sure, 9s) ease-in-out var(--gecikme, 0s) infinite
-    alternate;
-  /* Her figür kendi katmanında: gövdenin yürümesi bileşik (composited) hale
-     geliyor, uzuvlar oynarken de yalnızca 28x40'lık kendi alanı yeniden
-     çiziliyor, sayfanın geri kalanı değil. */
-  will-change: transform;
-}
-/* Nişangâh üzerine gelince belirginleşiyor — "hedefte" bilgisi. */
-.hedef:hover { opacity: 0.5; }
-
-/* Figür SVG: kafa, gövde, iki kol, iki bacak. Kutulardan kurulu, çünkü
-   ızgaranın dili bu — yuvarlatma yok.
-
-   SVG dış öğeden ayrı duruyor çünkü iki hareket üst üste biniyor: dış öğe
-   kolonda yürüyor, SVG vurulunca deviriliyor. Tek öğede olsalardı devrilme
-   animasyonu yürüyüşü ezip figürü başlangıç noktasına zıplatırdı. */
-.hedef > svg {
-  display: block;
-  width: 100%;
-  height: 100%;
-  fill: currentColor;
-}
-
-/* YÜRÜYÜŞ
-   Önce iki duruş çizilip aralarında opaklıkla geçiliyordu; ara kare olmadığı
-   için yürüyüş değil titreme gibi görünüyordu. Şimdi her uzuv omuzdan ya da
-   kalçadan kendi açısı boyunca salınıyor, geçiş yumuşak.
-
-   Karşıt faz önemli: sol kol sağ bacakla birlikte gidiyor. İkisi aynı yöne
-   gitse yürümek değil zıplamak gibi duruyor.
-
-   transform-box: fill-box + transform-origin 50% 0 = dikdörtgenin üst orta
-   noktası, yani omuz ve kalça. Bu olmadan öğeler SVG'nin sıfır noktası
-   etrafında dönüyor ve figür dağılıyor. */
-.hedef svg rect {
-  transform-box: fill-box;
-  transform-origin: 50% 0;
-}
-.hedef .kol-sol,
-.hedef .bacak-sag,
-.hedef .kol-sag,
-.hedef .bacak-sol {
-  animation-duration: var(--adim, 2s);
-  animation-timing-function: ease-in-out;
-  animation-iteration-count: infinite;
-  animation-direction: alternate;
-}
-.hedef .bacak-sol { animation-name: bacak-sol; }
-.hedef .bacak-sag { animation-name: bacak-sag; }
-.hedef .kol-sol { animation-name: kol-sol; }
-.hedef .kol-sag { animation-name: kol-sag; }
-
-@keyframes bacak-sol {
-  from { transform: rotate(14deg); }
-  to { transform: rotate(-2deg); }
-}
-@keyframes bacak-sag {
-  from { transform: rotate(2deg); }
-  to { transform: rotate(-14deg); }
-}
-@keyframes kol-sol {
-  from { transform: rotate(-2deg); }
-  to { transform: rotate(12deg); }
-}
-@keyframes kol-sag {
-  from { transform: rotate(-12deg); }
-  to { transform: rotate(2deg); }
-}
-
-/* Adımla birlikte gövde bir piksel iniyor: yürüyüşü satan ayrıntı bu. */
-.hedef > svg {
-  animation: hedef-bob calc(var(--adim, 2s) / 2) ease-in-out infinite alternate;
-}
-@keyframes hedef-bob {
-  from { transform: translateY(0); }
-  to { transform: translateY(-1px); }
-}
-
-@keyframes hedef-yuru {
-  from { transform: translate(0, 0); }
-  to { transform: translate(var(--kay, 0px), var(--mesafe, 120px)); }
-}
-
-/* Vuruldu: yürüyüş olduğu yerde donuyor, figür yana devrilip kayboluyor. */
-.hedef.vuruldu {
-  pointer-events: none;
-  opacity: 1;
-  color: var(--vurgu);
-  animation-play-state: paused;
-}
-.hedef.vuruldu svg rect { animation-play-state: paused; }
-.hedef.vuruldu > svg {
-  transform-origin: 50% 100%;
-  animation: hedef-devril 0.5s cubic-bezier(0.3, 0, 0.7, 1) forwards;
-}
-@keyframes hedef-devril {
-  from { transform: rotate(0); opacity: 1; }
-  to { transform: rotate(74deg); opacity: 0; }
-}
-
-/* Hareket azaltma isteyen kullanıcıda figürler duruyor ama vurulabiliyor. */
-@media (prefers-reduced-motion: reduce) {
-  .hedef,
-  .hedef > svg,
-  .hedef svg rect { animation: none; }
-}
-
-/* Nişangâh masaüstüne ait. Eşik 72rem, çünkü içerik kolonu 52rem: iki yanda
-   10'ar rem boşluk kalıyor, panel de kenar boşluğuna sığıp çerçeveye
-   binmiyor, kenar hedeflerine de yer kalıyor. Daha darında panel çerçevenin
-   köşesini kapatıyordu.
-
-   Bu sorgu Temel.astro'daki betikteki koşulun aynısı ve bilerek öyle: panel
-   göründüğü her durumda çalışan bir nişangâh, çalıştığı her durumda da
-   görünen bir panel olsun. */
-@media (hover: none), (max-width: 72rem) {
-  .hud { display: none; }
-}
-
 /* JS kapalıysa çalışmayacak düğmeler görünmesin. */
-html:not(.js) .tema-secici,
-html:not(.js) .hud { display: none; }
+html:not(.js) .tema-secici { display: none; }
+
 /* ---------- gezinme ---------- */
 
 .gezinme {
@@ -637,10 +345,8 @@ html:not(.js) .saat { display: none; }
 .is:focus-visible { background: var(--murekkep); color: var(--kagit); }
 
 /* Bağlantı olmayan liste satırı: proje sayfasındaki oyun listesi tıklanmıyor,
-   o yüzden vurgu davranışı da olmamalı — yoksa tıklanır sanılıyor. İmleç yine
-   nişangâh: "default" burada oku geri getiriyor, sayfanın tek imleci bozulmuş
-   gibi duruyordu. Tıklanmadığı bilgisi vurgunun yokluğundan geliyor. */
-.is.durgun { cursor: inherit; }
+   o yüzden vurgu davranışı da olmamalı — yoksa tıklanır sanılıyor.
+   Tıklanmadığı bilgisi vurgunun yokluğundan geliyor. */
 .is.durgun:hover,
 .is.durgun:focus-visible { background: transparent; color: inherit; }
 
