@@ -28,6 +28,15 @@ const projeler = [
       "veri dışa aktarımını okur — şifre istemez, hiçbir şey sunucuya gitmez.",
     yigin: "Astro · TypeScript",
   },
+  {
+    ad: "Android TV Toolkit",
+    adres: "https://github.com/gokhanaydinli/android-tv-toolkit",
+    yil: "2026",
+    aciklama:
+      "Android TV kutusunu root'suz temizleyen betik ve 36 KB'lık bir ana " +
+      "ekran. Her değişikliğin geri alma komutu üretiliyor.",
+    yigin: "Java · ADB",
+  },
 ];
 ---
 
@@ -39,7 +48,12 @@ const projeler = [
 
   {
     projeler.map((p, i) => (
-      <a class="hucre is" href={p.adres}>
+      <a
+        class="hucre is"
+        href={p.adres}
+        target={p.adres.startsWith("http") ? "_blank" : undefined}
+        rel={p.adres.startsWith("http") ? "noreferrer" : undefined}
+      >
         <span class="sira">{String(i + 1).padStart(2, "0")}</span>
         <span class="govde">
           <span class="ad">{p.ad}</span>
@@ -48,7 +62,11 @@ const projeler = [
         </span>
         <span class="sag">
           <span>{p.yil}</span>
-          <span class="ok" aria-hidden="true">→</span>
+          {/* Siteden ayrilan baglantilarda ok yerine disari isareti — alt
+              bilgideki GitHub baglantisiyla ayni dil. */}
+          <span class="ok" aria-hidden="true">
+            {p.adres.startsWith("http") ? "↗" : "→"}
+          </span>
         </span>
       </a>
     ))
