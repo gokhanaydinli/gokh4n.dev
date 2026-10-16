@@ -1,0 +1,50 @@
+---
+// ============================================================================
+// Vitrin — sayfanın üstündeki büyük renkli alan (TV ana ekranındaki gibi).
+//
+// Ana sayfada betik bunu kartlara göre değiştiriyor (data-vitrin-* hedefleri).
+// Proje ve yazı sayfalarında sabit duruyor. Düğme isteğe bağlı.
+// ============================================================================
+import type { VitrinOgesi } from "../lib/vitrin";
+
+interface Props {
+  oge: VitrinOgesi;
+  /** Ana sayfa: betik bu vitrini kartlara göre güncelliyor. */
+  canli?: boolean;
+  /** Düğmeyi gizle (ör. yazı sayfası, zaten o sayfadayız). */
+  dugmesiz?: boolean;
+  /** h1 mi, yoksa sayfada başka h1 varken div mi. */
+  baslikEtiketi?: "h1" | "div";
+}
+
+const { oge, canli = false, dugmesiz = false, baslikEtiketi = "h1" } = Astro.props;
+const Baslik = baslikEtiketi;
+---
+
+<section
+  class="vitrin"
+  style={`--vitrin-renk: ${oge.renk}`}
+  data-vitrin-alan={canli ? "" : undefined}
+>
+  <div class="vitrin-desen" aria-hidden="true"></div>
+  <div class="vitrin-buyuk" aria-hidden="true" data-v="buyuk">{oge.buyuk}</div>
+  <div class="vitrin-icerik">
+    <span class="vitrin-etiket" data-v="etiket" data-canli={oge.canli ? "" : undefined}>{oge.etiket}</span>
+    <Baslik class="vitrin-ad" data-v="ad" lang={oge.dil}>{oge.ad}</Baslik>
+    <p class="vitrin-aciklama" data-v="aciklama">{oge.aciklama}</p>
+    {
+      !dugmesiz && (
+        <a
+          class="vitrin-dugme"
+          data-v="dugme"
+          href={oge.adres}
+          target={oge.disari ? "_blank" : undefined}
+          rel={oge.disari ? "noreferrer" : undefined}
+        >
+          <span aria-hidden="true">▶</span>
+          <span data-v="dugme-yazi">{oge.dugme}</span>
+        </a>
+      )
+    }
+  </div>
+</section>

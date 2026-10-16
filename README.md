@@ -4,7 +4,12 @@ Kişisel site ve blog. [gokh4n.dev](https://gokh4n.dev)
 
 Astro ile derlenen statik bir site: çalışma anında sunucuda bir şey koşmuyor,
 Caddy hazır HTML dosyalarını diskten veriyor. Tarayıcıya framework JavaScript'i
-inmiyor; sayfadaki tek betik tema seçici, saat ve ölçüm şeridi için.
+inmiyor; sayfadaki küçük betikler tema seçici, saat, ölçüm ve raflarda
+kumanda gibi gezinme için. Hiçbiri sayfanın çalışması için şart değil.
+
+Tasarım bir TV ana ekranı: üstte büyük renkli vitrin, altında kart rafları.
+Bir kartın üstüne gelince (ya da ok tuşlarıyla seçince) vitrin onu gösteriyor;
+telefonda vitrin parmakla kaydırılıyor.
 
 ## Yazı yazmak
 
@@ -64,10 +69,13 @@ bir yıl. Sertifikayı Caddy kendi alıp yeniliyor.
 
 ```
 astro.config.mjs          site adresi, CSS'i HTML'e gömme ayarı
-src/layouts/Temel.astro   ortak kabuk: head, künye, menü, şeritler
+src/layouts/Temel.astro   ortak kabuk: head, üst çubuk, alt bilgi, betikler
 src/styles/global.css     tek stil dosyası (tasarım belirteçleri + bileşenler)
+src/components/           Vitrin, Raf, Kart
+src/data/projeler.ts      çalışmalar listesi (renk, vitrin rakamı dahil)
+src/lib/                  vitrin verisi, okuma süresi
 src/pages/
-  index.astro             çalışmalar dizini
+  index.astro             ana ekran: vitrin + raflar
   blog/index.astro        yazı listesi
   blog/[slug].astro       yazı sayfası
   rss.xml.js              besleme
@@ -75,5 +83,6 @@ src/content/blog/         yazılar (Markdown)
 src/content.config.ts     yazı şeması — eksik alan derlemeyi durdurur
 ```
 
-Menüye bağlantı eklemek, tema rengini değiştirmek ya da bir şerit kaldırmak
-tek dosyada değişiklik demek: `Temel.astro`.
+Menüye bağlantı eklemek tek dosyada değişiklik demek: `Temel.astro`. Yeni
+proje eklemek de öyle: `src/data/projeler.ts`. Vitrindeki dev rakam (`buyuk`)
+uydurma olmaz, projenin gerçekten söylediği bir sayı olur.

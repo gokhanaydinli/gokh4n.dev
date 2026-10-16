@@ -1,0 +1,22 @@
+---
+// Raf: başlık + kart dizisi. Geniş ekranda sarmalayan ızgara, telefonda
+// parmakla yana kaydırılan tek sıra (ayrıntı global.css "raf").
+interface Props {
+  baslik: string;
+  sayi?: number;
+  /** Kartlar alt alta tam liste olarak dizilsin (blog sayfası gibi). */
+  liste?: boolean;
+}
+
+const { baslik, sayi, liste = false } = Astro.props;
+---
+
+<section class:list={["raf", liste && "raf-liste"]}>
+  <h2 class="raf-baslik">
+    {baslik}
+    {sayi !== undefined && <span class="raf-sayi">{sayi}</span>}
+  </h2>
+  <div class="kartlar" data-raf>
+    <slot />
+  </div>
+</section>

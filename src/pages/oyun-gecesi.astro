@@ -7,9 +7,16 @@
 // oyunları tanıtıyor — teknik anlatım bilerek yok, ziyaretçi oyunu merak
 // ediyor.
 //
-// Yeni CSS yazılmadı: serit / is / icerik / bag sınıfları hazırdı.
+// Vitrin + raf: ana ekranla aynı parçalar, yeni CSS yok.
 // ============================================================================
 import Temel from "../layouts/Temel.astro";
+import Vitrin from "../components/Vitrin.astro";
+import Raf from "../components/Raf.astro";
+import Kart from "../components/Kart.astro";
+import { proje } from "../data/projeler";
+import { projeVitrini } from "../lib/vitrin";
+
+const bu = proje("Oyun Gecesi");
 
 const oyunlar = [
   {
@@ -57,45 +64,22 @@ const oyunlar = [
   aciklama="Arkadaşlarla telefondan oynanan çok oyunculu parti oyunları."
   aktif="ana"
 >
-  <div class="hucre serit">
-    <span>Proje</span>
-    <span>2026</span>
-  </div>
+  {/* Vitrin ana ekrandaki kartla aynı renkte; düğme doğrudan uygulamaya. */}
+  <Vitrin
+    oge={{
+      ...projeVitrini(bu),
+      aciklama:
+        "Biri oda kurar, kodu paylaşır, herkes kendi telefonundan katılır. " +
+        "Kurulum yok, uygulama indirmek yok — tarayıcı yeter.",
+      adres: "https://games.gokh4n.dev",
+      dugme: "Oyna",
+      disari: true,
+    }}
+  />
 
-  <header class="hucre yazi-basligi">
-    <h1>Oyun Gecesi</h1>
-    <p class="yazi-ozet">
-      Arkadaşlarla telefondan oynanan çok oyunculu parti oyunları. Biri oda
-      kurar, kodu paylaşır, herkes kendi telefonundan katılır. Kurulum yok,
-      uygulama indirmek yok — tarayıcı yeter.
-    </p>
-    <p class="yazi-ustveri" lang="en">
-      Next · Socket.IO · TypeScript · Astro
-    </p>
-  </header>
+  <Raf baslik="Oyunlar" sayi={oyunlar.length} liste>
+    {oyunlar.map((o) => <Kart ad={o.ad} etiket="Oyun" ust={`${o.kisi} kişi`} aciklama={o.aciklama} />)}
+  </Raf>
 
-  <div class="hucre serit">
-    <span>Oyunlar</span>
-    <span>{String(oyunlar.length).padStart(2, "0")}</span>
-  </div>
-
-  {
-    oyunlar.map((o, i) => (
-      <div class="hucre is durgun">
-        <span class="sira">{String(i + 1).padStart(2, "0")}</span>
-        <span class="govde">
-          <span class="ad">{o.ad}</span>
-          <p class="aciklama">{o.aciklama}</p>
-        </span>
-        <span class="sag">
-          <span>{o.kisi}</span>
-        </span>
-      </div>
-    ))
-  }
-
-  <a class="hucre bag" href="https://games.gokh4n.dev">
-    <span>Oyna</span>
-    <span aria-hidden="true">↗</span>
-  </a>
+  <p class="sayfa-bilgi" lang="en">{bu.yigin}</p>
 </Temel>

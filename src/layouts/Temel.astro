@@ -1,24 +1,26 @@
 ---
 // ============================================================================
-// Tüm sayfaların paylaştığı kabuk: <head>, künye, gezinme, alt bilgi.
+// Tüm sayfaların paylaştığı kabuk: <head>, üst çubuk, alt bilgi.
 //
-// Sayfalar sadece kendi içeriğini yazar; başlık/menü/footer buradan gelir.
-// Böylece menüye bir bağlantı eklemek tek dosyada değişiklik demek.
+// Tasarım bir TV ana ekranı: üstte büyük renkli vitrin, altında kart rafları.
+// Sayfalar sadece kendi içeriğini yazar; üst çubuk ve alt bilgi buradan gelir.
+// Menüye bir bağlantı eklemek tek dosyada değişiklik demek.
+//
+// Betikler (hepsi bu dosyanın sonunda, hiçbiri sayfayı çalıştırmak için şart
+// değil): tema seçici, saat, ölçüm ve raflarda kumanda gibi gezinme.
 // ============================================================================
 import "../styles/global.css";
 
 interface Props {
   baslik: string;
   aciklama?: string;
-  /** Gezinmede hangi bağlantı işaretli olacak. */
+  /** Üst çubukta hangi sekme işaretli olacak. */
   aktif?: "ana" | "blog";
+  /** Sayfada kart rafları var: ok tuşlarıyla gezinme ve ipucu açılsın. */
+  raflar?: boolean;
 }
 
-const {
-  baslik,
-  aciklama = "Blog ve çalışmalar.",
-  aktif,
-} = Astro.props;
+const { baslik, aciklama = "Blog ve çalışmalar.", aktif, raflar = false } = Astro.props;
 
 const yil = new Date().getFullYear();
 const kanonik = new URL(Astro.url.pathname, Astro.site).href;
@@ -29,8 +31,8 @@ const kanonik = new URL(Astro.url.pathname, Astro.site).href;
   <head>
     <meta charset="utf-8" />
 
-    {/* Tema secimi sayfa boyanmadan ONCE uygulanmali. Aksi halde koyu tema
-        secili olsa bile her acilista bir anlik beyaz parlama olur. Bu yuzden
+    {/* Tema secimi sayfa boyanmadan ONCE uygulanmali. Aksi halde acik tema
+        secili olsa bile her acilista bir anlik koyu parlama olur. Bu yuzden
         burada, <body>'den once, senkron calisiyor. */}
     <script is:inline>
       (function () {
@@ -60,20 +62,14 @@ const kanonik = new URL(Astro.url.pathname, Astro.site).href;
 
     <link
       rel="icon"
-      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23e9e6df'/><rect x='3' y='3' width='26' height='26' fill='none' stroke='%230d0d0d' stroke-width='3'/><rect x='10' y='10' width='12' height='12' fill='%23ff3b00'/></svg>"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='16' fill='%23ff5a1f'/><text x='16' y='22' font-family='Arial' font-weight='700' font-size='17' text-anchor='middle' fill='%230e1015'>G</text></svg>"
     />
 
     <link rel="alternate" type="application/rss+xml" title="gokh4n.dev" href="/rss.xml" />
 
-    {/* Speculation Rules — sayfa gecislerini anlik yapar.
-        Tarayiciya "kullanici bu baglantiya gitmek uzere gorunuyorsa sayfayi
-        simdiden hazirla" diyor. eagerness: moderate = imlec baglantinin
-        uzerine gelince (masaustu) ya da parmak dokununca (mobil).
-
-        ClientRouter'dan farki: hic JavaScript calismiyor, bu sadece
-        bildirimsel bir ipucu. Destekleyen tarayici (Chrome, Edge, Android
-        Chrome) faydalaniyor; desteklemeyen (Safari) gormezden geliyor,
-        hicbir maliyeti olmuyor. */}
+    {/* Speculation Rules — sayfa gecislerini anlik yapar. Imlec baglantinin
+        uzerine gelince (ya da parmak dokununca) sayfa onceden hazirlaniyor.
+        JavaScript calismiyor; desteklemeyen tarayici gormezden geliyor. */}
     <script type="speculationrules" is:inline>
       {
         "prerender": [
@@ -81,193 +77,278 @@ const kanonik = new URL(Astro.url.pathname, Astro.site).href;
         ]
       }
     </script>
-
   </head>
 
-  <body>
-    <main>
-      <div class="cerceve">
-        <div class="hucre kunye-satir">
-          <a class="kunye" href="/">
-            gokh4n<b>.</b>dev
-          </a>
+  <body data-raflar={raflar ? "" : undefined}>
+    <header class="ust">
+      <a class="marka" href="/">
+        <span class="marka-rozet" aria-hidden="true">G</span>
+        <span>gokh4n<b>.</b>dev</span>
+      </a>
 
-          <div class="ust-sag">
-            {/* Canlı saat. Site statik derlendiği için derleme anındaki
-                tarihi basmak yanlış olur; değerleri tarayıcı yazıyor
-                (betik sayfanın sonunda). */}
-            <div class="saat" aria-hidden="true">
-              <span class="saat-ust">
-                <span data-saat="gun">&nbsp;</span>
-                <span class="ayirac">·</span>
-                <span data-saat="tarih">&nbsp;</span>
-              </span>
-              <span data-saat="vakit">&nbsp;</span>
-            </div>
+      <nav class="sekmeler" aria-label="Bölümler">
+        <a href="/" aria-current={aktif === "ana" ? "page" : undefined}>Ana ekran</a>
+        <a href="/blog/" aria-current={aktif === "blog" ? "page" : undefined}>Blog</a>
+      </nav>
 
-            <div class="tema-secici" role="group" aria-label="Tema">
-              <button type="button" data-tema-sec="acik">Açık</button>
-              <button type="button" data-tema-sec="koyu">Koyu</button>
-            </div>
-          </div>
+      <div class="ust-sag">
+        {/* Canli saat. Site statik derlendigi icin derleme anindaki saati
+            basmak yanlis olur; degerleri tarayici yaziyor. */}
+        <span class="saat" aria-hidden="true">
+          <span class="saat-tarih" data-saat="tarih"></span>
+          <b data-saat="vakit"></b>
+        </span>
+        <div class="tema-secici" role="group" aria-label="Tema">
+          <button type="button" data-tema-sec="acik">Açık</button>
+          <button type="button" data-tema-sec="koyu">Koyu</button>
         </div>
-
-        <nav class="gezinme">
-          <a href="/" aria-current={aktif === "ana" ? "page" : undefined}>
-            Çalışmalar
-          </a>
-          <a href="/blog/" aria-current={aktif === "blog" ? "page" : undefined}>
-            Blog
-          </a>
-        </nav>
-
-        <slot />
-
-        {/* ÖLÇÜM ŞERİDİ
-            Bu sayfanın gerçek ağırlığı. Uydurma değil, tarayıcının
-            Performance API'sinden okunuyor — ziyaretçi ne indirdiyse o.
-
-            Sayfa ilk boyandığında değerler henüz belli olmadığı için şerit
-            gizli duruyor; ölçüm bitince açılıyor. Böylece boş satır görünmüyor. */}
-        <div class="hucre olcum" data-olcum hidden>
-          <div class="olcum-satir">
-            <span class="olcum-etiket">Bu sayfa</span>
-            <span class="olcum-deger" data-olcum-agirlik>—</span>
-          </div>
-        </div>
-
-        <script is:inline>
-          (function () {
-            var gun = document.querySelector('[data-saat="gun"]');
-            var tarih = document.querySelector('[data-saat="tarih"]');
-            var vakit = document.querySelector('[data-saat="vakit"]');
-            if (!gun || !tarih || !vakit) return;
-
-            var gunBicimi = new Intl.DateTimeFormat("tr-TR", { weekday: "long" });
-            var tarihBicimi = new Intl.DateTimeFormat("tr-TR", {
-              day: "2-digit",
-              month: "2-digit",
-              year: "numeric",
-            });
-            var vakitBicimi = new Intl.DateTimeFormat("tr-TR", {
-              hour: "2-digit",
-              minute: "2-digit",
-              second: "2-digit",
-              hour12: false,
-            });
-
-            function yaz() {
-              var t = new Date();
-              gun.textContent = gunBicimi.format(t);
-              tarih.textContent = tarihBicimi.format(t);
-              vakit.textContent = vakitBicimi.format(t);
-            }
-
-            yaz();
-            setInterval(yaz, 1000);
-          })();
-        </script>
       </div>
+    </header>
 
-      <footer>
-        <span>© {yil}</span>
-        <a href="https://github.com/gokhanaydinli" target="_blank" rel="noreferrer" lang="en">
-          GitHub ↗
-        </a>
-      </footer>
+    <main>
+      <slot />
     </main>
 
+    <footer class="alt">
+      {
+        raflar && (
+          <span class="kisayol">
+            <kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd> kumanda gibi gez · <kbd>Enter</kbd> aç
+          </span>
+        )
+      }
+      {/* ÖLÇÜM — bu sayfanın gerçek ağırlığı, tarayıcının Performance
+          API'sinden. Ölçüm bitene kadar gizli; boş satır görünmüyor. */}
+      <span class="olcum" data-olcum hidden></span>
+      <span class="alt-bag">
+        <span>© {yil}</span>
+        <a href="/rss.xml">RSS</a>
+        <a href="https://github.com/gokhanaydinli" target="_blank" rel="noreferrer" lang="en">GitHub ↗</a>
+      </span>
+    </footer>
+
     <script is:inline>
+      // Tema düğmeleri. Kullanıcı bir şey seçmediyse sistem teması geçerli.
       (function () {
         var dugmeler = document.querySelectorAll("[data-tema-sec]");
-        if (!dugmeler.length) return;
-
         var koyuSorgu = window.matchMedia("(prefers-color-scheme: dark)");
-
-        // Kullanici bir sey secmediyse sistem temasi gecerli sayilir.
         function etkinTema() {
           var secim = document.documentElement.getAttribute("data-tema");
           if (secim === "koyu" || secim === "acik") return secim;
           return koyuSorgu.matches ? "koyu" : "acik";
         }
-
         function isaretle() {
           var simdiki = etkinTema();
           dugmeler.forEach(function (d) {
-            d.setAttribute(
-              "aria-pressed",
-              d.dataset.temaSec === simdiki ? "true" : "false"
-            );
+            d.setAttribute("aria-pressed", d.dataset.temaSec === simdiki ? "true" : "false");
           });
         }
-
         dugmeler.forEach(function (d) {
           d.addEventListener("click", function () {
-            var secilen = d.dataset.temaSec;
-            document.documentElement.setAttribute("data-tema", secilen);
-            try {
-              localStorage.setItem("tema", secilen);
-            } catch (e) {}
+            document.documentElement.setAttribute("data-tema", d.dataset.temaSec);
+            try { localStorage.setItem("tema", d.dataset.temaSec); } catch (e) {}
             isaretle();
           });
         });
-
-        // Secim yapilmadiysa sistem temasi degistiginde isaret de kaysin.
         koyuSorgu.addEventListener("change", isaretle);
-
         isaretle();
       })();
-    </script>
 
-    <script is:inline>
-      // Sayfanın kendi ağırlığını Performance API'sinden okuyor. Hiçbir şey
-      // uydurulmuyor: transferSize tarayıcının gerçekten indirdiği bayt.
-      //
-      // Önbellekten gelen kaynaklarda transferSize 0 döner; o durumda
-      // encodedBodySize'a düşüyoruz, yoksa "0 KB" gibi yanlış bir rakam çıkar.
+      // Saat (üst çubuk) ve sayfa ağırlığı (alt bilgi).
       (function () {
+        var tarih = document.querySelector('[data-saat="tarih"]');
+        var vakit = document.querySelector('[data-saat="vakit"]');
+        var tarihBicimi = new Intl.DateTimeFormat("tr-TR", { weekday: "long", day: "numeric", month: "long" });
+        var vakitBicimi = new Intl.DateTimeFormat("tr-TR", { hour: "2-digit", minute: "2-digit", hour12: false });
+        function yaz() {
+          var t = new Date();
+          tarih.textContent = tarihBicimi.format(t);
+          vakit.textContent = vakitBicimi.format(t);
+        }
+        yaz();
+        setInterval(yaz, 10000);
+
+        // transferSize tarayıcının gerçekten indirdiği bayt. Önbellekten
+        // gelende 0 döner; o zaman encodedBodySize'a düşülüyor.
         var kutu = document.querySelector("[data-olcum]");
         if (!kutu || !window.performance || !performance.getEntriesByType) return;
-
-        function bayt(e) {
-          return e.transferSize || e.encodedBodySize || 0;
-        }
+        function bayt(e) { return e.transferSize || e.encodedBodySize || 0; }
         function kb(n) {
           return n < 1024 ? n + " B" : (n / 1024).toFixed(1).replace(".0", "") + " KB";
         }
-
         function olc() {
-          var gezinme = performance.getEntriesByType("navigation")[0];
-          var kaynaklar = performance.getEntriesByType("resource");
-          if (!gezinme) return;
-
-          var toplam = bayt(gezinme);
+          var g = performance.getEntriesByType("navigation")[0];
+          if (!g) return;
+          var k = performance.getEntriesByType("resource");
+          var toplam = bayt(g);
           var js = 0;
-          for (var i = 0; i < kaynaklar.length; i++) {
-            var b = bayt(kaynaklar[i]);
+          for (var i = 0; i < k.length; i++) {
+            var b = bayt(k[i]);
             toplam += b;
-            if (/\.m?js(\?|$)/.test(kaynaklar[i].name)) js += b;
+            if (/\.m?js(\?|$)/.test(k[i].name)) js += b;
           }
-
-          var ms = Math.round(gezinme.responseEnd - gezinme.startTime);
-          var parcalar = [
-            kb(toplam),
-            1 + kaynaklar.length + " istek",
-            kb(js) + " JS",
-            ms + " ms",
-          ];
-
-          var hedef = kutu.querySelector("[data-olcum-agirlik]");
-          if (hedef) hedef.textContent = parcalar.join(" · ");
+          kutu.textContent =
+            "Bu sayfa " + kb(toplam) + " · " + (1 + k.length) + " istek · " +
+            kb(js) + " JS · " + Math.round(g.responseEnd - g.startTime) + " ms";
           kutu.hidden = false;
         }
-
-
-        // Yazı tipleri ve son kaynaklar da sayıya girsin diye load'dan sonra.
         if (document.readyState === "complete") setTimeout(olc, 300);
         else window.addEventListener("load", function () { setTimeout(olc, 300); });
       })();
-
     </script>
+
+    {
+      raflar && (
+        <script is:inline>
+          // ==================================================================
+          // Raflarda kumanda gibi gezinme ve canlı vitrin.
+          //
+          //   ← →  aynı rafta önceki / sonraki kart
+          //   ↑ ↓  üst / alt raf (yalnızca bir kart zaten seçiliyken)
+          //   Enter  tarayıcının kendisi: seçili kart odaktaki bir <a>
+          //
+          // Ok tuşları sayfayı kaydırmak için de kullanılıyor; bu yüzden
+          // yalnızca bir kart odaktayken yakalanıyor. Hiçbir şey seçili
+          // değilken ← → ilk kartı seçiyor, ↑ ↓ sayfayı kaydırmaya devam ediyor.
+          //
+          // Fare: üstüne gelinen kart vitrini değiştiriyor ama odağı
+          // çalmıyor. Telefon: vitrin parmakla sağa sola kaydırılıyor.
+          // ==================================================================
+          (function () {
+            var raflar = Array.prototype.slice.call(document.querySelectorAll("[data-raf]"))
+              .map(function (r) { return Array.prototype.slice.call(r.querySelectorAll("[data-kart]")); })
+              .filter(function (r) { return r.length; });
+            if (!raflar.length) return;
+
+            var alan = document.querySelector("[data-vitrin-alan]");
+            var kartlar = [].concat.apply([], raflar);
+            var vitrinli = kartlar.filter(function (k) { return k.dataset.vitrin; });
+
+            function v(ad) { return alan && alan.querySelector('[data-v="' + ad + '"]'); }
+
+            function sec(kart) {
+              kartlar.forEach(function (k) { k.classList.toggle("secili", k === kart); });
+              if (!alan || !kart.dataset.vitrin) return;
+              var o = JSON.parse(kart.dataset.vitrin);
+              alan.style.setProperty("--vitrin-renk", o.renk);
+              v("buyuk").textContent = o.buyuk;
+              v("etiket").textContent = o.etiket;
+              if (o.canli) v("etiket").setAttribute("data-canli", "");
+              else v("etiket").removeAttribute("data-canli");
+              v("ad").textContent = o.ad;
+              if (o.dil) v("ad").setAttribute("lang", o.dil);
+              else v("ad").removeAttribute("lang");
+              v("aciklama").textContent = o.aciklama;
+              var d = v("dugme");
+              d.href = o.adres;
+              if (o.disari) { d.target = "_blank"; d.rel = "noreferrer"; }
+              else { d.removeAttribute("target"); d.removeAttribute("rel"); }
+              v("dugme-yazi").textContent = o.dugme;
+              var n = vitrinli.indexOf(kart);
+              if (n !== -1) {
+                simdiki = n;
+                noktalar.forEach(function (x, j) { x.classList.toggle("aktif", j === n); });
+              }
+            }
+
+            // --- fare ve klavye odağı ----------------------------------------
+            // Klavyeyle gezerken sayfa kayınca kartlar duran imlecin altından
+            // geçiyor ve tarayıcı hover olayı üretiyor; vitrin klavyenin
+            // seçtiğinden imlecin altındakine zıplıyordu. Fare ancak gerçekten
+            // yer değiştirdiğinde söz sahibi.
+            var fx = -1, fy = -1;
+            kartlar.forEach(function (k) {
+              k.addEventListener("mousemove", function (e) {
+                if (e.screenX === fx && e.screenY === fy) return;
+                fx = e.screenX; fy = e.screenY;
+                if (!k.classList.contains("secili")) sec(k);
+              });
+              k.addEventListener("focus", function () { sec(k); });
+            });
+
+            function yer(kart) {
+              for (var r = 0; r < raflar.length; r++) {
+                var i = raflar[r].indexOf(kart);
+                if (i !== -1) return [r, i];
+              }
+              return null;
+            }
+
+            function odakla(kart) {
+              kart.focus({ preventScroll: true });
+              kart.scrollIntoView({ block: "nearest", inline: "nearest" });
+            }
+
+            document.addEventListener("keydown", function (e) {
+              if (e.ctrlKey || e.metaKey || e.altKey || e.shiftKey) return;
+              var h = e.target;
+              if (h.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(h.tagName)) return;
+              var y = yer(document.activeElement);
+
+              if (!y) {
+                // Hiçbir kart seçili değil: yalnız ← → rafa giriyor.
+                if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+                // Odak hiçbir yerde değilken olay body'den de html'den de gelebiliyor.
+                if (h !== document.body && h !== document.documentElement) return;
+                e.preventDefault();
+                odakla(raflar[0][0]);
+                return;
+              }
+
+              var r = y[0], i = y[1];
+              // Alt alta dizili listede (blog sayfası) ↑ ↓ önceki / sonraki kart.
+              if (raflar[r][0].closest(".raf-liste") && (e.key === "ArrowDown" || e.key === "ArrowUp")) {
+                var j = i + (e.key === "ArrowDown" ? 1 : -1);
+                if (j < 0 || j >= raflar[r].length) return;
+                e.preventDefault();
+                odakla(raflar[r][j]);
+                return;
+              }
+              if (e.key === "ArrowRight") i = Math.min(raflar[r].length - 1, i + 1);
+              else if (e.key === "ArrowLeft") i = Math.max(0, i - 1);
+              else if (e.key === "ArrowDown") { if (r === raflar.length - 1) return; r++; }
+              else if (e.key === "ArrowUp") { if (r === 0) return; r--; }
+              else return;
+              e.preventDefault();
+              odakla(raflar[r][Math.min(i, raflar[r].length - 1)]);
+            });
+
+            // --- telefon: vitrini kaydırma ve noktalar ------------------------
+            var simdiki = 0;
+            var noktaKutu = document.querySelector("[data-noktalar]");
+            var noktalar = [];
+            if (noktaKutu && vitrinli.length > 1) {
+              vitrinli.forEach(function (_, j) {
+                var i = document.createElement("i");
+                if (j === 0) i.className = "aktif";
+                noktaKutu.appendChild(i);
+                noktalar.push(i);
+              });
+            }
+
+            if (alan && vitrinli.length > 1) {
+              var bx = 0, by = 0;
+              alan.addEventListener("touchstart", function (e) {
+                bx = e.touches[0].clientX; by = e.touches[0].clientY;
+              }, { passive: true });
+              alan.addEventListener("touchend", function (e) {
+                var dx = e.changedTouches[0].clientX - bx;
+                var dy = e.changedTouches[0].clientY - by;
+                // Dikey kaydırmayı yeme: yalnız belirgin yatay hareket.
+                if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy)) return;
+                simdiki = (simdiki + (dx < 0 ? 1 : -1) + vitrinli.length) % vitrinli.length;
+                var k = vitrinli[simdiki];
+                sec(k);
+                // Rafta seçili kart görünür yere kaysın; sayfa dikeyde oynamasın.
+                var raf = k.parentElement;
+                raf.scrollTo({ left: k.offsetLeft - raf.offsetLeft, behavior: "smooth" });
+              });
+            }
+
+            if (vitrinli.length) sec(vitrinli[0]);
+          })();
+        </script>
+      )
+    }
   </body>
 </html>
