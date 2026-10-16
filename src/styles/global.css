@@ -214,6 +214,21 @@ html:not(.js) .tema-secici { display: none; }
   letter-spacing: -0.035em;
 }
 .vitrin-aciklama { margin: 0 0 22px; font-size: 18px; line-height: 1.45; max-width: 560px; }
+/* Kartlara göre değişen vitrin (ana ekran, blog) SABİT yükseklikte.
+   Yüksekliği içeriğe bırakınca uzun başlıklı bir öğe vitrini 100 px
+   uzatıyordu: altındaki kartlar imlecin altından kayıyor, imleç komşu
+   karta düşüyor, vitrin geri kısalıyor — iki kart arasında gidip geliyordu.
+   Başlık en fazla 2, açıklama en fazla 3 satır. */
+.vitrin[data-vitrin-alan] { height: 460px; min-height: 0; }
+.vitrin[data-vitrin-alan] .vitrin-ad,
+.vitrin[data-vitrin-alan] .vitrin-aciklama {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.vitrin[data-vitrin-alan] .vitrin-ad { -webkit-line-clamp: 2; line-clamp: 2; font-size: clamp(34px, 4.2vw, 56px); }
+.vitrin[data-vitrin-alan] .vitrin-aciklama { -webkit-line-clamp: 3; line-clamp: 3; }
+
 .vitrin-dugme {
   display: inline-flex;
   align-items: center;
@@ -306,9 +321,11 @@ a.kart:hover,
 /* Liste rafı: blog sayfası gibi tam liste, kartlar tek sütun. */
 .raf-liste .kartlar { grid-template-columns: 1fr; gap: 12px; }
 .raf-liste .kart { min-height: 0; }
+/* Liste kartı büyümüyor, yalnız çerçeve: alt alta dizili kartlarda büyüme
+   isabet alanını komşuya taşırıyordu. */
 .raf-liste .kart:hover,
 .raf-liste .kart.secili,
-.raf-liste .kart:focus-visible { transform: scale(1.01); }
+.raf-liste .kart:focus-visible { transform: none; }
 
 /* ---------- yazı / proje sayfası ---------- */
 
@@ -450,6 +467,9 @@ html:not(.js) .kisayol { display: none; }
   .saat-tarih { display: none; }
 
   .vitrin { min-height: 360px; margin-top: 18px; touch-action: pan-y; }
+  .vitrin[data-vitrin-alan] { height: 420px; }
+  /* Telefonda uzun başlık 2 satıra sığmıyordu: biraz küçük, 3 satır. */
+  .vitrin[data-vitrin-alan] .vitrin-ad { font-size: 32px; -webkit-line-clamp: 3; line-clamp: 3; }
   .vitrin-icerik { padding: 24px; }
   .vitrin-aciklama { font-size: 16px; }
   /* Dev rakam telefonda metnin üstüne biniyordu: sağ üste, küçük. */
