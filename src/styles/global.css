@@ -85,6 +85,14 @@ main {
 
 :focus-visible { outline: 3px solid var(--vurgu); outline-offset: 3px; }
 
+/* Kumandayla seçilen menü, tema düğmesi ve bağlantılar: kartlarla aynı
+   halka, TV'deki seçim çerçevesi gibi. */
+[data-gez]:focus-visible {
+  outline: 3px solid var(--halka);
+  outline-offset: 4px;
+  border-radius: 10px;
+}
+
 /* Ekranda yok, ekran okuyucuda var: ana sayfanın görünmez h1'i gibi. */
 .gizli {
   position: absolute;
@@ -241,7 +249,8 @@ html:not(.js) .tema-secici { display: none; }
   text-decoration: none;
   transition: transform 0.15s ease;
 }
-.vitrin-dugme:hover { transform: scale(1.04); }
+.vitrin-dugme:hover,
+.vitrin-dugme:focus-visible { transform: scale(1.04); }
 .vitrin-dugme:focus-visible { outline-color: #0e1015; }
 
 /* "Canlı" etiketinin önündeki nokta. */

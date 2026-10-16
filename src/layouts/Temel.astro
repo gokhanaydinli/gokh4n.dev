@@ -81,14 +81,14 @@ const kanonik = new URL(Astro.url.pathname, Astro.site).href;
 
   <body data-raflar={raflar ? "" : undefined}>
     <header class="ust">
-      <a class="marka" href="/">
+      <a class="marka" href="/" data-gez>
         <span class="marka-rozet" aria-hidden="true">G</span>
         <span>gokh4n<b>.</b>dev</span>
       </a>
 
       <nav class="sekmeler" aria-label="Bölümler">
-        <a href="/" aria-current={aktif === "ana" ? "page" : undefined}>Ana ekran</a>
-        <a href="/blog/" aria-current={aktif === "blog" ? "page" : undefined}>Blog</a>
+        <a href="/" data-gez aria-current={aktif === "ana" ? "page" : undefined}>Ana ekran</a>
+        <a href="/blog/" data-gez aria-current={aktif === "blog" ? "page" : undefined}>Blog</a>
       </nav>
 
       <div class="ust-sag">
@@ -99,8 +99,8 @@ const kanonik = new URL(Astro.url.pathname, Astro.site).href;
           <b data-saat="vakit"></b>
         </span>
         <div class="tema-secici" role="group" aria-label="Tema">
-          <button type="button" data-tema-sec="acik">Açık</button>
-          <button type="button" data-tema-sec="koyu">Koyu</button>
+          <button type="button" data-gez data-tema-sec="acik">Açık</button>
+          <button type="button" data-gez data-tema-sec="koyu">Koyu</button>
         </div>
       </div>
     </header>
@@ -110,20 +110,16 @@ const kanonik = new URL(Astro.url.pathname, Astro.site).href;
     </main>
 
     <footer class="alt">
-      {
-        raflar && (
-          <span class="kisayol">
-            <kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd> kumanda gibi gez · <kbd>Enter</kbd> aç
-          </span>
-        )
-      }
+      <span class="kisayol">
+        <kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd> kumanda gibi gez · <kbd>Enter</kbd> aç
+      </span>
       {/* ÖLÇÜM — bu sayfanın gerçek ağırlığı, tarayıcının Performance
           API'sinden. Ölçüm bitene kadar gizli; boş satır görünmüyor. */}
       <span class="olcum" data-olcum hidden></span>
       <span class="alt-bag">
         <span>© {yil}</span>
-        <a href="/rss.xml">RSS</a>
-        <a href="https://github.com/gokhanaydinli" target="_blank" rel="noreferrer" lang="en">GitHub ↗</a>
+        <a href="/rss.xml" data-gez>RSS</a>
+        <a href="https://github.com/gokhanaydinli" target="_blank" rel="noreferrer" lang="en" data-gez>GitHub ↗</a>
       </span>
     </footer>
 
@@ -197,22 +193,111 @@ const kanonik = new URL(Astro.url.pathname, Astro.site).href;
       })();
     </script>
 
+    <script is:inline>
+      // ======================================================================
+      // Kumanda: ok tuşlarıyla bütün sitede yöne göre gezinme.
+      //
+      // Gezilebilen her şey [data-gez] ya da [data-kart]: üst menü, tema
+      // düğmeleri, vitrin düğmesi, kartlar, alt bilgi bağlantıları. Bir ok
+      // tuşu, o yöndeki en yakın öğeye geçiyor — TV kumandası gibi. Enter'ı
+      // tarayıcının kendisi işliyor: odaktaki bağlantı açılıyor, düğme basılıyor.
+      //
+      // Okumayı bozmamak için:
+      //   - Hiçbir şey seçili değilken (ya da seçili öğe ekrandan çıkmışsa)
+      //     ↑ ↓ sayfayı her zamanki gibi kaydırıyor; ← → ekrandaki ilk öğeyi
+      //     seçerek gezinmeyi başlatıyor.
+      //   - ↑ ↓ ile gidilecek öğe bir ekrandan uzaktaysa (ör. yazının başındaki
+      //     menüden sondaki karta) odak atlamıyor, sayfa kayıyor.
+      // ======================================================================
+      (function () {
+        var YON = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0] };
+
+        function ogeler() {
+          return Array.prototype.filter.call(
+            document.querySelectorAll("[data-gez], [data-kart]"),
+            function (el) { return el.offsetParent !== null || el === document.activeElement; }
+          );
+        }
+
+        function ekranda(r) {
+          return r.bottom > 0 && r.top < innerHeight && r.right > 0 && r.left < innerWidth;
+        }
+
+        // İki kutu arasındaki boşluk (üst üste biniyorlarsa 0).
+        function aralik(a1, a2, b1, b2) {
+          return Math.max(0, Math.max(a1, b1) - Math.min(a2, b2));
+        }
+
+        // O yöndeki en yakın öğe: ana eksende uzaklık + yan eksende kayma
+        // (kayma iki kat sayılıyor: aynı sıradaki öğe çapraz olandan önce).
+        function enYakin(simdiki, d, liste) {
+          var a = simdiki.getBoundingClientRect();
+          var en = null, enPuan = Infinity;
+          liste.forEach(function (el) {
+            if (el === simdiki) return;
+            var b = el.getBoundingClientRect();
+            var ana, yan;
+            if (d[0] === 1) { if (b.left < a.right - 4) return; ana = b.left - a.right; yan = aralik(a.top, a.bottom, b.top, b.bottom); }
+            else if (d[0] === -1) { if (b.right > a.left + 4) return; ana = a.left - b.right; yan = aralik(a.top, a.bottom, b.top, b.bottom); }
+            else if (d[1] === 1) { if (b.top < a.bottom - 4) return; ana = b.top - a.bottom; yan = aralik(a.left, a.right, b.left, b.right); }
+            else { if (b.bottom > a.top + 4) return; ana = a.top - b.bottom; yan = aralik(a.left, a.right, b.left, b.right); }
+            var puan = Math.max(0, ana) + yan * 2;
+            if (puan < enPuan) { enPuan = puan; en = el; }
+          });
+          return en;
+        }
+
+        function odakla(el) {
+          el.focus({ preventScroll: true });
+          el.scrollIntoView({ block: "nearest", inline: "nearest" });
+        }
+
+        document.addEventListener("keydown", function (e) {
+          var d = YON[e.key];
+          if (!d || e.ctrlKey || e.metaKey || e.altKey || e.shiftKey) return;
+          var h = e.target;
+          if (h.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(h.tagName)) return;
+
+          var liste = ogeler();
+          if (!liste.length) return;
+          var simdiki = document.activeElement;
+          var secili = liste.indexOf(simdiki) !== -1 && ekranda(simdiki.getBoundingClientRect());
+
+          if (!secili) {
+            if (d[1]) return; // ↑ ↓: sayfa kaysın
+            var gorunen = liste.filter(function (el) { return ekranda(el.getBoundingClientRect()); });
+            if (!gorunen.length) return;
+            e.preventDefault();
+            odakla(gorunen[0]);
+            return;
+          }
+
+          var hedef = enYakin(simdiki, d, liste);
+          if (!hedef) {
+            // Gidilecek yer yok: ↑ ↓ sayfayı kaydırsın, ← → boşa düşsün.
+            if (d[0]) e.preventDefault();
+            return;
+          }
+          if (d[1]) {
+            var r = hedef.getBoundingClientRect();
+            var uzak = d[1] === 1 ? r.top > innerHeight * 1.5 : r.bottom < -innerHeight * 0.5;
+            if (uzak) return;
+          }
+          e.preventDefault();
+          odakla(hedef);
+        });
+      })();
+    </script>
+
     {
       raflar && (
         <script is:inline>
           // ==================================================================
-          // Raflarda kumanda gibi gezinme ve canlı vitrin.
+          // Canlı vitrin: seçilen kart vitrinde görünüyor.
           //
-          //   ← →  aynı rafta önceki / sonraki kart
-          //   ↑ ↓  üst / alt raf (yalnızca bir kart zaten seçiliyken)
-          //   Enter  tarayıcının kendisi: seçili kart odaktaki bir <a>
-          //
-          // Ok tuşları sayfayı kaydırmak için de kullanılıyor; bu yüzden
-          // yalnızca bir kart odaktayken yakalanıyor. Hiçbir şey seçili
-          // değilken ← → ilk kartı seçiyor, ↑ ↓ sayfayı kaydırmaya devam ediyor.
-          //
-          // Fare: üstüne gelinen kart vitrini değiştiriyor ama odağı
-          // çalmıyor. Telefon: vitrin parmakla sağa sola kaydırılıyor.
+          // Klavye odağı (kumanda betiği kartlara odak veriyor) ve fare
+          // vitrini değiştiriyor; fare odağı çalmıyor. Telefon: vitrin
+          // parmakla sağa sola kaydırılıyor.
           // ==================================================================
           (function () {
             var raflar = Array.prototype.slice.call(document.querySelectorAll("[data-raf]"))
@@ -264,53 +349,6 @@ const kanonik = new URL(Astro.url.pathname, Astro.site).href;
                 if (!k.classList.contains("secili")) sec(k);
               });
               k.addEventListener("focus", function () { sec(k); });
-            });
-
-            function yer(kart) {
-              for (var r = 0; r < raflar.length; r++) {
-                var i = raflar[r].indexOf(kart);
-                if (i !== -1) return [r, i];
-              }
-              return null;
-            }
-
-            function odakla(kart) {
-              kart.focus({ preventScroll: true });
-              kart.scrollIntoView({ block: "nearest", inline: "nearest" });
-            }
-
-            document.addEventListener("keydown", function (e) {
-              if (e.ctrlKey || e.metaKey || e.altKey || e.shiftKey) return;
-              var h = e.target;
-              if (h.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(h.tagName)) return;
-              var y = yer(document.activeElement);
-
-              if (!y) {
-                // Hiçbir kart seçili değil: yalnız ← → rafa giriyor.
-                if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
-                // Odak hiçbir yerde değilken olay body'den de html'den de gelebiliyor.
-                if (h !== document.body && h !== document.documentElement) return;
-                e.preventDefault();
-                odakla(raflar[0][0]);
-                return;
-              }
-
-              var r = y[0], i = y[1];
-              // Alt alta dizili listede (blog sayfası) ↑ ↓ önceki / sonraki kart.
-              if (raflar[r][0].closest(".raf-liste") && (e.key === "ArrowDown" || e.key === "ArrowUp")) {
-                var j = i + (e.key === "ArrowDown" ? 1 : -1);
-                if (j < 0 || j >= raflar[r].length) return;
-                e.preventDefault();
-                odakla(raflar[r][j]);
-                return;
-              }
-              if (e.key === "ArrowRight") i = Math.min(raflar[r].length - 1, i + 1);
-              else if (e.key === "ArrowLeft") i = Math.max(0, i - 1);
-              else if (e.key === "ArrowDown") { if (r === raflar.length - 1) return; r++; }
-              else if (e.key === "ArrowUp") { if (r === 0) return; r--; }
-              else return;
-              e.preventDefault();
-              odakla(raflar[r][Math.min(i, raflar[r].length - 1)]);
             });
 
             // --- telefon: vitrini kaydırma ve noktalar ------------------------
