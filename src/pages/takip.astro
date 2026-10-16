@@ -14,8 +14,10 @@ import Temel from "../layouts/Temel.astro";
 import Vitrin from "../components/Vitrin.astro";
 import Raf from "../components/Raf.astro";
 import Kart from "../components/Kart.astro";
-import { projeler } from "../data/projeler";
+import { proje } from "../data/projeler";
 import { projeVitrini } from "../lib/vitrin";
+
+const bu = proje("Takip Defteri");
 
 const ozellikler = [
   {
@@ -48,7 +50,7 @@ const ozellikler = [
 >
   <Vitrin
     oge={{
-      ...projeVitrini(projeler[1]),
+      ...projeVitrini(bu),
       aciklama:
         "Instagram'ın sana verdiği veri dışa aktarımını okur, önceki kayıtla " +
         "karşılaştırır. Şifre istemez, hiçbir şey sunucuya gitmez.",
@@ -62,5 +64,5 @@ const ozellikler = [
     {ozellikler.map((o) => <Kart ad={o.ad} aciklama={o.aciklama} />)}
   </Raf>
 
-  <p class="sayfa-bilgi" lang="en">{projeler[1].yigin}</p>
+  <p class="sayfa-bilgi" lang="en">{bu.yigin}</p>
 </Temel>

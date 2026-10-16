@@ -13,8 +13,10 @@ import Temel from "../layouts/Temel.astro";
 import Vitrin from "../components/Vitrin.astro";
 import Raf from "../components/Raf.astro";
 import Kart from "../components/Kart.astro";
-import { projeler } from "../data/projeler";
+import { proje } from "../data/projeler";
 import { projeVitrini } from "../lib/vitrin";
+
+const bu = proje("Oyun Gecesi");
 
 const oyunlar = [
   {
@@ -65,7 +67,7 @@ const oyunlar = [
   {/* Vitrin ana ekrandaki kartla aynı renkte; düğme doğrudan uygulamaya. */}
   <Vitrin
     oge={{
-      ...projeVitrini(projeler[0]),
+      ...projeVitrini(bu),
       aciklama:
         "Biri oda kurar, kodu paylaşır, herkes kendi telefonundan katılır. " +
         "Kurulum yok, uygulama indirmek yok — tarayıcı yeter.",
@@ -79,5 +81,5 @@ const oyunlar = [
     {oyunlar.map((o) => <Kart ad={o.ad} etiket="Oyun" ust={`${o.kisi} kişi`} aciklama={o.aciklama} />)}
   </Raf>
 
-  <p class="sayfa-bilgi" lang="en">{projeler[0].yigin}</p>
+  <p class="sayfa-bilgi" lang="en">{bu.yigin}</p>
 </Temel>

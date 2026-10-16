@@ -23,6 +23,13 @@ export interface Proje {
   dugme: string;
 }
 
+/** Proje sayfalari kendi kaydini adla buluyor; liste sirasi degisse de dogru kalsin. */
+export function proje(ad: string): Proje {
+  const p = projeler.find((x) => x.ad === ad);
+  if (!p) throw new Error(`projeler.ts icinde "${ad}" yok`);
+  return p;
+}
+
 export const projeler: Proje[] = [
   {
     ad: "Oyun Gecesi",

@@ -38,8 +38,9 @@ export function projeVitrini(p: Proje): VitrinOgesi {
 }
 
 // Yazilarin rengi adlarindan: ayni yazi her zaman ayni renkte. Hepsi acik
-// tonlar, ustlerinde koyu yazi okunuyor.
-const YAZI_RENKLERI = ["#f2f3f5", "#ffd84d", "#c9b8ff", "#7fd6ff", "#ffb4a2"];
+// tonlar, ustlerinde koyu yazi okunuyor. Beyaza yakin ton YOK: acik temada
+// zemin #f3f2ef, o renkteki vitrin zeminde kayboluyordu.
+const YAZI_RENKLERI = ["#9be3c4", "#ffd84d", "#c9b8ff", "#7fd6ff", "#ffb4a2"];
 
 export function yaziRengi(id: string): string {
   let h = 0;
