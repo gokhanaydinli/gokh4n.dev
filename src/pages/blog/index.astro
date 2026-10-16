@@ -6,6 +6,7 @@
 // ============================================================================
 import { getCollection } from "astro:content";
 import Temel from "../../layouts/Temel.astro";
+import { okumaSuresi } from "../../lib/okuma";
 
 // En yeni en ustte. Yandaki numara listedeki sira; yeni yazi gelince
 // numaralar kayiyor, yazinin kimligi degil.
@@ -50,7 +51,10 @@ function tarihYaz(t: Date): string {
             )}
           </span>
           <span class="sag">
-            <span>{tarihYaz(y.data.tarih)}</span>
+            <span class="tarih-sure">
+              <span>{tarihYaz(y.data.tarih)}</span>
+              <span class="sure">{okumaSuresi(y.body)} dk</span>
+            </span>
             <span class="ok" aria-hidden="true">→</span>
           </span>
         </a>

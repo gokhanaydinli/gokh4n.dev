@@ -364,6 +364,27 @@ html:not(.js) .saat { display: none; }
 
 .is .govde { border-left: var(--kalinlik) solid currentColor; }
 
+/* Proje satırının üstündeki durum etiketi: "CANLI", "AÇIK KAYNAK".
+   Kare nokta vurgu renginde; satır tersine döndüğünde de turuncu kalıyor. */
+.durum {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 0.7rem;
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+.durum::before {
+  content: "";
+  width: 0.5rem;
+  height: 0.5rem;
+  background: var(--vurgu);
+}
+
 .ad {
   display: block;
   font-weight: 700;
@@ -483,12 +504,15 @@ html:not(.js) .saat { display: none; }
   opacity: 0.8;
 }
 
+/* Satır uzunluğu sınırı hücrede değil, içindekilerde. Hücrenin kendisi dar
+   olunca üstündeki ızgara çizgisi (.hucre + .hucre) de onunla birlikte
+   daralıyor ve çerçevenin ortasında kesik kalıyordu. */
 .icerik {
   padding: 1.8rem 1.4rem 2.2rem;
   font-size: 1.02rem;
   line-height: 1.75;
-  max-width: 40rem;
 }
+.icerik > * { max-width: 37.2rem; }
 .icerik > :first-child { margin-top: 0; }
 .icerik > :last-child { margin-bottom: 0; }
 
@@ -595,6 +619,62 @@ html:not(.js) .saat { display: none; }
   letter-spacing: -0.025em;
 }
 
+/* Sağ sütunda tarih ve altında okuma süresi. */
+.tarih-sure {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.35rem;
+  text-align: right;
+}
+.sure { opacity: 0.6; }
+
+/* ---------- giriş (ana sayfa) ---------- */
+
+/* Gezinmenin hemen altında duruyor; gezinme .hucre olmadığı için
+   .hucre + .hucre çizgisi buraya düşmüyor, elle çiziliyor. */
+.giris {
+  margin: 0;
+  border-top: var(--kalinlik) solid var(--murekkep);
+  padding: 1.6rem 1.4rem;
+  font-size: clamp(1.05rem, 2.6vw, 1.3rem);
+  line-height: 1.45;
+  letter-spacing: -0.01em;
+}
+.giris b { font-weight: 700; color: var(--vurgu); }
+
+/* ---------- önceki / sonraki yazı ---------- */
+
+.komsular { display: flex; }
+.komsu {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1.2rem 1.4rem;
+  color: inherit;
+  text-decoration: none;
+  transition: background 0.12s linear, color 0.12s linear;
+}
+.komsu + .komsu { border-left: var(--kalinlik) solid var(--murekkep); }
+.komsu.sonraki { text-align: right; }
+.komsu:hover,
+.komsu:focus-visible { background: var(--murekkep); color: var(--kagit); }
+.komsu-yon {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--vurgu);
+}
+.komsu-baslik {
+  font-weight: 700;
+  font-size: 1.05rem;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+}
+
 /* ---------- alt bilgi ---------- */
 
 footer {
@@ -697,6 +777,19 @@ footer a:hover { color: var(--vurgu); }
   .olcum { padding: 0.6rem 1rem; font-size: 0.55rem; letter-spacing: 0.08em; }
   .serit { padding: 0.55rem 1rem; letter-spacing: 0.16em; }
   .bag { padding: 1rem; letter-spacing: 0.16em; }
+
+  /* Sağ üst satır yatay: tarih · süre · ok */
+  .tarih-sure { flex-direction: row; gap: 0.7rem; }
+
+  .giris { padding: 1.2rem 1rem; }
+
+  /* Önceki / sonraki alt alta; ikisi yan yana sığmıyor. */
+  .komsular { flex-direction: column; }
+  .komsu { padding: 1rem; }
+  .komsu + .komsu {
+    border-left: 0;
+    border-top: var(--kalinlik) solid var(--murekkep);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

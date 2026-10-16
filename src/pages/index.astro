@@ -7,9 +7,25 @@
 // ============================================================================
 import Temel from "../layouts/Temel.astro";
 
-const projeler = [
+// Proje adlari ekranda buyuk harfe cevriliyor ve sayfa dili Turkce oldugu
+// icin "i" -> "İ" oluyor: Ingilizce adlarda "ANDROİD TV TOOLKİT" cikiyordu.
+// dil: "en" o satirin lang'ini degistiriyor, donusum Ingilizce kurala gore
+// yapiliyor. Turkce adlarda (TAKİP DEFTERİ) mevcut hali zaten dogru.
+//
+// durum: satirin ustundeki kucuk etiket. Ziyaretci tiklamadan once neyle
+// karsilasacagini bilsin — calisan bir uygulama mi, kaynak kod mu.
+const projeler: {
+  ad: string;
+  dil?: "en";
+  durum: string;
+  adres: string;
+  yil: string;
+  aciklama: string;
+  yigin: string;
+}[] = [
   {
     ad: "Oyun Gecesi",
+    durum: "Canlı",
     // Artik dogrudan uygulamaya degil, once proje sayfasina gidiyor:
     // ziyaretci ne oldugunu anlamadan uygulamanin icine dusmesin.
     adres: "/oyun-gecesi/",
@@ -21,15 +37,19 @@ const projeler = [
   },
   {
     ad: "Takip Defteri",
+    durum: "Canlı",
     adres: "/takip/",
     yil: "2026",
     aciklama:
       "Instagram'da kimlerin takipten çıktığını gösterir. Instagram'ın kendi " +
       "veri dışa aktarımını okur — şifre istemez, hiçbir şey sunucuya gitmez.",
-    yigin: "Astro · TypeScript",
+    // Kendi reposuna tasinirken Next'e gecti; takip.astro'daki yiginla ayni.
+    yigin: "Next · TypeScript · Tailwind",
   },
   {
     ad: "Android TV Toolkit",
+    dil: "en",
+    durum: "Açık kaynak",
     adres: "https://github.com/gokhanaydinli/android-tv-toolkit",
     yil: "2026",
     aciklama:
@@ -41,6 +61,14 @@ const projeler = [
 ---
 
 <Temel baslik="gokh4n.dev" aciklama="Çalışmalar dizini." aktif="ana">
+  {/* Siteye ilk gelen kimin sitesinde oldugunu bilmiyordu: kunye bir alan
+      adi, altindaki liste projeler. Iki cumle o boslugu kapatiyor. */}
+  <p class="hucre giris">
+    Merhaba, ben <b>Gökhan</b>. Arkadaşlarla oynadığımız oyunlardan evdeki
+    TV kutusuna kadar, ihtiyaç duyduğum şeyleri kendim yapıyorum. Burada o
+    işler var; yaparken öğrendiklerimi de bloga yazıyorum.
+  </p>
+
   <div class="hucre serit">
     <span>Çalışmalar</span>
     <span>{String(projeler.length).padStart(2, "0")}</span>
@@ -56,7 +84,8 @@ const projeler = [
       >
         <span class="sira">{String(i + 1).padStart(2, "0")}</span>
         <span class="govde">
-          <span class="ad">{p.ad}</span>
+          <span class="durum">{p.durum}</span>
+          <span class="ad" lang={p.dil}>{p.ad}</span>
           <p class="aciklama">{p.aciklama}</p>
           <p class="yigin" lang="en">{p.yigin}</p>
         </span>

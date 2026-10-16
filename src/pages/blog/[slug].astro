@@ -7,20 +7,32 @@
 // ============================================================================
 import { getCollection, render, type CollectionEntry } from "astro:content";
 import Temel from "../../layouts/Temel.astro";
+import { okumaSuresi } from "../../lib/okuma";
+
+type Yazi = CollectionEntry<"blog">;
 
 export async function getStaticPaths() {
-  const yazilar = await getCollection("blog", ({ data }) => !data.taslak);
-  return yazilar.map((yazi) => ({
+  // Blog listesiyle ayni sira: yeniden eskiye. Komsular bu siradan geliyor.
+  const yazilar = (await getCollection("blog", ({ data }) => !data.taslak)).sort(
+    (a: Yazi, b: Yazi) => b.data.tarih.getTime() - a.data.tarih.getTime()
+  );
+  return yazilar.map((yazi: Yazi, i: number) => ({
     params: { slug: yazi.id },
-    props: { yazi },
+    props: {
+      yazi,
+      dahaYeni: yazilar[i - 1],
+      dahaEski: yazilar[i + 1],
+    },
   }));
 }
 
 interface Props {
-  yazi: CollectionEntry<"blog">;
+  yazi: Yazi;
+  dahaYeni?: Yazi;
+  dahaEski?: Yazi;
 }
 
-const { yazi } = Astro.props;
+const { yazi, dahaYeni, dahaEski } = Astro.props;
 const { Content } = await render(yazi);
 
 const tarih = yazi.data.tarih.toLocaleDateString("tr-TR", {
@@ -28,12 +40,17 @@ const tarih = yazi.data.tarih.toLocaleDateString("tr-TR", {
   month: "long",
   year: "numeric",
 });
+const dakika = okumaSuresi(yazi.body);
 ---
 
-<Temel baslik={`${yazi.data.baslik} — gokh4n.dev`} aciklama={yazi.data.ozet}>
+<Temel
+  baslik={`${yazi.data.baslik} — gokh4n.dev`}
+  aciklama={yazi.data.ozet}
+  aktif="blog"
+>
   <div class="hucre serit">
     <span>Blog</span>
-    <span>{tarih}</span>
+    <span>{tarih} · {dakika} dk</span>
   </div>
 
   <header class="hucre yazi-basligi">
@@ -49,6 +66,27 @@ const tarih = yazi.data.tarih.toLocaleDateString("tr-TR", {
   <article class="hucre icerik">
     <Content />
   </article>
+
+  {/* Yazi bitince okuyucu "Butun yazilar"a donup secmek zorunda kalmasin.
+      Tek komsu varsa o tek baglanti satirin tamamini kapliyor. */}
+  {
+    (dahaEski || dahaYeni) && (
+      <nav class="hucre komsular" aria-label="Diğer yazılar">
+        {dahaEski && (
+          <a class="komsu" href={`/blog/${dahaEski.id}/`} rel="prev">
+            <span class="komsu-yon">← Önceki</span>
+            <span class="komsu-baslik">{dahaEski.data.baslik}</span>
+          </a>
+        )}
+        {dahaYeni && (
+          <a class="komsu sonraki" href={`/blog/${dahaYeni.id}/`} rel="next">
+            <span class="komsu-yon">Sonraki →</span>
+            <span class="komsu-baslik">{dahaYeni.data.baslik}</span>
+          </a>
+        )}
+      </nav>
+    )
+  }
 
   <a class="hucre bag" href="/blog/">
     <span aria-hidden="true">←</span>
