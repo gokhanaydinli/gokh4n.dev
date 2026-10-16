@@ -1,51 +1,64 @@
-/* Yazi tipleri KENDI sunucumuzdan. Once Google Fonts'tan cekiliyordu:
+/* Yazi tipi KENDI sunucumuzdan. Once Google Fonts'tan cekiliyordu:
    fonts.googleapis.com'a giden CSS tek basina ~360 ms suruyordu ve render
    engelleyiciydi, ustune font dosyalari icin fonts.gstatic.com'a ikinci bir
    DNS + TLS turu gerekiyordu. Kendi sunucumuzdan gelince ayni baglanti
    kullaniliyor, o turlar tamamen kalkiyor.
 
-   Alt kumeler unicode-range ile ayrilmis; tarayici sadece ihtiyaci olani
-   indiriyor (Turkce icin latin + latin-ext). */
-@import "@fontsource-variable/space-grotesk/wght.css";
-@import "@fontsource/space-mono/400.css";
-@import "@fontsource/space-mono/700.css";
+   Tek degisken dosya butun kalinliklari tasiyor; alt kumeler unicode-range
+   ile ayrilmis, tarayici sadece gerekeni indiriyor (Turkce: latin + latin-ext). */
+@import "@fontsource-variable/inter-tight/wght.css";
 
 /* ==========================================================================
-   Brutalist ızgara — tüm sayfaların paylaştığı tek stil dosyası.
+   TV ana ekranı — tüm sayfaların paylaştığı tek stil dosyası.
 
-   Kural: kalın çerçeveler, düz yüzeyler, köşe yuvarlama yok, tek vurgu rengi.
-   Renkler sistem temasına göre ters çevriliyor (açık/koyu).
+   Kural: üstte büyük renkli vitrin, altında kart rafları. Vitrin ve kart
+   renkleri parlak; üstlerindeki yazı her zaman koyu (--vitrin-yazi), iki
+   temada da okunuyor. Sayfa zemini temaya göre değişiyor.
    ========================================================================== */
 
 :root {
-  --kagit: #e9e6df;
-  --murekkep: #0d0d0d;
+  --zemin: #f3f2ef;
+  --yuzey: #ffffff;
+  --yuzey-2: #e6e4df;
+  --yazi: #121418;
+  --soluk: #5f6470;
+  --cizgi: #dddad3;
   --vurgu: #ff3b00;
-  --kalinlik: 2px;
+  --halka: #121418;
+  --vitrin-yazi: #0e1015;
 
-  --baslik: "Space Grotesk Variable", "Space Grotesk", ui-sans-serif, system-ui, "Segoe UI", Arial, sans-serif;
-  --mono: "Space Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --yazi-tipi: "Inter Tight Variable", "Inter Tight", ui-sans-serif, system-ui, "Segoe UI", Arial, sans-serif;
+  --kod-tipi: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --genislik: 1200px;
+  --kenar: 56px;
+  --kose: 16px;
 }
 
 /* Sistem koyu moddaysa VE kullanici acik moda zorlamamissa koyu kullan. */
 @media (prefers-color-scheme: dark) {
   :root:not([data-tema="acik"]) {
-    --kagit: #0d0d0d;
-    --murekkep: #e9e6df;
+    --zemin: #0e1015;
+    --yuzey: #1d212b;
+    --yuzey-2: #2a2f3a;
+    --yazi: #f2f3f5;
+    --soluk: #8b919c;
+    --cizgi: #2a2f3a;
     --vurgu: #ff5a1f;
+    --halka: #ffffff;
   }
 }
 
 /* Kullanici acikca sectiyse sistem ne derse desin o gecerli. */
 :root[data-tema="koyu"] {
-  --kagit: #0d0d0d;
-  --murekkep: #e9e6df;
+  --zemin: #0e1015;
+  --yuzey: #1d212b;
+  --yuzey-2: #2a2f3a;
+  --yazi: #f2f3f5;
+  --soluk: #8b919c;
+  --cizgi: #2a2f3a;
   --vurgu: #ff5a1f;
-}
-:root[data-tema="acik"] {
-  --kagit: #e9e6df;
-  --murekkep: #0d0d0d;
-  --vurgu: #ff3b00;
+  --halka: #ffffff;
 }
 
 * { box-sizing: border-box; }
@@ -53,730 +66,437 @@
 body {
   margin: 0;
   min-height: 100dvh;
-  background: var(--kagit);
-  color: var(--murekkep);
-  font-family: var(--baslik);
-  font-weight: 500;
-  line-height: 1.4;
+  background: var(--zemin);
+  color: var(--yazi);
+  font-family: var(--yazi-tipi);
+  font-size: 16px;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
-}
-
-main {
-  max-width: 52rem;
-  margin: 0 auto;
-  padding: 3rem 1.5rem 2rem;
-}
-@media (max-width: 40rem) {
-  main { padding: 1.5rem 1rem; }
+  overflow-x: hidden;
 }
 
 a { color: inherit; }
 
-/* ---------- ızgara iskeleti ---------- */
-
-.cerceve { border: var(--kalinlik) solid var(--murekkep); }
-.hucre + .hucre { border-top: var(--kalinlik) solid var(--murekkep); }
-
-/* ---------- künye ---------- */
-
-.kunye {
-  margin: 0;
-  padding: 1.6rem 1.4rem 1.3rem;
-  font-weight: 700;
-  font-size: clamp(1.7rem, 7.5vw, 4.25rem);
-  line-height: 0.95;
-  letter-spacing: -0.045em;
-  text-transform: uppercase;
-  overflow-wrap: anywhere;
-  text-decoration: none;
-  display: block;
+main {
+  max-width: var(--genislik);
+  margin: 0 auto;
+  padding: 0 var(--kenar);
 }
-.kunye b { color: var(--vurgu); font-weight: inherit; }
 
-/* Künye satırı: solda ad, sağ üstte tema seçici. */
-.kunye-satir {
+:focus-visible { outline: 3px solid var(--vurgu); outline-offset: 3px; }
+
+/* Ekranda yok, ekran okuyucuda var: ana sayfanın görünmez h1'i gibi. */
+.gizli {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---------- üst çubuk ---------- */
+
+.ust {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
+  align-items: center;
+  gap: 32px;
+  max-width: var(--genislik);
+  margin: 0 auto;
+  padding: 28px var(--kenar) 0;
 }
-.kunye-satir .kunye { flex: 1; min-width: 0; }
 
-/* İki durumu da gösteren anahtar. Hangisi doluysa o aktif — tek kelimelik
-   düğmede "bu mu şu an, yoksa buna mı geçiyorum" belirsizliği oluyordu. */
+.marka {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.marka b { color: var(--vurgu); }
+.marka-rozet {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--vurgu);
+  color: var(--vitrin-yazi);
+  font-weight: 800;
+}
+
+.sekmeler { display: flex; gap: 28px; flex: 1; justify-content: center; }
+.sekmeler a {
+  color: var(--soluk);
+  font-weight: 500;
+  text-decoration: none;
+  padding-bottom: 4px;
+  border-bottom: 2px solid transparent;
+}
+.sekmeler a:hover { color: var(--yazi); }
+.sekmeler a[aria-current="page"] { color: var(--yazi); border-color: var(--yazi); }
+
+.ust-sag { display: flex; align-items: center; gap: 18px; }
+
+.saat { display: flex; gap: 14px; color: var(--soluk); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.saat b { color: var(--yazi); font-weight: 500; }
+html:not(.js) .saat { display: none; }
+
 .tema-secici {
   display: flex;
-  flex: 0 0 auto;
-  border: var(--kalinlik) solid var(--murekkep);
+  padding: 3px;
+  border-radius: 999px;
+  background: var(--yuzey-2);
 }
 .tema-secici button {
   border: 0;
+  border-radius: 999px;
   background: transparent;
-  color: inherit;
-  padding: 0.35rem 0.6rem;
-  font-family: var(--mono);
-  font-size: 0.62rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  color: var(--soluk);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 4px 10px;
   cursor: pointer;
-  transition: background 0.12s linear, color 0.12s linear;
 }
-.tema-secici button + button { border-left: var(--kalinlik) solid var(--murekkep); }
-.tema-secici button:hover { background: color-mix(in srgb, var(--murekkep) 15%, transparent); }
-.tema-secici button[aria-pressed="true"] {
-  background: var(--murekkep);
-  color: var(--kagit);
-}
-
-/* JS kapalıysa çalışmayacak düğmeler görünmesin. */
+.tema-secici button:hover { color: var(--yazi); }
+.tema-secici button[aria-pressed="true"] { background: var(--yuzey); color: var(--yazi); }
 html:not(.js) .tema-secici { display: none; }
 
-/* ---------- gezinme ---------- */
+/* ---------- vitrin ---------- */
 
-.gezinme {
-  display: flex;
-  border-top: var(--kalinlik) solid var(--murekkep);
-}
-.gezinme a {
-  flex: 1;
-  padding: 0.7rem 1.4rem;
-  font-family: var(--mono);
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  text-decoration: none;
-  text-align: center;
-  transition: background 0.12s linear, color 0.12s linear;
-}
-.gezinme a + a { border-left: var(--kalinlik) solid var(--murekkep); }
-.gezinme a:hover,
-.gezinme a:focus-visible { background: var(--murekkep); color: var(--kagit); }
-.gezinme a[aria-current="page"] { background: var(--vurgu); color: #fff; }
-
-/* ==========================================================================
-   404 — BOZULMA
-   Dev bir "404". Çoğu zaman hareketsiz duruyor, arada bir 200 ms boyunca
-   dilimlenip kayıyor. Sürekli titreyen bir şey rahatsız edici oluyor; asıl
-   etki nadir olmasından geliyor.
-
-   Nasıl çalışıyor: iki kopya katman (::before / ::after) metni data-metin'den
-   alıyor. clip-path ile yatay birer şerite kısılıp yana kaydırılıyorlar —
-   sanki görüntü kesilip kaymış gibi. steps(1) kullanılıyor ki geçişler
-   yumuşamasın, dijital bir sıçrama olsun.
-
-   Salt CSS: JavaScript yok, dosya yok.
-   ========================================================================== */
-
-.dortyuzdort {
-  display: flex;
-  justify-content: center;
-  padding: 2.6rem 1.4rem 2.2rem;
-}
-
-.bozulma {
+.vitrin {
   position: relative;
-  display: inline-block;
-  font-size: clamp(4.5rem, 24vw, 11rem);
-  font-weight: 700;
-  line-height: 0.85;
-  letter-spacing: -0.06em;
-  font-variant-numeric: tabular-nums;
-  user-select: none;
+  display: flex;
+  align-items: flex-end;
+  min-height: min(46vh, 420px);
+  margin-top: 26px;
+  border-radius: 18px;
+  overflow: hidden;
+  background: var(--vitrin-renk, var(--vurgu));
+  color: var(--vitrin-yazi);
+  transition: background-color 0.35s ease;
 }
-
-/* Katmanlar üstteki metnin birebir kopyası; zemin rengiyle dolduruluyor ki
-   alttaki asıl metni kapatsınlar, yoksa çift görünüyor. */
-.bozulma::before,
-.bozulma::after {
-  content: attr(data-metin);
+.vitrin-desen {
   position: absolute;
   inset: 0;
-  background: var(--kagit);
-  overflow: hidden;
-  pointer-events: none;
+  opacity: 0.16;
+  background-image: radial-gradient(circle at 1px 1px, #000 1.5px, transparent 0);
+  background-size: 18px 18px;
 }
-
-.bozulma::before {
-  color: var(--vurgu);
-  animation: bozulma-ust 7s steps(1) infinite;
-}
-
-.bozulma::after {
-  color: var(--murekkep);
-  animation: bozulma-alt 7s steps(1) infinite;
-}
-
-/* Yüzdelerin çoğu "gizli" durumda; bozulma 7 saniyenin yalnızca kısa bir
-   bölümünde oluyor. Aralıklar bilerek eşit değil, ritim yakalanmasın. */
-@keyframes bozulma-ust {
-  0%, 100% { clip-path: inset(50% 0 50% 0); transform: none; }
-  41% { clip-path: inset(50% 0 50% 0); transform: none; }
-  42% { clip-path: inset(12% 0 63% 0); transform: translateX(-0.06em); }
-  44% { clip-path: inset(38% 0 34% 0); transform: translateX(0.05em); }
-  46% { clip-path: inset(72% 0 12% 0); transform: translateX(-0.03em); }
-  48% { clip-path: inset(50% 0 50% 0); transform: none; }
-  79% { clip-path: inset(50% 0 50% 0); transform: none; }
-  80% { clip-path: inset(24% 0 55% 0); transform: translateX(0.04em); }
-  82% { clip-path: inset(50% 0 50% 0); transform: none; }
-}
-
-@keyframes bozulma-alt {
-  0%, 100% { clip-path: inset(50% 0 50% 0); transform: none; }
-  41% { clip-path: inset(50% 0 50% 0); transform: none; }
-  43% { clip-path: inset(26% 0 48% 0); transform: translateX(0.05em); }
-  45% { clip-path: inset(58% 0 22% 0); transform: translateX(-0.04em); }
-  47% { clip-path: inset(50% 0 50% 0); transform: none; }
-  80% { clip-path: inset(50% 0 50% 0); transform: none; }
-  81% { clip-path: inset(64% 0 18% 0); transform: translateX(-0.05em); }
-  83% { clip-path: inset(50% 0 50% 0); transform: none; }
-}
-
-/* Hareket azaltma isteyen kullanıcıda sadece duran 404 kalıyor. */
-@media (prefers-reduced-motion: reduce) {
-  .bozulma::before,
-  .bozulma::after { animation: none; clip-path: inset(50% 0 50% 0); }
-}
-
-/* ---------- sağ üst blok: saat + tema seçici ---------- */
-
-.ust-sag {
-  display: flex;
-  flex: 0 0 auto;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.6rem;
-  margin: 1.3rem 1.4rem 0 0;
-}
-
-/* Canlı saat — üç satır: gün, tarih, saat. */
-.saat {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.1rem;
-  font-family: var(--mono);
-  font-size: 0.6rem;
-  font-weight: 700;
-  line-height: 1.35;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  opacity: 0.5;
-  /* Rakamlar eşit genişlikte; saniye değişince blok oynamıyor. */
-  font-variant-numeric: tabular-nums;
+.vitrin-buyuk {
+  position: absolute;
+  right: 40px;
+  bottom: 24px;
+  font-size: clamp(80px, 14vw, 180px);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.06em;
+  opacity: 0.2;
   white-space: nowrap;
 }
-.saat-ust {
-  display: flex;
-  align-items: baseline;
-  gap: 0.4rem;
-}
-.saat-ust .ayirac { opacity: 0.45; }
-
-/* Saat satiri: gun/tarih satirindan biraz daha buyuk ve net. */
-.saat > span:last-child {
-  font-size: 0.72rem;
-  letter-spacing: 0.14em;
-  opacity: 0.85;
-}
-
-/* JS kapalıysa boş satırlar görünmesin. */
-html:not(.js) .saat { display: none; }
-
-/* ---------- ölçüm şeridi (çerçevenin en altı) ---------- */
-
-.olcum {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-  padding: 0.7rem 1.4rem;
-  font-family: var(--mono);
-  font-size: 0.62rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  font-variant-numeric: tabular-nums;
-}
-.olcum-satir {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 1rem;
-}
-.olcum-etiket { opacity: 0.4; }
-.olcum-deger {
-  opacity: 0.7;
-  text-align: right;
-  overflow-wrap: anywhere;
-}
-.olcum-deger a {
-  text-decoration: none;
-  border-bottom: 1px solid color-mix(in srgb, var(--murekkep) 35%, transparent);
-}
-.olcum-deger a:hover { color: var(--vurgu); border-color: var(--vurgu); }
-/* ---------- şerit başlık ---------- */
-
-.serit {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 0.6rem 1.4rem;
-  background: var(--murekkep);
-  color: var(--kagit);
-  font-family: var(--mono);
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-}
-.serit span:last-child { letter-spacing: 0.1em; }
-
-/* ---------- liste satırı (proje ve yazı ortak) ---------- */
-
-.is {
-  display: grid;
-  grid-template-columns: 3.5rem 1fr 7rem;
-  color: inherit;
-  text-decoration: none;
-  transition: background 0.12s linear, color 0.12s linear;
-}
-.is:hover,
-.is:focus-visible { background: var(--murekkep); color: var(--kagit); }
-
-/* Bağlantı olmayan liste satırı: proje sayfasındaki oyun listesi tıklanmıyor,
-   o yüzden vurgu davranışı da olmamalı — yoksa tıklanır sanılıyor.
-   Tıklanmadığı bilgisi vurgunun yokluğundan geliyor. */
-.is.durgun:hover,
-.is.durgun:focus-visible { background: transparent; color: inherit; }
-
-.is .sira,
-.is .govde,
-.is .sag { padding: 1.5rem 0.9rem; }
-
-.is .sira {
-  font-family: var(--mono);
-  font-weight: 700;
-  font-size: 0.9rem;
-  color: var(--vurgu);
-  padding-left: 1.4rem;
-}
-
-.is .govde { border-left: var(--kalinlik) solid currentColor; }
-
-/* Proje satırının üstündeki durum etiketi: "CANLI", "AÇIK KAYNAK".
-   Kare nokta vurgu renginde; satır tersine döndüğünde de turuncu kalıyor. */
-.durum {
+.vitrin-icerik { position: relative; padding: 40px 44px; max-width: 660px; }
+.vitrin-etiket {
   display: inline-flex;
   align-items: center;
-  gap: 0.45rem;
-  margin-bottom: 0.7rem;
-  font-family: var(--mono);
-  font-size: 0.62rem;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  opacity: 0.75;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgb(0 0 0 / 0.12);
 }
-.durum::before {
-  content: "";
-  width: 0.5rem;
-  height: 0.5rem;
-  background: var(--vurgu);
-}
-
-.ad {
-  display: block;
-  font-weight: 700;
-  font-size: clamp(1.4rem, 4.5vw, 2rem);
-  line-height: 1;
-  letter-spacing: -0.03em;
-  text-transform: uppercase;
-}
-
-.aciklama {
-  margin: 0.75rem 0 0;
-  max-width: 28rem;
-  font-size: 0.9rem;
-  line-height: 1.5;
-}
-
-.yigin {
-  margin: 0.9rem 0 0;
-  font-family: var(--mono);
-  /* 700 hem sitedeki diğer bütün mono etiketlerle aynı, hem de ağırlık
-     yazılmadığında gövdeden 500 miras alınıyordu: tarayıcı bu tek satır için
-     Space Mono'nun 400 dosyasını ayrıca indiriyordu (16.5 KB). */
-  font-weight: 700;
-  font-size: 0.68rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  opacity: 0.65;
-}
-
-.is .sag {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: flex-end;
-  border-left: var(--kalinlik) solid currentColor;
-  padding-right: 1.4rem;
-  font-family: var(--mono);
-  font-size: 0.8rem;
-  font-weight: 700;
-}
-.ok {
-  font-size: 1.6rem;
-  line-height: 1;
-  transition: transform 0.16s ease;
-}
-.is:hover .ok,
-.is:focus-visible .ok { transform: translate(3px, -3px); }
-
-/* ---------- boş / yer tutucu satır ---------- */
-
-.bos {
-  display: grid;
-  grid-template-columns: 3.5rem 1fr;
-  font-family: var(--mono);
-  font-weight: 700;
-  font-size: 0.8rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-.bos span:first-child { padding: 1.1rem 0.9rem 1.1rem 1.4rem; font-weight: 700; }
-.bos span:last-child {
-  padding: 1.1rem 1.4rem;
-  border-left: var(--kalinlik) solid var(--murekkep);
-  opacity: 0.5;
-}
-
-/* ---------- düz bağlantı satırı ---------- */
-
-.bag {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 1.15rem 1.4rem;
-  color: inherit;
-  text-decoration: none;
-  font-family: var(--mono);
-  font-weight: 700;
-  font-size: 0.85rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  transition: background 0.12s linear, color 0.12s linear;
-}
-.bag:hover,
-.bag:focus-visible { background: var(--vurgu); color: #fff; }
-
-/* ==========================================================================
-   YAZI SAYFASI
-   Okunabilirlik burada her şeyden önemli: satır uzunluğu dar, satır aralığı
-   geniş, başlıklar net ayrışıyor.
-   ========================================================================== */
-
-.yazi-basligi {
-  padding: 2rem 1.4rem 1.6rem;
-}
-.yazi-basligi h1 {
-  margin: 0;
-  font-size: clamp(1.8rem, 6vw, 2.8rem);
-  font-weight: 700;
-  line-height: 1.05;
+.vitrin-ad {
+  margin: 14px 0 12px;
+  font-size: clamp(36px, 6vw, 72px);
+  font-weight: 800;
+  line-height: 0.98;
   letter-spacing: -0.035em;
 }
-.yazi-ustveri {
-  margin: 1rem 0 0;
-  font-family: var(--mono);
-  font-weight: 700;
-  font-size: 0.7rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  opacity: 0.6;
+.vitrin-aciklama { margin: 0 0 22px; font-size: 18px; line-height: 1.45; max-width: 560px; }
+.vitrin-dugme {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 22px;
+  border-radius: 999px;
+  background: #fff;
+  color: #0e1015;
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform 0.15s ease;
 }
-.yazi-ozet {
-  margin: 1.1rem 0 0;
-  max-width: 34rem;
-  font-size: 1rem;
-  line-height: 1.6;
-  opacity: 0.8;
+.vitrin-dugme:hover { transform: scale(1.04); }
+.vitrin-dugme:focus-visible { outline-color: #0e1015; }
+
+/* "Canlı" etiketinin önündeki nokta. */
+[data-canli]::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.kart-ust [data-canli] { display: inline-flex; align-items: center; gap: 6px; }
+
+/* Telefonda vitrin kaydırılırken hangi öğede olunduğu. */
+.noktalar { display: none; justify-content: center; gap: 6px; margin-top: 12px; }
+.noktalar i { width: 6px; height: 6px; border-radius: 999px; background: var(--yuzey-2); transition: width 0.2s, background 0.2s; }
+.noktalar i.aktif { width: 18px; background: var(--yazi); }
+
+/* ---------- raflar ve kartlar ---------- */
+
+.raf { padding-top: 34px; }
+.raf-baslik {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 0 0 14px;
+  font-size: 18px;
+  font-weight: 600;
+}
+.raf-sayi { color: var(--soluk); font-size: 14px; font-weight: 500; }
+
+/* Geniş ekranda sarmalayan ızgara: fare tekerleğiyle ulaşılamayan gizli
+   yatay kaydırma yok, seçili kartın büyümesi de kırpılmıyor. */
+.kartlar {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 18px;
 }
 
-/* Satır uzunluğu sınırı hücrede değil, içindekilerde. Hücrenin kendisi dar
-   olunca üstündeki ızgara çizgisi (.hucre + .hucre) de onunla birlikte
-   daralıyor ve çerçevenin ortasında kesik kalıyordu. */
+.kart {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 18px;
+  min-height: 150px;
+  padding: 16px;
+  border-radius: 14px;
+  background: var(--yuzey);
+  color: var(--yazi);
+  text-decoration: none;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.kart-ust { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; color: var(--soluk); }
+.kart-alt { display: flex; flex-direction: column; gap: 6px; }
+.kart-ad { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; }
+.kart-aciklama { font-size: 14px; line-height: 1.45; color: var(--soluk); }
+
+/* Seçim: klavye odağı, fare ve telefondaki kaydırma aynı görünüm. */
+a.kart:hover,
+.kart.secili,
+.kart:focus-visible {
+  transform: scale(1.04);
+  box-shadow: 0 0 0 3px var(--halka), 0 18px 40px rgb(0 0 0 / 0.28);
+  outline: none;
+  z-index: 1;
+}
+
+.kart-genis { min-height: 120px; }
+.kartlar:has(.kart-genis) { grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); }
+.kart-kucuk { min-height: 90px; }
+.kartlar:has(.kart-kucuk) { grid-template-columns: repeat(auto-fill, minmax(170px, 220px)); }
+
+/* Bağlantı olmayan kart (oyun listesi gibi): tıklanır sanılmasın diye
+   seçim davranışı yok. */
+.kart-durgun { min-height: 0; }
+
+/* Liste rafı: blog sayfası gibi tam liste, kartlar tek sütun. */
+.raf-liste .kartlar { grid-template-columns: 1fr; gap: 12px; }
+.raf-liste .kart { min-height: 0; }
+.raf-liste .kart:hover,
+.raf-liste .kart.secili,
+.raf-liste .kart:focus-visible { transform: scale(1.01); }
+
+/* ---------- yazı / proje sayfası ---------- */
+
+.sayfa-bilgi {
+  margin: 18px 0 0;
+  color: var(--soluk);
+  font-size: 14px;
+}
+/* Etiketler büyük harf; İngilizceler kaynakta zaten büyük yazılıyor
+   (ayrıntı: content.config.ts). */
+.sayfa-bilgi .etiketler { text-transform: uppercase; letter-spacing: 0.06em; font-size: 12px; }
+
+/* Yazının gövdesi: okunabilirlik her şeyden önemli. Satır uzunluğu dar,
+   satır aralığı geniş, başlıklar net ayrışıyor. */
 .icerik {
-  padding: 1.8rem 1.4rem 2.2rem;
-  font-size: 1.02rem;
+  max-width: 680px;
+  padding: 34px 0 10px;
+  font-size: 18px;
   line-height: 1.75;
 }
-.icerik > * { max-width: 37.2rem; }
 .icerik > :first-child { margin-top: 0; }
-.icerik > :last-child { margin-bottom: 0; }
-
-.icerik h2 {
-  margin: 2.6rem 0 0.9rem;
-  font-size: 1.35rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1.2;
-  padding-top: 1rem;
-  border-top: var(--kalinlik) solid var(--murekkep);
-}
-.icerik h3 {
-  margin: 2rem 0 0.7rem;
-  font-size: 1.1rem;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-}
-
-.icerik p { margin: 0 0 1.1rem; }
-
-.icerik a {
-  color: var(--vurgu);
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  text-decoration-thickness: 2px;
-}
-
+.icerik h2 { margin: 2.4em 0 0.7em; font-size: 26px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; }
+.icerik h3 { margin: 1.9em 0 0.6em; font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
+.icerik p { margin: 0 0 1.1em; }
+.icerik a { color: var(--vurgu); text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 2px; }
 .icerik ul,
-.icerik ol { margin: 0 0 1.1rem; padding-left: 1.3rem; }
-.icerik li { margin-bottom: 0.4rem; }
+.icerik ol { margin: 0 0 1.1em; padding-left: 1.3em; }
+.icerik li { margin-bottom: 0.4em; }
 .icerik li::marker { color: var(--vurgu); }
-
 .icerik blockquote {
-  margin: 1.4rem 0;
-  padding: 0.2rem 0 0.2rem 1.1rem;
-  border-left: var(--kalinlik) solid var(--vurgu);
-  opacity: 0.85;
+  margin: 1.4em 0;
+  padding: 0.2em 0 0.2em 1.1em;
+  border-left: 3px solid var(--vurgu);
+  color: var(--soluk);
 }
-
-.icerik hr {
-  margin: 2.2rem 0;
-  border: 0;
-  border-top: var(--kalinlik) solid var(--murekkep);
-  opacity: 0.35;
-}
-
-/* satır içi kod */
+.icerik hr { margin: 2.2em 0; border: 0; border-top: 1px solid var(--cizgi); }
 .icerik :not(pre) > code {
-  font-family: var(--mono);
+  font-family: var(--kod-tipi);
   font-size: 0.86em;
-  padding: 0.12em 0.35em;
-  border: 1px solid color-mix(in srgb, var(--murekkep) 30%, transparent);
-  background: color-mix(in srgb, var(--murekkep) 7%, transparent);
+  padding: 0.12em 0.4em;
+  border-radius: 6px;
+  background: var(--yuzey-2);
 }
-
-/* kod bloğu — Astro'nun Shiki teması renkleri veriyor, biz çerçeveyi veriyoruz */
+/* Kod bloğu — renkleri Astro'nun Shiki teması veriyor, biz kutuyu. */
 .icerik pre {
-  margin: 1.4rem 0;
-  padding: 1rem 1.1rem;
-  border: var(--kalinlik) solid var(--murekkep);
+  margin: 1.4em 0;
+  padding: 16px 18px;
+  border-radius: 12px;
   overflow-x: auto;
-  font-size: 0.84rem;
+  font-size: 15px;
   line-height: 1.55;
 }
-.icerik pre code { font-family: var(--mono); }
-
-.icerik img {
-  max-width: 100%;
-  height: auto;
-  border: var(--kalinlik) solid var(--murekkep);
-  display: block;
-  margin: 1.4rem 0;
-}
-
-.icerik table {
-  width: 100%;
-  border-collapse: collapse;
-  margin: 1.4rem 0;
-  font-size: 0.9rem;
-}
+.icerik pre code { font-family: var(--kod-tipi); }
+.icerik img { max-width: 100%; height: auto; display: block; margin: 1.4em 0; border-radius: 12px; }
+.icerik table { width: 100%; border-collapse: collapse; margin: 1.4em 0; font-size: 16px; }
 .icerik th,
-.icerik td {
-  border: var(--kalinlik) solid var(--murekkep);
-  padding: 0.5rem 0.7rem;
-  text-align: left;
-}
-.icerik th {
-  background: var(--murekkep);
-  color: var(--kagit);
-  font-family: var(--mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
+.icerik td { border-bottom: 1px solid var(--cizgi); padding: 0.55em 0.7em; text-align: left; }
+.icerik th { color: var(--soluk); font-weight: 600; font-size: 14px; }
 
-/* ---------- yazı listesi satırı ---------- */
+/* ---------- 404: sinyal yok ---------- */
 
-.yazi-satir .baslik {
-  display: block;
-  font-weight: 700;
-  font-size: clamp(1.15rem, 3.6vw, 1.5rem);
-  line-height: 1.15;
-  letter-spacing: -0.025em;
+/* TV'de yayın kesilince çıkan renk çubukları. Salt CSS, dosya yok. */
+.sinyal {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: min(46vh, 420px);
+  margin-top: 26px;
+  border-radius: 18px;
+  overflow: hidden;
+  background: linear-gradient(90deg,
+    #c0c0c0 0 14.28%, #c0c000 0 28.57%, #00c0c0 0 42.85%, #00c000 0 57.14%,
+    #c000c0 0 71.42%, #c00000 0 85.71%, #0000c0 0);
 }
-
-/* Sağ sütunda tarih ve altında okuma süresi. */
-.tarih-sure {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.35rem;
-  text-align: right;
+.sinyal-kutu {
+  padding: 14px 26px;
+  border-radius: 10px;
+  background: #0e1015;
+  color: #f2f3f5;
+  text-align: center;
 }
-.sure { opacity: 0.6; }
-
-/* ---------- önceki / sonraki yazı ---------- */
-
-.komsular { display: flex; }
-.komsu {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  padding: 1.2rem 1.4rem;
-  color: inherit;
-  text-decoration: none;
-  transition: background 0.12s linear, color 0.12s linear;
-}
-.komsu + .komsu { border-left: var(--kalinlik) solid var(--murekkep); }
-.komsu.sonraki { text-align: right; }
-.komsu:hover,
-.komsu:focus-visible { background: var(--murekkep); color: var(--kagit); }
-.komsu-yon {
-  font-family: var(--mono);
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--vurgu);
-}
-.komsu-baslik {
-  font-weight: 700;
-  font-size: 1.05rem;
-  line-height: 1.25;
-  letter-spacing: -0.015em;
-}
+.sinyal-kutu b { display: block; font-size: clamp(28px, 5vw, 44px); font-weight: 800; letter-spacing: 0.04em; }
+.sinyal-kutu span { color: #8b919c; font-size: 14px; }
 
 /* ---------- alt bilgi ---------- */
 
-footer {
+.alt {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
-  gap: 1rem;
-  margin-top: 1rem;
-  font-family: var(--mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  opacity: 0.5;
+  gap: 12px 24px;
+  max-width: var(--genislik);
+  margin: 0 auto;
+  padding: 48px var(--kenar) 40px;
+  color: var(--soluk);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
 }
-footer a { text-decoration: none; }
-footer a:hover { color: var(--vurgu); }
+.alt kbd {
+  font-family: inherit;
+  border: 1px solid var(--cizgi);
+  border-radius: 6px;
+  padding: 1px 7px;
+  color: var(--yazi);
+}
+.alt-bag { display: flex; gap: 18px; margin-left: auto; }
+.alt-bag a { text-decoration: none; }
+.alt-bag a:hover { color: var(--vurgu); }
+html:not(.js) .kisayol { display: none; }
 
-:focus-visible {
-  outline: var(--kalinlik) solid var(--vurgu);
-  outline-offset: 3px;
+/* Dokunmatik ekranda klavye ipucu anlamsız. */
+@media (hover: none) {
+  .kisayol { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
 }
 
 /* ==========================================================================
    TELEFON DÜZENİ
 
-   Bu blok dosyanın SONUNDA duruyor ve bilerek. Daha önce temel kuralların
-   üstünde yazılmıştı; aynı özgüllükte olduğu için sonra gelen kural medya
-   sorgusunu eziyordu ve telefonda masaüstü düzeni görünüyordu.
+   Bu blok dosyanın SONUNDA duruyor ve bilerek: aynı özgüllükteki temel
+   kurallar sonra gelirse medya sorgusunu eziyor, telefonda masaüstü düzeni
+   görünüyordu.
    ========================================================================== */
 
-@media (max-width: 30rem) {
-  /* Künye tam genişlikte, kendi satırında. */
-  .kunye-satir {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0;
-  }
-  .kunye {
-    font-size: 1.9rem;
-    padding: 1.1rem 1rem 0.7rem;
-  }
-
-  /* Saat ve düğmeler künyeyle aynı hizada, sola yaslı — sağa yapışık
-     yetim satırlar yerine tek kolon. */
-  .ust-sag {
-    flex-direction: column;
-    align-items: flex-start;
-    margin: 0 1rem 1rem;
-    gap: 0.55rem;
-  }
-
-  /* Saat tek satır: gün · tarih · saat */
-  .saat {
-    flex-direction: row;
-    align-items: baseline;
-    gap: 0.4rem;
-    font-size: 0.58rem;
-    letter-spacing: 0.1em;
-  }
-  .saat > span:last-child { font-size: 0.58rem; opacity: 1; }
-  .saat > span:last-child::before {
-    content: "· ";
-    opacity: 0.45;
-  }
-
-  .tema-secici button {
-    padding: 0.32rem 0.5rem;
-    font-size: 0.58rem;
-    letter-spacing: 0.1em;
-  }
-
-  /* Liste satırı: numara ve yıl aynı üst satırda, içerik altta.
-     Öncekinde her biri kendi satırını kaplayıp boş kutular oluşuyordu. */
-  .is {
-    grid-template-columns: auto 1fr;
-    grid-template-areas:
-      "sira sag"
-      "govde govde";
-  }
-  .is .sira {
-    grid-area: sira;
-    padding: 1rem 0.9rem 0 1.4rem;
-  }
-  .is .sag {
-    grid-area: sag;
-    flex-direction: row;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 0.7rem;
-    border-left: 0;
-    padding: 1rem 1.4rem 0 0;
-  }
-  .is .sag .ok { font-size: 1.3rem; }
-  .is .govde {
-    grid-area: govde;
-    border-left: 0;
-    padding: 0.7rem 1.4rem 1.4rem;
-  }
-
-  .bos { grid-template-columns: auto 1fr; }
-  .olcum { padding: 0.6rem 1rem; font-size: 0.55rem; letter-spacing: 0.08em; }
-  .serit { padding: 0.55rem 1rem; letter-spacing: 0.16em; }
-  .bag { padding: 1rem; letter-spacing: 0.16em; }
-
-  /* Sağ üst satır yatay: tarih · süre · ok */
-  .tarih-sure { flex-direction: row; gap: 0.7rem; }
-
-
-  /* Önceki / sonraki alt alta; ikisi yan yana sığmıyor. */
-  .komsular { flex-direction: column; }
-  .komsu { padding: 1rem; }
-  .komsu + .komsu {
-    border-left: 0;
-    border-top: var(--kalinlik) solid var(--murekkep);
-  }
+/* Orta genişlikte dev rakam açıklamanın üstüne biniyordu: sağ üste. */
+@media (max-width: 1000px) {
+  .vitrin-buyuk { top: 22px; right: 28px; bottom: auto; font-size: 96px; }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  * { transition: none !important; }
+@media (max-width: 700px) {
+  :root { --kenar: 18px; }
+
+  .ust { gap: 12px; padding-top: 18px; flex-wrap: wrap; }
+  .sekmeler { order: 3; flex-basis: 100%; justify-content: flex-start; gap: 22px; }
+  .ust-sag { margin-left: auto; gap: 12px; }
+  .saat-tarih { display: none; }
+
+  .vitrin { min-height: 360px; margin-top: 18px; touch-action: pan-y; }
+  .vitrin-icerik { padding: 24px; }
+  .vitrin-aciklama { font-size: 16px; }
+  /* Dev rakam telefonda metnin üstüne biniyordu: sağ üste, küçük. */
+  .vitrin-buyuk { top: 18px; right: 20px; bottom: auto; font-size: 56px; }
+  .noktalar { display: flex; }
+  /* Düğmesiz vitrin (yazı sayfası) telefonda boş yer kaplamasın. */
+  .vitrin:not(:has(.vitrin-dugme)) { min-height: 0; }
+  .vitrin:not(:has(.vitrin-dugme)) .vitrin-icerik { padding-top: 76px; }
+
+  /* Raflar telefonda tek sıra, parmakla yana kaydırılıyor ve kart
+     kaydırma bitince yerine oturuyor. */
+  .kartlar,
+  .kartlar:has(.kart-genis),
+  .kartlar:has(.kart-kucuk) {
+    display: flex;
+    gap: 14px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    margin: -8px calc(-1 * var(--kenar)) 0;
+    padding: 8px var(--kenar) 14px;
+    scroll-padding-inline: var(--kenar);
+  }
+  .kart { flex: 0 0 auto; width: 210px; min-height: 130px; scroll-snap-align: start; }
+  .kart-genis { width: 270px; min-height: 110px; }
+  .kart-kucuk { width: 150px; min-height: 84px; }
+  /* Telefonda büyüme yok: dar rafta komşu kartın üstüne biniyordu. */
+  a.kart:hover,
+  .kart.secili,
+  .kart:focus-visible { transform: none; }
+
+  /* Liste rafı ve oyun listesi telefonda da alt alta. */
+  .raf-liste .kartlar,
+  .kartlar:has(.kart-durgun) {
+    display: grid;
+    overflow: visible;
+    margin: 0;
+    padding: 0;
+  }
+  .raf-liste .kart,
+  .kart-durgun { width: auto; }
+
+  .icerik { font-size: 17px; }
+  .icerik h2 { font-size: 22px; }
+
+  .sinyal { min-height: 300px; margin-top: 18px; }
+
+  .alt { padding-top: 36px; }
+  .alt-bag { margin-left: 0; }
 }

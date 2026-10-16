@@ -5,35 +5,26 @@
 // Bu sayfa olmadan Caddy'nin çıplak "404 page not found" metni görünüyordu:
 // tasarım yok, siteye dönüş yolu yok. Astro bu dosyayı görünce dist/404.html
 // üretiyor, Caddy de bulunamayan istekleri ona yönlendiriyor.
+//
+// TV'de yayın kesilince çıkan renk çubukları: "sinyal yok". Salt CSS.
 // ============================================================================
 import Temel from "../layouts/Temel.astro";
+import Raf from "../components/Raf.astro";
+import Kart from "../components/Kart.astro";
 ---
 
-<Temel baslik="Bulunamadı — gokh4n.dev" aciklama="Böyle bir sayfa yok.">
-  <div class="hucre serit">
-    <span>Hata</span>
-    <span>404</span>
-  </div>
+<Temel baslik="Bulunamadı — gokh4n.dev" aciklama="Böyle bir sayfa yok." raflar>
+  <section class="sinyal">
+    <div class="sinyal-kutu">
+      <b>SİNYAL YOK</b>
+      <span>404 · böyle bir sayfa yok</span>
+    </div>
+  </section>
 
-  {/* data-metin: bozulma katmanları içeriği buradan kopyalıyor (CSS attr). */}
-  <div class="hucre dortyuzdort">
-    <span class="bozulma" data-metin="404" aria-hidden="true">404</span>
-  </div>
+  <h1 class="gizli">Böyle bir sayfa yok</h1>
 
-  <div class="hucre yazi-basligi">
-    <h1>Böyle bir sayfa yok</h1>
-    <p class="yazi-ozet">
-      Adres yanlış yazılmış olabilir ya da sayfa taşınmış olabilir.
-    </p>
-  </div>
-
-  <a class="hucre bag" href="/">
-    <span>Çalışmalar</span>
-    <span aria-hidden="true">→</span>
-  </a>
-
-  <a class="hucre bag" href="/blog/">
-    <span>Blog</span>
-    <span aria-hidden="true">→</span>
-  </a>
+  <Raf baslik="Kanal değiştir">
+    <Kart boy="genis" adres="/" ad="Ana ekran" etiket="Kanal 1" ust="→" />
+    <Kart boy="genis" adres="/blog/" ad="Blog" etiket="Kanal 2" ust="→" />
+  </Raf>
 </Temel>

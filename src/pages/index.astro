@@ -1,95 +1,69 @@
 ---
 // ============================================================================
-// Ana sayfa — çalışmalar dizini.
+// Ana sayfa — TV ana ekranı.
 //
-// Blog bilinçli olarak burada değil, üstteki menüden gidiliyor. Projeler ve
-// yazılar birbirini bastırmasın diye ayrı duruyorlar.
+// Üstte vitrin, altında raflar: çalışmalar, son yazılar, bağlantılar. Bir
+// kartın üstüne gelince (ya da klavyeyle seçince) vitrin o kartı gösteriyor.
+// JS yoksa vitrin ilk projeyle basılı kalıyor, kartlar düz bağlantı.
 // ============================================================================
+import { getCollection, type CollectionEntry } from "astro:content";
 import Temel from "../layouts/Temel.astro";
+import Vitrin from "../components/Vitrin.astro";
+import Raf from "../components/Raf.astro";
+import Kart from "../components/Kart.astro";
+import { projeler } from "../data/projeler";
+import { projeVitrini, yaziVitrini, kisaTarih } from "../lib/vitrin";
+import { okumaSuresi } from "../lib/okuma";
 
-// Proje adlari ekranda buyuk harfe cevriliyor ve sayfa dili Turkce oldugu
-// icin "i" -> "İ" oluyor: Ingilizce adlarda "ANDROİD TV TOOLKİT" cikiyordu.
-// dil: "en" o satirin lang'ini degistiriyor, donusum Ingilizce kurala gore
-// yapiliyor. Turkce adlarda (TAKİP DEFTERİ) mevcut hali zaten dogru.
-//
-// durum: satirin ustundeki kucuk etiket. Ziyaretci tiklamadan once neyle
-// karsilasacagini bilsin — calisan bir uygulama mi, kaynak kod mu.
-const projeler: {
-  ad: string;
-  dil?: "en";
-  durum: string;
-  adres: string;
-  yil: string;
-  aciklama: string;
-  yigin: string;
-}[] = [
-  {
-    ad: "Oyun Gecesi",
-    durum: "Canlı",
-    // Artik dogrudan uygulamaya degil, once proje sayfasina gidiyor:
-    // ziyaretci ne oldugunu anlamadan uygulamanin icine dusmesin.
-    adres: "/oyun-gecesi/",
-    yil: "2026",
-    aciklama:
-      "Arkadaşlarla telefondan oynanan çok oyunculu parti oyunları. " +
-      "Vampir Köylü, Casus Kim, Tabu, Yer Bilme. Oda kur, kodu paylaş.",
-    yigin: "Next · Socket.IO · TypeScript",
-  },
-  {
-    ad: "Takip Defteri",
-    durum: "Canlı",
-    adres: "/takip/",
-    yil: "2026",
-    aciklama:
-      "Instagram'da kimlerin takipten çıktığını gösterir. Instagram'ın kendi " +
-      "veri dışa aktarımını okur — şifre istemez, hiçbir şey sunucuya gitmez.",
-    // Kendi reposuna tasinirken Next'e gecti; takip.astro'daki yiginla ayni.
-    yigin: "Next · TypeScript · Tailwind",
-  },
-  {
-    ad: "Android TV Toolkit",
-    dil: "en",
-    durum: "Açık kaynak",
-    adres: "https://github.com/gokhanaydinli/android-tv-toolkit",
-    yil: "2026",
-    aciklama:
-      "Android TV kutusunu root'suz temizleyen betik ve 36 KB'lık bir ana " +
-      "ekran. Her değişikliğin geri alma komutu üretiliyor.",
-    yigin: "Java · ADB",
-  },
-];
+type Yazi = CollectionEntry<"blog">;
+
+// Rafta en fazla bu kadar yazı; fazlası blog sayfasında.
+const SON_YAZI = 4;
+const yazilar = (await getCollection("blog", ({ data }: Yazi) => !data.taslak))
+  .sort((a: Yazi, b: Yazi) => b.data.tarih.getTime() - a.data.tarih.getTime())
+  .slice(0, SON_YAZI);
 ---
 
-<Temel baslik="gokh4n.dev" aciklama="Çalışmalar dizini." aktif="ana">
-  <div class="hucre serit">
-    <span>Çalışmalar</span>
-    <span>{String(projeler.length).padStart(2, "0")}</span>
-  </div>
+<Temel baslik="gokh4n.dev" aciklama="Çalışmalar ve blog." aktif="ana" raflar>
+  <Vitrin oge={projeVitrini(projeler[0])} canli baslikEtiketi="div" />
+  <div class="noktalar" data-noktalar aria-hidden="true"></div>
 
-  {
-    projeler.map((p, i) => (
-      <a
-        class="hucre is"
-        href={p.adres}
-        target={p.adres.startsWith("http") ? "_blank" : undefined}
-        rel={p.adres.startsWith("http") ? "noreferrer" : undefined}
-      >
-        <span class="sira">{String(i + 1).padStart(2, "0")}</span>
-        <span class="govde">
-          <span class="durum">{p.durum}</span>
-          <span class="ad" lang={p.dil}>{p.ad}</span>
-          <p class="aciklama">{p.aciklama}</p>
-          <p class="yigin" lang="en">{p.yigin}</p>
-        </span>
-        <span class="sag">
-          <span>{p.yil}</span>
-          {/* Siteden ayrilan baglantilarda ok yerine disari isareti — alt
-              bilgideki GitHub baglantisiyla ayni dil. */}
-          <span class="ok" aria-hidden="true">
-            {p.adres.startsWith("http") ? "↗" : "→"}
-          </span>
-        </span>
-      </a>
-    ))
-  }
+  <h1 class="gizli">gokh4n.dev — çalışmalar ve blog</h1>
+
+  <Raf baslik="Çalışmalar" sayi={projeler.length}>
+    {
+      projeler.map((p) => (
+        <Kart
+          adres={p.adres}
+          ad={p.ad}
+          dil={p.dil}
+          etiket={p.etiket}
+          canli={p.canli}
+          ust={p.adres.startsWith("http") ? "GitHub ↗" : p.yil}
+          vitrin={projeVitrini(p)}
+        />
+      ))
+    }
+  </Raf>
+
+  <Raf baslik="Blog">
+    {
+      yazilar.map((y: Yazi) => (
+        <Kart
+          boy="genis"
+          adres={`/blog/${y.id}/`}
+          ad={y.data.baslik}
+          etiket={`Yazı · ${okumaSuresi(y.body)} dk`}
+          ust={kisaTarih(y.data.tarih)}
+          vitrin={yaziVitrini(y)}
+        />
+      ))
+    }
+  </Raf>
+
+  <Raf baslik="Bağlantılar">
+    <Kart boy="kucuk" adres="/blog/" ad="Bütün yazılar" etiket="Blog" ust="→" />
+    <Kart boy="kucuk" adres="https://github.com/gokhanaydinli" ad="GitHub" dil="en" etiket="Bağlantı" ust="↗" />
+    <Kart boy="kucuk" adres="/rss.xml" ad="RSS" etiket="Besleme" ust="→" />
+  </Raf>
 </Temel>

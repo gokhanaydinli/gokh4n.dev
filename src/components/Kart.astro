@@ -1,0 +1,48 @@
+---
+// ============================================================================
+// Raf kartı. Bağlantıysa <a>, değilse (ör. oyun listesi) düz <div>.
+//
+// vitrin verilirse kart onu data-vitrin olarak taşıyor; ana sayfadaki betik
+// kart seçilince vitrini bununla dolduruyor.
+// ============================================================================
+import type { VitrinOgesi } from "../lib/vitrin";
+
+interface Props {
+  ad: string;
+  adres?: string;
+  etiket?: string;
+  ust?: string;
+  aciklama?: string;
+  dil?: string;
+  canli?: boolean;
+  boy?: "normal" | "genis" | "kucuk";
+  vitrin?: VitrinOgesi;
+}
+
+const { ad, adres, etiket, ust, aciklama, dil, canli, boy = "normal", vitrin } = Astro.props;
+const disari = adres?.startsWith("http") ?? false;
+const sinif = ["kart", boy !== "normal" && `kart-${boy}`, !adres && "kart-durgun"];
+const Etiket = adres ? "a" : "div";
+---
+
+<Etiket
+  class:list={sinif}
+  href={adres}
+  target={disari ? "_blank" : undefined}
+  rel={disari ? "noreferrer" : undefined}
+  data-kart={adres ? "" : undefined}
+  data-vitrin={vitrin ? JSON.stringify(vitrin) : undefined}
+>
+  {
+    (etiket || ust) && (
+      <span class="kart-ust">
+        <span data-canli={canli ? "" : undefined}>{etiket}</span>
+        <span>{ust}</span>
+      </span>
+    )
+  }
+  <span class="kart-alt">
+    <span class="kart-ad" lang={dil}>{ad}</span>
+    {aciklama && <span class="kart-aciklama">{aciklama}</span>}
+  </span>
+</Etiket>
